@@ -4,11 +4,14 @@ import { Box, Button } from "@mui/material";
 // import { useDispatch } from "react-redux";
 
 const Dashboard = () => {
-  // const admin = JSON.parse(localStorage.getItem("adminInfo"));
-  // const id = admin?.id;
-  // console.log(id);
+  // const admin = JSON.parse(localStorage.getItem("userInfo"));
+  // // const id = admin?.id;
+  // console.log(admin);
 
-  // const userData = useSelector((state) => state.adminInfo.userData);
+  // const role = useSelector((state) => state.auth.role);
+  // console.log(role);
+
+  // const userData = useSelector((state) => state.auth.userData);
   // console.log(userData);
   // const dispatch = useDispatch();
 

@@ -25,7 +25,7 @@ const Login = () => {
   const id = admin?.id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error } = useSelector((state) => state.auth);
+  const { token, loading, error, role } = useSelector((state) => state.auth);
   // console.log(token);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -47,9 +47,19 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      navigate("/dashboard", { replace: true });
-      dispatch(fetchAdminById(id));
+    if (token && Array.isArray(role)) {
+      if (role.includes("Admin__Role")) {
+        navigate("/dashboard", { replace: true });
+        dispatch(fetchAdminById(id));
+      } else if (role.includes("Student")) {
+        navigate("/student", { replace: true });
+      } else if (role.includes("Teacher")) {
+        navigate("/teacher", { replace: true });
+      } else if (role.includes("Parent")) {
+        navigate("/parent", { replace: true });
+      } else {
+        navigate("/");
+      }
     } else if (error) {
       const timer = setTimeout(() => {
         dispatch(resetLoginMessages());
@@ -57,7 +67,7 @@ const Login = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [token, navigate, error, dispatch, id]);
+  }, [token, navigate, error, dispatch, id, role]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-300 to-stone-100">

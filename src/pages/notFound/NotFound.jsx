@@ -1,8 +1,8 @@
-
 const NotFound = () => {
-  return (
-    <div>NotFound</div>
-  )
-}
+  // const adminInfo = JSON.parse(localStorage.getItem("userInfo"));
+  // console.log(adminInfo);
 
-export default NotFound
+  return <div>NotFound</div>;
+};
+
+export default NotFound;

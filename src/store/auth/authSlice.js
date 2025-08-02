@@ -5,6 +5,7 @@ const userInfoFromStorage = localStorage.getItem("userInfo");
 
 const initialState = {
   token: tokenFromStorage || null,
+  role: JSON.parse(localStorage.getItem("role")) || null,
   userData: userInfoFromStorage || null, // هنا هنخزن بيانات المستخدم كلها
   loading: false,
   error: null,
@@ -18,6 +19,7 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
       localStorage.removeItem("adminInfo");
+      localStorage.removeItem("role");
       state.token = null;
       state.userData = null;
     },
@@ -34,6 +36,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
+        state.role = action.payload.roles;
         state.token = action.payload.token;
         state.userData = action.payload; // نخزن كل البيانات
       })

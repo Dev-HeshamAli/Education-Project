@@ -13,6 +13,7 @@ export const loginUser = createAsyncThunk(
 
       localStorage.setItem("token", token);
       localStorage.setItem("userInfo", JSON.stringify(res.data));
+      localStorage.setItem("role", JSON.stringify(res.data.roles));
 
       return res.data;
     } catch (error) {
