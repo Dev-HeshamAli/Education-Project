@@ -1,13 +1,10 @@
-import { Outlet } from "react-router-dom";
+import ContentLayout from "./ContentLayout";
 
 const DashboardLayout = () => {
   return (
-    <div>
-      <nav>Dashboard Navbar / Sidebar</nav>
-      <main>
-        <Outlet />
-      </main>
-    </div>
+    <>
+      <ContentLayout />
+    </>
   );
 };
 
