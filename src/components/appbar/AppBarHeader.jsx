@@ -27,7 +27,7 @@ const AppBar = styled(MuiAppBar, {
 
 export default function AppBarHeader({ open, handleDrawerOpen }) {
   return (
-    <AppBar sx={{ bgcolor: "#8c57ff" }} position="fixed" open={open}>
+    <AppBar sx={{ bgcolor: "#1976d2" }} position="fixed" open={open}>
       <Toolbar>
         <IconButton
           color="inherit"

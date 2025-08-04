@@ -184,7 +184,7 @@ const UpdateAdmin = () => {
             className={`w-full py-2 px-4 rounded-md transition duration-300 font-semibold ${
               loading === "pending"
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#8c57ff] hover:bg-[#6f3ce0] text-white"
+                : "bg-[#1976d2] hover:bg-[#1e1ca9] text-white"
             } `}
           >
             {loading === "pending" ? "Loading..." : "Update"}

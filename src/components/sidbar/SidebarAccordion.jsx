@@ -29,12 +29,12 @@ export default function SidebarAccordion({ item }) {
         expandIcon={<ExpandMoreIcon />}
         sx={{
           borderRadius: "0px 20px 20px 0px",
-          "&:hover": { backgroundColor: "#ded1f8" },
-          borderTop: "1px solid #8c57ff",
-          borderBottom: "1px solid #8c57ff",
+          "&:hover": { backgroundColor: "#deeeff" },
+          borderTop: "1px solid #1976d2",
+          borderBottom: "1px solid #1976d2",
         }}
       >
-        <ListItemIcon sx={{ color: "#8c57ff" }}>{item.icon}</ListItemIcon>
+        <ListItemIcon sx={{ color: "#1976d2" }}>{item.icon}</ListItemIcon>
         <Typography sx={{ color: "#6d6777", fontSize: "20px" , fontWeight: "bold"}}>
           {item.name}
         </Typography>
@@ -54,9 +54,9 @@ export default function SidebarAccordion({ item }) {
                 mb: 0.5,
                 transition: "all 0.2s ease-in-out",
                 background: isChildSelected
-                  ? "linear-gradient(270deg, #8c57ff 0%, #c2aaff 100%)"
+                  ? "linear-gradient(270deg, #1976d2 0%, #c2aaff 100%)"
                   : "transparent",
-                "&:hover": { backgroundColor: "#ded1f8" },
+                "&:hover": { backgroundColor: "#deeeff" },
               }}
             >
               {/* <ListItemIcon
