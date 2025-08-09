@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../store/auth/PostUserData";
 import { resetLoginMessages } from "../../store/auth/authSlice";
 import { fetchAdminById } from "../../store/admin/getAdminInfo/fetchAdminById";
+import { Button, CircularProgress } from "@mui/material";
 
 const schema = yup.object().shape({
   email: yup
@@ -34,7 +35,7 @@ const Login = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -119,7 +120,7 @@ const Login = () => {
           </div>
 
           {/* Submit Button */}
-          <button
+          {/* <button
             type="submit"
             disabled={loading === "pending"}
             className={`w-full font-bold py-2 rounded-lg transition duration-200 ${
@@ -129,7 +130,22 @@ const Login = () => {
             }`}
           >
             {loading === "pending" ? "Loading..." : "Login"}
-          </button>
+          </button> */}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
+            disabled={loading}
+            startIcon={
+              loading && (
+                <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
+              )
+            }
+          >
+            {loading ? "Loading..." : "Login"}
+          </Button>
         </form>
 
         <p className="mt-4 text-sm text-gray-700">

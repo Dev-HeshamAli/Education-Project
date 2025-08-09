@@ -9,6 +9,8 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+
+import Alert from "@mui/material/Alert";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,6 +25,7 @@ import { clearMessages } from "../../store/courses/addCourseToPlan/addCourseToPl
 const schema = yup.object({
   planId: yup.string().required("Plan is required"),
   courseId: yup.string().required("Course is required"),
+  studyLevelId: yup.string().required("Study Level is required"),
 });
 
 const AddCourseToP = () => {
@@ -33,12 +36,14 @@ const AddCourseToP = () => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       planId: "",
       courseId: "",
+      studyLevelId: "",
     },
   });
 
@@ -67,8 +72,6 @@ const AddCourseToP = () => {
   }, [dispatch, token, studyLevels]);
 
   const onSubmit = (data) => {
-    console.log("✅ Selected Plan ID:", data.planId);
-    console.log("✅ Selected Course ID:", data.courseId);
     dispatch(
       actAddCourseToPlan({
         courseId: data.courseId,
@@ -76,6 +79,8 @@ const AddCourseToP = () => {
         token,
       })
     );
+    // Reset form after submission
+    reset();
   };
 
   useEffect(() => {
@@ -95,15 +100,15 @@ const AddCourseToP = () => {
       </Typography>
 
       {addCourseState.successMessage && (
-        <Typography color="success.main" mt={2}>
+        <Alert severity="success" sx={{ mb: 2 }}>
           {addCourseState.successMessage}
-        </Typography>
+        </Alert>
       )}
 
       {addCourseState.errorMessage && (
-        <Typography color="error.main" mt={2}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {addCourseState.errorMessage}
-        </Typography>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>

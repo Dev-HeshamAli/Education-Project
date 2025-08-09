@@ -24,7 +24,7 @@ const updateCourseSlice = createSlice({
       })
       .addCase(actUpdateCourse.fulfilled, (state) => {
         state.loading = false;
-        state.successMessage = "Course updated successfully 🎉";
+        state.successMessage = "Course updated successfully";
         state.errorMessage = null;
       })
       .addCase(actUpdateCourse.rejected, (state, action) => {

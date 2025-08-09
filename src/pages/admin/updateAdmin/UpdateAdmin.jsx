@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   secondName: yup.string().required("Second name is required"),
-  thirdName: yup.string().required("Third name is required"),
+  thirdName: yup.string(),
   phone: yup
     .string()
     .matches(/^01[0-9]{9}$/, "Invalid phone number")
@@ -139,7 +139,7 @@ const UpdateAdmin = () => {
               label="Third Name"
               name="thirdName"
               register={register}
-              error={errors.thirdName}
+              // error={errors.thirdName}
             />
             <InputField
               label="Phone"

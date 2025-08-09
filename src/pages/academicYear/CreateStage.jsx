@@ -9,23 +9,17 @@ import {
   Box,
   Card,
   CardContent,
-  FormControl,
-  InputLabel,
+  TextField,
   Alert,
   CircularProgress,
 } from "@mui/material";
 import { actStage } from "../../store/academicYear/stage/actStage";
 import { resetCreatePlanState } from "../../store/academicYear/stage/stageSlice";
 
-const stageOptions = [
-  { label: "Primary", value: "Primary" },
-  { label: "Kindergarten", value: "Kindergarten" },
-];
-
 const CreateStage = () => {
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
-  const { loading, error, success } = useSelector((state) => state.plan);
+  const { loading, error, success } = useSelector((state) => state.stage);
 
   const { handleSubmit, control, reset } = useForm({
     defaultValues: {
@@ -55,39 +49,26 @@ const CreateStage = () => {
       <Card sx={{ width: 400, p: 2 }}>
         <CardContent>
           <Typography variant="h5" mb={3} align="center">
-            Create Stage
+            Create New Stage
           </Typography>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl fullWidth required>
-              <InputLabel id="stage-label">Stage</InputLabel>
-              <Controller
-                name="name"
-                control={control}
-                rules={{ required: "Stage is required" }}
-                render={({ field, fieldState }) => (
-                  <>
-                    <Select
-                      {...field}
-                      labelId="stage-label"
-                      label="Stage"
-                      error={!!fieldState.error}
-                    >
-                      {stageOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {fieldState.error && (
-                      <Typography variant="caption" color="error">
-                        {fieldState.error.message}
-                      </Typography>
-                    )}
-                  </>
-                )}
-              />
-            </FormControl>
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: "Stage name is required" }}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Stage Name"
+                  variant="outlined"
+                  margin="normal"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              )}
+            />
 
             <Button
               type="submit"

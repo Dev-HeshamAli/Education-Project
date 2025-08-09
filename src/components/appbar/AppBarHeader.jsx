@@ -6,7 +6,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-
+import Button from "@mui/material/Button";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/auth/authSlice";
 const drawerWidth = 290;
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -26,6 +28,7 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 export default function AppBarHeader({ open, handleDrawerOpen }) {
+  const dispatch = useDispatch();
   return (
     <AppBar sx={{ bgcolor: "#1976d2" }} position="fixed" open={open}>
       <Toolbar>
@@ -46,7 +49,7 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
             width: "100%",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
           }}
         >
           <Typography
@@ -60,6 +63,18 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
           >
             Admin Dashboard
           </Typography>
+          <Button
+            onClick={() => dispatch(logout())}
+            variant="contained"
+            sx={{
+              ml: 2,
+              bgcolor: "white",
+              color: "primary.main",
+              fontWeight: "bold",
+            }}
+          >
+            Logout
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

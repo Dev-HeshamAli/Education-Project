@@ -1,17 +1,19 @@
 import { Box, Button } from "@mui/material";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 // import { logout } from "../../store/auth/authSlice";
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchTeachersByName } from "../../store/shared/teacherByName/actGetTeacherByName";
 // import { fetchAcademicYears } from "../../store/shared/academicYears/actGetAcademicYears";
 // import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 // import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
+// import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
 // import { fetchStages } from "../../store/shared/stage/actGetStage";
 // import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
 // import { useDispatch } from "react-redux";
+// import { actGetStudentIdByClass } from "../../store/shared/studentIdByClass/actGetStudentIdByClass";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   // const admin = JSON.parse(localStorage.getItem("userInfo"));
   // // const id = admin?.id;
   // console.log(admin);
@@ -20,10 +22,11 @@ const Dashboard = () => {
   // console.log(role);
 
   // const userData = useSelector((state) => state.auth.userData);
-  // console.log(userData);
   // const dispatch = useDispatch();
+  // const {userData} = useSelector((state) => state.teacherByName.list);
+  // console.log(userData);
 
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   // useEffect(() => {
   //   // dispatch(fetchAcademicYears());
@@ -31,8 +34,10 @@ const Dashboard = () => {
   //   // dispatch(fetchPlans());
   //   // dispatch(fetchStages());
   //   // dispatch(fetchSemesters());
-  //   dispatch(fetchCoursesStudyLevels(token));
-  // }, [dispatch , token]);
+  //   // dispatch(fetchCoursesStudyLevels(token));
+  //   // dispatch(actGetStudentIdByClass({ token }));
+  //   dispatch(fetchTeachersByName({ token , name: "ddddd" }));
+  // }, [dispatch, token]);
 
   // const plans = useSelector((state) => state.plansId.list);
   // const coursesStudyLevelsId = useSelector(

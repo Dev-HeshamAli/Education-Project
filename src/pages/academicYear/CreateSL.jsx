@@ -1,8 +1,6 @@
-// --------------------------------------------
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
-  MenuItem,
   Select,
   Button,
   Typography,
@@ -12,48 +10,35 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  MenuItem,
+  TextField,
+  Alert,
 } from "@mui/material";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { actStudyLevel } from "../../store/academicYear/studyLevel/actStudyLevel";
+import { fetchStages } from "../../store/shared/stage/actGetStage";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-// Stage-to-Level Mapping
-const studyLevelMap = {
-  Kindergarten: [
-    { label: "Kindergarten One", value: "Kg1" },
-    { label: "Kindergarten Two", value: "Kg2" },
-  ],
-  Primary: [
-    { label: "Primary One", value: "Pr1" },
-    { label: "Primary Two", value: "Pr2" },
-    { label: "Primary Three", value: "Pr3" },
-    { label: "Primary Four", value: "Pr4" },
-  ],
-};
-
-// Yup validation schema
 const schema = yup.object().shape({
   stage: yup.string().required("Stage is required"),
-  name: yup.string().required("Level is required"),
+  name: yup.string().required("Level name is required"),
 });
 
 const CreateSL = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
-  const [stages, setStages] = useState([]);
-  const [existingLevels, setExistingLevels] = useState([]);
 
   const { loading, error, success } = useSelector((state) => state.studyLevel);
+  const stages = useSelector((state) => state.stageId.list || []);
 
+  const [existingLevels, setExistingLevels] = useState([]);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(""); // "success" or "error"
 
   const {
     handleSubmit,
     control,
-    watch,
     setValue,
     reset,
     formState: { errors },
@@ -65,40 +50,51 @@ const CreateSL = () => {
     },
   });
 
-  const selectedStage = watch("stage");
-
-  // Fetch stages
+  // ✅ Fetch stages from Redux
   useEffect(() => {
-    const fetchStages = async () => {
-      try {
-        const { data } = await axios.get(
-          "https://edu-smart.runasp.net/api/Shared/Stages",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setStages(data);
-      } catch (err) {
-        console.error("Failed to fetch stages:", err);
-      }
-    };
+    dispatch(fetchStages());
+  }, [dispatch]);
 
-    fetchStages();
-  }, [token]);
+  // ✅ Fetch existing levels from API
+  // useEffect(() => {
+  //   const fetchExistingLevels = async () => {
+  //     try {
+  //       const { data } = await fetch(
+  //         "https://edu-smart.runasp.net/api/Shared/StudyLevels",
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       ).then((res) => res.json());
 
-  // Fetch existing levels
+  //       const normalized = data.map((item) =>
+  //         item.level?.toLowerCase().replace(/\s/g, "")
+  //       );
+  //       setExistingLevels(normalized);
+  //     } catch (err) {
+  //       console.error("Failed to fetch study levels:", err);
+  //     }
+  //   };
+
+  //   fetchExistingLevels();
+  // }, [token]);
+
   useEffect(() => {
     const fetchExistingLevels = async () => {
       try {
-        const { data } = await axios.get(
+        const res = await fetch(
           "https://edu-smart.runasp.net/api/Shared/StudyLevels",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const normalized = data.map((item) =>
+
+        const json = await res.json();
+
+        const levels = json.data || []; // تأكيد وجود data
+        const normalized = levels.map((item) =>
           item.level?.toLowerCase().replace(/\s/g, "")
         );
+
         setExistingLevels(normalized);
       } catch (err) {
         console.error("Failed to fetch study levels:", err);
@@ -108,7 +104,7 @@ const CreateSL = () => {
     fetchExistingLevels();
   }, [token]);
 
-  // Handle success/error messages
+  // ✅ Handle success/error messages
   useEffect(() => {
     if (success) {
       setMessage("Study Level added successfully.");
@@ -128,7 +124,7 @@ const CreateSL = () => {
     }
   }, [success, error, reset]);
 
-  // Submit handler
+  // ✅ Submit handler
   const onSubmit = (formData) => {
     const matchedStage = stages.find(
       (s) => s.name.toLowerCase() === formData.stage.toLowerCase()
@@ -168,19 +164,6 @@ const CreateSL = () => {
             Create Study Level
           </Typography>
 
-          {message && (
-            <Typography
-              variant="body2"
-              align="center"
-              sx={{
-                color: messageType === "success" ? "green" : "red",
-                mb: 2,
-              }}
-            >
-              {message}
-            </Typography>
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Stage Dropdown */}
             <FormControl fullWidth required sx={{ mb: 2 }}>
@@ -194,12 +177,12 @@ const CreateSL = () => {
                     label="Stage"
                     onChange={(e) => {
                       setValue("stage", e.target.value);
-                      setValue("name", ""); // Reset level
+                      setValue("name", ""); // Reset level input
                     }}
                   >
-                    {Object.keys(studyLevelMap).map((stage) => (
-                      <MenuItem key={stage} value={stage}>
-                        {stage}
+                    {stages.map((stage) => (
+                      <MenuItem key={stage.id} value={stage.name}>
+                        {stage.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -212,28 +195,34 @@ const CreateSL = () => {
               )}
             </FormControl>
 
-            {/* Level Dropdown */}
-            <FormControl fullWidth required>
-              <InputLabel>Level</InputLabel>
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                  <Select {...field} label="Level">
-                    {(studyLevelMap[selectedStage] || []).map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-              {errors.name && (
-                <Typography variant="caption" color="error">
-                  {errors.name.message}
-                </Typography>
+            {/* Level Input (TextField) */}
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: "Level name is required" }}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Level Name"
+                  variant="outlined"
+                  margin="normal"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
               )}
-            </FormControl>
+            />
+
+            {message && (
+              <Alert
+                severity={messageType}
+                sx={{
+                  color: messageType === "success" ? "green" : "red",
+                }}
+              >
+                {message}
+              </Alert>
+            )}
 
             <Button
               type="submit"

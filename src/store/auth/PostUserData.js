@@ -31,3 +31,33 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+
+// export const loginUser = createAsyncThunk(
+//   "auth/loginUser",
+//   async (userData, { rejectWithValue }) => {
+//     try {
+//       const res = await axios.post(`${BASE_URL}/api/Auth/Login`, userData, {
+//         withCredentials: true // الكوكي HttpOnly هتيجي هنا
+//       });
+
+//       return {
+//         token: res.data.token,
+//         roles: res.data.roles,
+//         userInfo: res.data
+//       };
+//     } catch (error) {
+//       const backendErrors = error.response?.data?.errors;
+
+//       const message =
+//         Array.isArray(backendErrors) &&
+//         backendErrors.some((err) =>
+//           err.includes("No user was found with the provided ID")
+//         )
+//           ? "Email or Password is incorrect"
+//           : error.response?.data?.title || "Something went wrong!";
+
+//       return rejectWithValue(message);
+//     }
+//   }
+// );

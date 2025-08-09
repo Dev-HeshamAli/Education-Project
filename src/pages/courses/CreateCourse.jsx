@@ -9,6 +9,7 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
@@ -31,6 +32,15 @@ const schema = yup.object().shape({
   studyLevelId: yup.number().required(),
   stageId: yup.number().required(),
   semesterId: yup.number().required(),
+  price: yup
+    .number()
+    .required("Price is required")
+    .positive("Price must be positive"),
+  discountPercentage: yup
+    .number()
+    .required("Discount percentage is required")
+    .min(0, "Discount percentage must be at least 0")
+    .max(1, "Discount percentage must be at most 1"),
 });
 
 const CreateCourse = () => {
@@ -63,6 +73,7 @@ const CreateCourse = () => {
   });
 
   const onSubmit = (data) => {
+
     dispatch(actCreateCourse({ data, token }));
     reset();
   };
@@ -84,23 +95,15 @@ const CreateCourse = () => {
       </Typography>
 
       {courseState.successMessage && (
-        <Typography
-          sx={{ fontWeight: "bold", fontSize: "20px", textAlign: "center" }}
-          color="success.main"
-          mt={2}
-        >
+        <Alert severity="success" sx={{ mb: 2 }}>
           {courseState.successMessage}
-        </Typography>
+        </Alert>
       )}
 
       {courseState.errorMessage && (
-        <Typography
-          sx={{ fontWeight: "bold", fontSize: "20px", textAlign: "center" }}
-          color="error.main"
-          mt={2}
-        >
+        <Alert severity="error" sx={{ mb: 2 }}>
           {courseState.errorMessage}
-        </Typography>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -161,6 +164,23 @@ const CreateCourse = () => {
           control={control}
           error={errors.semesterId}
           options={semesters}
+        />
+        <TextField
+          label="Price"
+          fullWidth
+          margin="normal"
+          {...register("price")}
+          error={!!errors.price}
+          helperText={errors.price?.message}
+        />
+
+        <TextField
+          label="Discount Percentage"
+          fullWidth
+          margin="normal"
+          {...register("discountPercentage")}
+          error={!!errors.discountPercentage}
+          helperText={errors.discountPercentage?.message}
         />
 
         <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>

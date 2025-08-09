@@ -52,7 +52,7 @@ const UpdatePL = () => {
   const onSubmit = (formData) => {
     if (formData.discount > 0.99) return alert("Discount must not exceed 1");
     dispatch(actUpdatePlanLevel({ data: formData, token }));
-    console.log("Form Data:", formData);
+    // console.log("Form Data:", formData);
   };
 
   return (

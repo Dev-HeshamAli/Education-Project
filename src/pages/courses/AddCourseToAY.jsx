@@ -9,6 +9,8 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import Alert from "@mui/material/Alert";
+
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,6 +25,8 @@ import { clearMessages } from "../../store/courses/addCourseToAY/addCourseToAcad
 const schema = yup.object({
   academicYearId: yup.string().required("Academic Year is required"),
   courseId: yup.string().required("Course is required"),
+  studyLevelId: yup.string().required("Study Level is required"),
+  
 });
 
 const DeleteCourseFromAY = () => {
@@ -32,6 +36,7 @@ const DeleteCourseFromAY = () => {
 
   const {
     control,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -39,6 +44,7 @@ const DeleteCourseFromAY = () => {
     defaultValues: {
       academicYearId: "",
       courseId: "",
+      studyLevelId: "",
     },
   });
 
@@ -76,8 +82,6 @@ const DeleteCourseFromAY = () => {
   }, [addAYState.successMessage, addAYState.errorMessage, dispatch]);
 
   const onSubmit = (data) => {
-    console.log("📅 Selected Academic Year ID:", data.academicYearId);
-    console.log("📚 Selected Course ID:", data.courseId);
     dispatch(
       actAddCourseToAcademicYear({
         courseId: data.courseId,
@@ -85,6 +89,8 @@ const DeleteCourseFromAY = () => {
         token,
       })
     );
+    // Reset form after submission
+    reset();
   };
 
   return (
@@ -94,15 +100,15 @@ const DeleteCourseFromAY = () => {
       </Typography>
 
       {addAYState.successMessage && (
-        <Typography color="success.main" mt={2}>
+        <Alert severity="success" sx={{ mb: 2 }}>
           {addAYState.successMessage}
-        </Typography>
+        </Alert>
       )}
 
       {addAYState.errorMessage && (
-        <Typography color="error.main" mt={2}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {addAYState.errorMessage}
-        </Typography>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>

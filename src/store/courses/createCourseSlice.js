@@ -30,7 +30,7 @@ const courseSlice = createSlice({
       .addCase(actCreateCourse.rejected, (state, action) => {
         state.loading = false;
         state.successMessage = null;
-        state.errorMessage = action.payload;
+        state.errorMessage = action.payload 
       });
   },
 });

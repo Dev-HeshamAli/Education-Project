@@ -23,7 +23,7 @@ const createPlanSlice = createSlice({
       })
       .addCase(actCreatePlan.fulfilled, (state) => {
         state.loading = false;
-        state.success = true;
+        state.success = "Plan created successfully.";
         state.error = null;
       })
       .addCase(actCreatePlan.rejected, (state, action) => {

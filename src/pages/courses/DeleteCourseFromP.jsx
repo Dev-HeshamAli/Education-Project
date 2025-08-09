@@ -9,6 +9,8 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import Alert from "@mui/material/Alert";
+
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,6 +25,7 @@ import { actDeleteCourseFromPlan } from "../../store/courses/deleteCourseFromPla
 const schema = yup.object({
   planId: yup.string().required("Plan is required"),
   courseId: yup.string().required("Course is required"),
+  studyLevelId: yup.string().required("Study Level is required"),
 });
 
 const DeleteCourseFromP = () => {
@@ -31,6 +34,7 @@ const DeleteCourseFromP = () => {
 
   const {
     control,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -38,6 +42,7 @@ const DeleteCourseFromP = () => {
     defaultValues: {
       planId: "",
       courseId: "",
+      studyLevelId: "",
     },
   });
 
@@ -77,8 +82,6 @@ const DeleteCourseFromP = () => {
   }, [deleteState.successMessage, deleteState.errorMessage, dispatch]);
 
   const onSubmit = (data) => {
-    console.log("🗑️ Selected Plan ID to delete from:", data.planId);
-    console.log("🗑️ Selected Course ID to delete:", data.courseId);
     dispatch(
       actDeleteCourseFromPlan({
         courseId: data.courseId,
@@ -86,6 +89,8 @@ const DeleteCourseFromP = () => {
         token,
       })
     );
+    // Reset form after submission
+    reset();
   };
 
   return (
@@ -94,16 +99,17 @@ const DeleteCourseFromP = () => {
         Delete Course from Plan
       </Typography>
       {deleteState.successMessage && (
-        <Typography color="success.main" mt={2}>
+        <Alert severity="success" sx={{ mb: 2 }}>
           {deleteState.successMessage}
-        </Typography>
+        </Alert>
       )}
 
       {deleteState.errorMessage && (
-        <Typography color="error.main" mt={2}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {deleteState.errorMessage}
-        </Typography>
+        </Alert>
       )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Plan Selection */}
         <FormControl fullWidth margin="normal" error={!!errors.planId}>

@@ -20,6 +20,7 @@ import { fetchStages } from "../../store/shared/stage/actGetStage";
 import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
 import { actUpdateCourse } from "../../store/courses/updateCourse/actUpdateCourse";
 import { clearUpdateMessages } from "../../store/courses/updateCourse/updateCourseSlice";
+import Alert from "@mui/material/Alert";
 
 // ✅ Validation schema
 const schema = yup.object().shape({
@@ -28,6 +29,15 @@ const schema = yup.object().shape({
   stageId: yup.string().required("Stage is required"),
   semesterId: yup.string().required("Semester is required"),
   planId: yup.string().required("Plan is required"),
+  price: yup
+    .number()
+    .required("Price is required")
+    .positive("Price must be positive"),
+  discountPercentage: yup
+    .number()
+    .required("Discount percentage is required")
+    .min(0, "Discount percentage must be at least 0")
+    .max(1, "Discount percentage must be at most 1"),
 });
 
 const UpdateCourse = () => {
@@ -117,10 +127,14 @@ const UpdateCourse = () => {
       semesterId: +data.semesterId,
       planId: +data.planId,
       studyLevelId: +selectedStudyLevel,
+      price: data.price,
+      discountPercentage: data.discountPercentage,
     };
-
     dispatch(actUpdateCourse({ data: fullData, token }));
     reset();
+    setSelectedCourse(null);
+    setSelectedCourseId("");
+    setSelectedStudyLevel("");
   };
 
   return (
@@ -130,21 +144,15 @@ const UpdateCourse = () => {
       </Typography>
 
       {updateState.successMessage && (
-        <Typography
-          color="success.main"
-          sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}
-        >
+        <Alert severity="success" sx={{ mb: 2 }}>
           {updateState.successMessage}
-        </Typography>
+        </Alert>
       )}
 
       {updateState.errorMessage && (
-        <Typography
-          color="error.main"
-          sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}
-        >
+        <Alert severity="error" sx={{ mb: 2 }}>
           {updateState.errorMessage}
-        </Typography>
+        </Alert>
       )}
 
       {/* Study Level Select */}
@@ -204,6 +212,22 @@ const UpdateCourse = () => {
             helperText={errors.description?.message}
             fullWidth
             margin="normal"
+          />
+          <TextField
+            label="Price"
+            fullWidth
+            margin="normal"
+            {...register("price")}
+            error={!!errors.price}
+            helperText={errors.price?.message}
+          />
+          <TextField
+            label="Discount Percentage"
+            fullWidth
+            margin="normal"
+            {...register("discountPercentage")}
+            error={!!errors.discountPercentage}
+            helperText={errors.discountPercentage?.message}
           />
 
           {/* Stage Select */}

@@ -4,7 +4,7 @@ import * as yup from "yup";
 const adminSchema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   secondName: yup.string().required("Second name is required"),
-  thirdName: yup.string().required("Third name is required"),
+  thirdName: yup.string(),
   phone: yup
     .string()
     .matches(/^01[0-9]{9}$/, "Invalid phone number")

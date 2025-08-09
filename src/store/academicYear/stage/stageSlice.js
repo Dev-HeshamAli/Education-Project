@@ -9,7 +9,7 @@ const initialState = {
 };
 
 const stageSlice = createSlice({
-  name: "plan/create",
+  name: "stage/create",
   initialState,
   reducers: {
     resetCreatePlanState: () => initialState,
@@ -23,7 +23,7 @@ const stageSlice = createSlice({
       })
       .addCase(actStage.fulfilled, (state) => {
         state.loading = false;
-        state.success = true;
+        state.success = "Stage created successfully.";
         state.error = null;
       })
       .addCase(actStage.rejected, (state, action) => {

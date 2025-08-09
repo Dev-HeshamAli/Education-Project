@@ -22,6 +22,20 @@ import deleteCourseFromPlanReducer from "./courses/deleteCourseFromPlan/deleteCo
 import addCourseToAcademicYearReducer from "./courses/addCourseToAY/addCourseToAcademicYearSlice";
 import deleteCourseReducer from "./courses/deleteCourse/deleteCourseSlice";
 import updateCourseReducer from "./courses/updateCourse/updateCourseSlice";
+import createSchoolClassReducer from "./schoolClass/schoolClassSlice";
+import createSchoolClassIdReducer from "./shared/schoolClass/schoolClassIdSlice";
+import updateSchoolClassReducer from "./schoolClass/updateSchoolClass/updateSchoolClassSlice";
+import deleteSchoolClassReducer from "./schoolClass/deleteSchoolClass/deleteSchoolClassSlice";
+import StudentIdByClassReducer from "./shared/studentIdByClass/studentIdByClassSlice";
+import createTeacherReducer from "./createTeacher/createTeacherSlice";
+import teacherByNameReducer from "./shared/teacherByName/teacherBynameSlice";
+import deleteTeacherReducer from "./deleteTeacher/deleteTeacherSlice";
+import addTeacherToStudyLevelReducer from "./addTeacherToStudyLevel/addTeacherToStudyLevelSlice";
+import teacherByStudyLevelReducer from "./shared/teacherByStudyLevel/teacherByStudyLevelSlice";
+import addTeacherToCourseReducer from "./addTeacherToCourse/addTeacherToCourseSlice";
+import addTeacherToClassReducer from "./addTeacherToClass/addTeacherToClassSlice";
+import createScheduleReducer from "./schedule/createScheduleSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -46,6 +60,10 @@ export const store = configureStore({
     academicYearsId: academicYearsIdReducer,
     semestersId: semestersIdReducer,
     coursesStudyLevelsId: courseStudyLevelIdReducer,
+    schoolClassId: createSchoolClassIdReducer,
+    studentIdByClass: StudentIdByClassReducer,
+    teacherByName: teacherByNameReducer,
+    teacherByStudyLevel: teacherByStudyLevelReducer,
     //--------------Courses Study Level Reducers----------------//
     createCourse: courseReducer,
     addCourseToPlan: addCourseToPlanReducer,
@@ -53,5 +71,17 @@ export const store = configureStore({
     addCourseToAcademicYear: addCourseToAcademicYearReducer,
     deleteCourse: deleteCourseReducer,
     updateCourse: updateCourseReducer,
+    //--------------School Class Reducers----------------//
+    createSchoolClass:createSchoolClassReducer,
+    updateSchoolClass: updateSchoolClassReducer,
+    deleteSchoolClass: deleteSchoolClassReducer,
+    //--------------Create Teacher Reducers----------------//
+    createTeacher: createTeacherReducer,
+    deleteTeacher: deleteTeacherReducer,
+    addTeacherToStudyLevel: addTeacherToStudyLevelReducer,
+    addTeacherToCourse: addTeacherToCourseReducer, 
+    addTeacherToClass: addTeacherToClassReducer,
+    // --------------Schedule Reducers----------------//
+    createSchedule: createScheduleReducer,
   },
 });

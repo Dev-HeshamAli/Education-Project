@@ -9,6 +9,8 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import Alert from "@mui/material/Alert";
+
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -20,6 +22,7 @@ import { resetDeleteStatus } from "../../store/courses/deleteCourse/deleteCourse
 // ✅ Yup validation schema
 const schema = yup.object().shape({
   selectedCourse: yup.string().required("Please select a course"),
+  studyLevelId: yup.string().required("Please select a study level"),
 });
 
 const DeleteCourse = () => {
@@ -30,10 +33,12 @@ const DeleteCourse = () => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
       selectedCourse: "",
+      studyLevelId: "",
     },
     resolver: yupResolver(schema),
   });
@@ -68,6 +73,7 @@ const DeleteCourse = () => {
 
   const onSubmit = (data) => {
     dispatch(actDeleteCourse({ token, id: data.selectedCourse }));
+    reset();
   };
 
   return (
@@ -76,14 +82,14 @@ const DeleteCourse = () => {
         Delete Course
       </Typography>
       {success && (
-        <Typography color="success.main" mb={2}>
+        <Alert severity="success" sx={{ mb: 2 }}>
           Course deleted successfully!
-        </Typography>
+        </Alert>
       )}
       {error && (
-        <Typography color="error.main" mb={2}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           Error deleting course: {error}
-        </Typography>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
