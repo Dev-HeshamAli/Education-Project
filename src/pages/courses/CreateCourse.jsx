@@ -98,7 +98,6 @@ const CreateCourse = () => {
   //     ...data,
   //     plans: data.plans.map((p) => p.planId),
   //   };
-  //   console.log(finalData);
 
   //   dispatch(actCreateCourse({ data: finalData, token }));
   //   reset();
@@ -109,12 +108,10 @@ const CreateCourse = () => {
       ...data,
       plans: data.plans.map((p) => p.planId),
 
-      // 👇 تحويل الخصومات من نسبة مئوية (0–100) إلى كسور (0–1)
       discountPercentage: data.discountPercentage / 100,
       offlineDiscountPercentage: data.offlineDiscountPercentage / 100,
     };
 
-    console.log(finalData);
     dispatch(actCreateCourse({ data: finalData, token }));
     reset();
   };

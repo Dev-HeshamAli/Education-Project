@@ -86,7 +86,6 @@ const LecVideo = () => {
   };
 
   const handleAddLecture = () => {
-    console.log("Add new lecture for course:", courseId);
     setLectureForm(true);
   };
 

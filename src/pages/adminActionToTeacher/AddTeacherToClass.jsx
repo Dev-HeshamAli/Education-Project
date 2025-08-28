@@ -78,7 +78,6 @@
 //   const teacherNames = useSelector((state) => state.teacherByName?.list || []);
 
 //   const onSubmit = (data) => {
-//     console.log("Form Data:", data);
 
 //     dispatch(
 //       actAddTeacherToClass({

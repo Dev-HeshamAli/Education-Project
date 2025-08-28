@@ -27,8 +27,6 @@ const DeleteDay = ({ daysOfWeek, onClose }) => {
   const handleDelete = () => {
     if (!selectedDay) return;
 
-    console.log("🗑️ سيتم مسح اليوم:", selectedDay.id);
-
     dispatch(actDeleteScheduleDay({ id: selectedDay.id, token }));
   };
 

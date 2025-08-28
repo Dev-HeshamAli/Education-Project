@@ -481,7 +481,6 @@ export default function ScheduleTable({ data = [], academicScheduleId }) {
   const t = translations[currentLang];
 
   const handleOpenDetails = (lecture) => {
-    console.log(lecture);
     setSelectedLecture(lecture);
     setLecDetailsOpen(true);
   };

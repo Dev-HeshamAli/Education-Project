@@ -61,7 +61,6 @@ const AddCourseToP = ({ courseDataForAdd, onClose }) => {
   // ✅ ملء بيانات الكورس عند توفرها
   useEffect(() => {
     if (courseDataForAdd) {
-      console.log("Setting course data for add:", courseDataForAdd);
       setValue(
         "courseId",
         String(courseDataForAdd.courseId || courseDataForAdd.id || "")
@@ -88,7 +87,6 @@ const AddCourseToP = ({ courseDataForAdd, onClose }) => {
   ]);
 
   const onSubmit = (data) => {
-    console.log("Submitting add request:", data);
     dispatch(
       actAddCourseToPlan({
         courseId: Number(data.courseId),

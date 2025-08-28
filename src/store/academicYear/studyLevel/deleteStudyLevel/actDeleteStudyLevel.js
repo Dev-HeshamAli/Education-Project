@@ -19,7 +19,6 @@ export const actDeleteStudyLevel = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.log("Error:", error.response?.data.errors);
       const message =
         error.response?.data?.errors ||
         error.response?.data?.message ||

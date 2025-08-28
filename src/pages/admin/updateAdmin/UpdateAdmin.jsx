@@ -77,7 +77,6 @@ const UpdateAdmin = () => {
       dispatch(actDeleteAdmin({ id, token })).unwrap();
       dispatch(logout());
     }
-    console.log("delete", id);
   };
 
   useEffect(() => {

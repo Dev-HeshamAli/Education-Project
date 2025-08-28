@@ -382,7 +382,6 @@ const ManageClass = () => {
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const classesList = useSelector((state) => state.schoolClassId.list);
   const classDetails = useSelector((state) => state.schoolClassesDetails.list);
-  console.log(classDetails);
 
   const { success: createSuccess } = useSelector(
     (state) => state.createSchoolClass

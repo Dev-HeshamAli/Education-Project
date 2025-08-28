@@ -67,7 +67,6 @@ const AllDetailsCourses = () => {
   const [addTeacher, setAddTeachers] = useState(false);
 
   const { courseId } = useSelector((state) => state.selectionIds);
-  console.log("courses", selectedCourseData);
 
   const { successMessage: successMessageCreate } = useSelector(
     (state) => state.createCourse

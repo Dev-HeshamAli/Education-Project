@@ -210,9 +210,6 @@ const UpdateLec = ({
       startTime: data.startTime,
       endTime: data.endTime,
     };
-
-    console.log("Update Lecture Data:", finalData);
-
     dispatch(actUpdateLecToSchedule({ data: finalData, token }));
   };
 

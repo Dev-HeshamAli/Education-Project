@@ -31,7 +31,6 @@ const schema = yup.object({
 });
 
 const DeleteCourseFromP = ({ courseDataForDelete, onClose }) => {
-  console.log("courseDataForDelete:", courseDataForDelete);
 
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
@@ -78,7 +77,6 @@ const DeleteCourseFromP = ({ courseDataForDelete, onClose }) => {
     if (selectedPlanId && courseDataForDelete) {
       // إذا تغيرت الخطة، لكن نحتفظ بالكورس المحدد مسبقاً
       // يمكنك تعديل هذا السلوك حسب المطلوب
-      console.log("Plan changed to:", selectedPlanId);
     }
   }, [selectedPlanId, courseDataForDelete]);
 

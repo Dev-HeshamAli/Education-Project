@@ -73,7 +73,6 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
       studyLevelId: data.studyLevelId,
     };
 
-    console.log("Schedule data to submit:", scheduleData);
 
     dispatch(actCreateSchedule({ token, data: scheduleData }));
   };

@@ -8,7 +8,6 @@ export const actDeleteCourseFromPlan = createAsyncThunk(
   "planCourse/delete",
   async ({ courseId, planId, token }, { rejectWithValue }) => {
     try {
-      //   console.log("🗑️ Deleting Course from Plan:", null);
 
       const response = await axios.delete(
         `${API_URL}/api/Admin/delete-course-from-plan/${courseId}/${planId}`,

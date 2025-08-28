@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // import React, { useEffect, useState } from 'react';
 // import {
 //   Box,
@@ -250,8 +251,8 @@ const AddStudentToSchoolClass = () => {
 
   // Handle form submission
   const onSubmit = (data) => {
-    console.log("Student ID:", data.studentId);
-    console.log("New Class ID:", data.newClassId);
+    // console.log("Student ID:", data.studentId);
+    // console.log("New Class ID:", data.newClassId);
 
     // هنا هنضيف الـ API call لاحقاً
     // dispatch(transferStudent({ studentId: data.studentId, newClassId: data.newClassId, token }));

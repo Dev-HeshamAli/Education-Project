@@ -66,7 +66,6 @@ const PlanDetails = () => {
   const planDetails = useSelector((state) => state.planDetails.list);
   const loadingPlans = useSelector((state) => state.plansId.loading);
   const loadingDetails = useSelector((state) => state.planDetails.loading);
-  console.log(planDetails);
 
   const handleSelectPlan = (id, name) => {
     setSelectedPlan(id);

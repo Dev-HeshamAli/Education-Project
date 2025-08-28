@@ -286,13 +286,11 @@
 //       semesterId: data.semesterId,
 //       studyLevelId: data.studyLevelId,
 //     };
-//     console.log("Update data:", scheduleData);
 //     dispatch(actUpdateSchedule({ token, data: scheduleData }));
 //   };
 
 //   // ✅ Delete Action
 //   const onDelete = () => {
-//     console.log("Delete schedule:", scheduleId);
 //     dispatch(actDeleteSchedule({ token, id: scheduleId }));
 //   };
 

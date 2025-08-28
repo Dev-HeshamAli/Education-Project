@@ -21,7 +21,6 @@ export const actCreateDiscountCode = createAsyncThunk(
       
       return response.data;
     } catch (error) {
-      console.log("Error:", error.response?.data);
       const message = error.response?.data?.errors || error.response?.data?.message || "Failed to create teacher";
       return rejectWithValue(message);
     }

@@ -21,7 +21,6 @@ export const actUpdateLecToSchedule = createAsyncThunk(
       
       return response.data;
     } catch (error) {
-      console.log("Error:", error.response?.title);
       const message = error.response?.data?.errors[1] || error.response?.data?.message || "Failed to Update Lec To Schedule";
       return rejectWithValue(message);
     }

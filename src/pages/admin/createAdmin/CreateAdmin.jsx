@@ -30,7 +30,6 @@ const CreateAdmin = () => {
   });
 
   const onSubmit = (data) => {
-    // console.log(data);
     dispatch(createAdmin({ adminData: data, token }));
     reset();
   };

@@ -33,7 +33,6 @@ const schema = yup.object().shape({
 });
 
 const UpdateSchoolClass = ({ studyLevelId, classId, capacity, className }) => {
-  console.log(capacity);
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
   const studyLevels = useSelector((state) => state.studyLevelsId.list);

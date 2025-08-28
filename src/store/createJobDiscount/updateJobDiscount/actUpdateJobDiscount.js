@@ -21,7 +21,6 @@ export const actUpdateJobDiscount = createAsyncThunk(
       
       return response.data;
     } catch (error) {
-      console.log("Error:", error.response?.title);
       const message = error.response?.data?.errors || error.response?.data?.message || "Failed to Update Job Discount";
       return rejectWithValue(message);
     }

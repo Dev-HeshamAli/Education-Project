@@ -45,7 +45,6 @@ const AddLecToSchedule = ({
   semesterId,
   studyLevelId,
 }) => {
-  // console.log(newDay);
 
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
@@ -142,7 +141,6 @@ const AddLecToSchedule = ({
       startTime: data.startTime,
       endTime: data.endTime,
     };
-    console.log(finalData);
 
     dispatch(actAddLecToSchedule({ data: finalData, token }));
   };

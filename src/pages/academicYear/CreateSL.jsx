@@ -60,8 +60,6 @@ const CreateSL = () => {
   //   (state) => state.academicYearsId.list || []
   // );
 
-  // console.log("scademicYears", scademicYears);
-  // console.log(studyLevels);
 
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState("");
@@ -176,7 +174,6 @@ const CreateSL = () => {
       name: selectedLevel.level,
     };
 
-    console.log("Edit payload:", payload);
     dispatch(actUpdateStudyLevel({ data: payload, token }));
     setOpenEditDialog(false);
   };

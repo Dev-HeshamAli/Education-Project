@@ -23,11 +23,9 @@ const schema = yup.object().shape({
 
 const Login = () => {
   const id = JSON.parse(localStorage.getItem("id"));
-  // const id = admin?.id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token, loading, error, role } = useSelector((state) => state.auth);
-  // console.log(token);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,7 +41,6 @@ const Login = () => {
 
   const onSubmit = (data) => {
     dispatch(loginUser(data));
-    // console.log(data);
     reset();
   };
 

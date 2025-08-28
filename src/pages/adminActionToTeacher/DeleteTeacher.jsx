@@ -64,11 +64,9 @@ const DeleteTeacher = () => {
   const inactiveTeachers = useSelector(
     (state) => state.inActiveTeacher.list || []
   );
-  console.log(inactiveTeachers);
 
   const onSubmit = (data) => {
     if (data.name) {
-      console.log("Selected Teacher ID:", data.name.id);
       dispatch(
         actDeleteTeacher({
           token,

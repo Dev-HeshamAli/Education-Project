@@ -57,7 +57,6 @@ const CreatePlan = () => {
 
   const onSubmit = (data) => {
     if (editingPlan) {
-      // console.log("Update plan with id:", editingPlan.id, "Data:", data);
       dispatch(actUpdatePlan({ data: { ...data, id: editingPlan.id }, token }));
       setEditingPlan(null);
     } else {
@@ -66,7 +65,6 @@ const CreatePlan = () => {
   };
 
   const handleDelete = (id) => {
-    // console.log("Delete plan with id:", id);
     if (window.confirm("Are you sure you want to delete this plan?"))
       dispatch(actDeletePlan({ id, token }));
   };

@@ -19,7 +19,6 @@ export const actDeleteJobDiscount = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.log("Error:", error.response?.title);
       const message =
         error.response?.data?.errors ||
         error.response?.data?.message ||

@@ -18,7 +18,6 @@ export const actSchoolClass = createAsyncThunk(
           },
         }
       );
-    //   console.log("School class created:", response.data);
       return response.data;
     } catch (error) {
       const message =

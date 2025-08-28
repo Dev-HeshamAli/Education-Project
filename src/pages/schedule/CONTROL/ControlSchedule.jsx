@@ -55,9 +55,6 @@ const ControlSchedule = () => {
   const scheduleDayes = scheduleInfo.scheduleDayes || [];
   const academicScheduleId = scheduleInfo.id || null;
 
-  // console.log("academicScheduleId:", academicScheduleId);
-  // console.log("scheduleDayes:", scheduleDayes);
-
   const [openCreate, setOpenCreate] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);

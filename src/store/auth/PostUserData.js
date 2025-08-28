@@ -9,8 +9,8 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await axios.post(`${BASE_URL}/api/Auth/Login`, userData);
       const token = res.data.token;
-      const data = res.data;
-      console.log(data);
+      // const data = res.data;
+      // console.log(data);
 
       localStorage.setItem("token", token);
       localStorage.setItem("id", JSON.stringify(res.data.id));
