@@ -23,19 +23,27 @@ export default function SidebarAccordion({ item }) {
           display: "none",
         },
         pb: 1,
+        borderBottom: item.border ? "3px solid #1976d2" : "none",
       }}
     >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         sx={{
           borderRadius: "0px 20px 20px 0px",
-          "&:hover": { backgroundColor: "#deeeff" },
-          borderTop: "1px solid #1976d2",
-          borderBottom: "1px solid #1976d2",
+          "&:hover": { backgroundColor: "#839ec5", color: "#fff !important" },
+          // borderTop: "1px solid #1976d2",
+          // borderBottom: "1px solid #1976d2",
         }}
       >
-        <ListItemIcon sx={{ color: "#1976d2" }}>{item.icon}</ListItemIcon>
-        <Typography sx={{ color: "#6d6777", fontSize: "20px" , fontWeight: "bold"}}>
+        <ListItemIcon sx={{ color: "#839ec5" }}>{item.icon}</ListItemIcon>
+        <Typography
+          sx={{
+            color: "#6d6777",
+            fontSize: "20px",
+            fontWeight: "bold",
+            "&:hover": { color: "#fff !important" },
+          }}
+        >
           {item.name}
         </Typography>
       </AccordionSummary>
@@ -50,13 +58,13 @@ export default function SidebarAccordion({ item }) {
               to={child.link}
               sx={{
                 // width: "100%",
-                borderRadius: 2,
+                borderRadius: 4,
                 mb: 0.5,
                 transition: "all 0.2s ease-in-out",
                 background: isChildSelected
-                  ? "linear-gradient(270deg, #1976d2 0%, #c2aaff 100%)"
+                  ? "linear-gradient(270deg, #1976d2 0%, #2a4155 100%)"
                   : "transparent",
-                "&:hover": { backgroundColor: "#deeeff" },
+                "&:hover": { backgroundColor: "#839ec5" },
               }}
             >
               {/* <ListItemIcon
@@ -68,6 +76,7 @@ export default function SidebarAccordion({ item }) {
                 sx={{
                   fontWeight: isChildSelected ? "bold" : "normal",
                   color: isChildSelected ? "#fff" : "#6d6777",
+                  "&:hover": { color: "#fff !important" },
                 }}
               >
                 {child.name}

@@ -13,79 +13,92 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-import { fetchSchoolClassId } from "../../store/shared/schoolClass/actGetSchoolClassId";
 import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
 import { actCreateSchedule } from "../../store/schedule/actCreateSchedule";
 import { resetCreateScheduleState } from "../../store/schedule/createScheduleSlice";
+import { fetchAcademicYears } from "../../store/shared/academicYears/actGetAcademicYears";
 
 const validationSchema = yup.object().shape({
-  studyLevelId: yup.number().required("Study level is required"),
-  schoolClassId: yup.number().required("Class is required"),
-  semesterId: yup.number().required("Semester is required"),
   scheduleName: yup.string().required("Schedule name is required"),
-  scheduleDate: yup.date().required("Date is required"),
+  studyLevelId: yup.number().required("Study level is required"),
+  semesterId: yup.number().required("Semester is required"),
+  academicYearId: yup.number().required("Academic year is required"),
 });
 
-const CreateSchedule = () => {
+const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
   const dispatch = useDispatch();
 
-  const { control, handleSubmit, watch, reset } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       scheduleName: "",
-      scheduleDate: "",
       studyLevelId: "",
-      schoolClassId: "",
       semesterId: "",
+      academicYearId: "",
     },
   });
 
   // Get data from Redux store
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
-  const schoolClasses = useSelector((state) => state.schoolClassId.list);
   const semesters = useSelector((state) => state.semestersId.list);
+  const academicYears = useSelector((state) => state.academicYearsId.list);
+
   const { loading, error, success } = useSelector(
     (state) => state.createSchedule
   );
 
   const token = useSelector((state) => state.auth.token);
 
-  const selectedStudyLevel = watch("studyLevelId");
-
   useEffect(() => {
-    // Initial data fetch
     dispatch(fetchStudyLevels(token));
     dispatch(fetchSemesters(token));
+    dispatch(fetchAcademicYears(token));
   }, [dispatch, token]);
 
+  // ✨ هنا نعيّن الـ props جوه الفورم
   useEffect(() => {
-    // Fetch school classes when study level is selected
-    if (selectedStudyLevel) {
-      dispatch(fetchSchoolClassId({ token, id: selectedStudyLevel }));
-    }
-  }, [dispatch, selectedStudyLevel, token]);
+    reset((prev) => ({
+      ...prev,
+      studyLevelId: studyLevelId || "",
+      semesterId: semesterId || "",
+      academicYearId: academicYearId || "",
+    }));
+  }, [studyLevelId, semesterId, academicYearId, reset]);
 
   const onSubmit = (data) => {
     const scheduleData = {
       name: data.scheduleName,
-      date: new Date(data.scheduleDate).toLocaleDateString("en-CA"),
+      academicYearId: data.academicYearId,
       semesterId: data.semesterId,
-      school_ClassId: data.schoolClassId,
+      studyLevelId: data.studyLevelId,
     };
+
     console.log("Schedule data to submit:", scheduleData);
 
     dispatch(actCreateSchedule({ token, data: scheduleData }));
   };
 
   useEffect(() => {
-    // Clear messages on component mount
     if (success || error) {
       setTimeout(() => {
         dispatch(resetCreateScheduleState());
-        reset();
+        reset({
+          scheduleName: "",
+          studyLevelId,
+          semesterId,
+          academicYearId,
+        });
       }, 3000);
     }
-  }, [success, error, dispatch, reset]);
+  }, [
+    success,
+    error,
+    dispatch,
+    reset,
+    studyLevelId,
+    semesterId,
+    academicYearId,
+  ]);
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 3 }}>
@@ -110,10 +123,10 @@ const CreateSchedule = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Schedule Name */}
         <Controller
           name="scheduleName"
           control={control}
-          defaultValue=""
           render={({ field, fieldState: { error } }) => (
             <TextField
               {...field}
@@ -127,28 +140,10 @@ const CreateSchedule = () => {
           )}
         />
 
-        <Controller
-          name="scheduleDate"
-          control={control}
-          defaultValue=""
-          render={({ field, fieldState: { error } }) => (
-            <TextField
-              {...field}
-              label="Schedule Date"
-              type="date"
-              fullWidth
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-              error={!!error}
-              helperText={error?.message}
-            />
-          )}
-        />
-
+        {/* Study Level */}
         <Controller
           name="studyLevelId"
           control={control}
-          defaultValue=""
           render={({ field, fieldState: { error } }) => (
             <TextField
               {...field}
@@ -168,34 +163,10 @@ const CreateSchedule = () => {
           )}
         />
 
-        <Controller
-          name="schoolClassId"
-          control={control}
-          defaultValue=""
-          render={({ field, fieldState: { error } }) => (
-            <TextField
-              {...field}
-              select
-              label="Class"
-              fullWidth
-              margin="normal"
-              disabled={!selectedStudyLevel}
-              error={!!error}
-              helperText={error?.message}
-            >
-              {schoolClasses.map((schoolClass) => (
-                <MenuItem key={schoolClass.id} value={schoolClass.id}>
-                  {schoolClass.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-        />
-
+        {/* Semester */}
         <Controller
           name="semesterId"
           control={control}
-          defaultValue=""
           render={({ field, fieldState: { error } }) => (
             <TextField
               {...field}
@@ -215,6 +186,30 @@ const CreateSchedule = () => {
           )}
         />
 
+        {/* Academic Year */}
+        <Controller
+          name="academicYearId"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              select
+              label="Academic Year"
+              fullWidth
+              margin="normal"
+              error={!!error}
+              helperText={error?.message}
+            >
+              {academicYears.map((year) => (
+                <MenuItem key={year.id} value={year.id}>
+                  {year.date}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
+
+        {/* Submit Button */}
         <Box sx={{ mt: 3 }}>
           <Button type="submit" variant="contained" size="large" fullWidth>
             Create Schedule

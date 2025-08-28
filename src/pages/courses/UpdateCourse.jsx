@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,301 +8,550 @@ import {
   TextField,
   FormControl,
   InputLabel,
+  FormHelperText,
+  LinearProgress,
+  Alert,
+  Dialog,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
+
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 import { fetchPlans } from "../../store/shared/plan/actGetPlan";
-import { fetchStages } from "../../store/shared/stage/actGetStage";
 import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
+import { fetchAcademicYears } from "../../store/shared/academicYears/actGetAcademicYears";
+import { fetchStages } from "../../store/shared/stage/actGetStage";
+import { actGetCourseDetails } from "../../store/shared/courseDetails/actGetCourseDetails";
 import { actUpdateCourse } from "../../store/courses/updateCourse/actUpdateCourse";
 import { clearUpdateMessages } from "../../store/courses/updateCourse/updateCourseSlice";
-import Alert from "@mui/material/Alert";
+import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
+import DeleteCourseFromP from "./DeleteCourseFromP";
+import AddCourseToP from "./AddCourseToP";
 
-// ✅ Validation schema
-const schema = yup.object().shape({
-  name: yup.string().required("Course name is required"),
-  description: yup.string().required("Description is required"),
-  stageId: yup.string().required("Stage is required"),
-  semesterId: yup.string().required("Semester is required"),
-  planId: yup.string().required("Plan is required"),
-  price: yup
-    .number()
-    .required("Price is required")
-    .positive("Price must be positive"),
-  discountPercentage: yup
-    .number()
-    .required("Discount percentage is required")
-    .min(0, "Discount percentage must be at least 0")
-    .max(1, "Discount percentage must be at most 1"),
-});
-
-const UpdateCourse = () => {
+const UpdateCourse = ({ courseData }) => {
   const dispatch = useDispatch();
-  const studyLevels = useSelector((state) => state.studyLevelsId.list);
+  const token = useSelector((state) => state.auth.token);
+
+  const { loading, successMessage, errorMessage } = useSelector(
+    (state) => state.updateCourse
+  );
+  const [selectedPlans, setSelectedPlans] = useState([]);
+  const [selectedStudyLevel, setSelectedStudyLevel] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [deleteCourseFromP, setDeleteCourseFromP] = useState(false);
+  const [addCourseToP, setAddCourseToP] = useState(false);
+  const [selectedCourseData, setSelectedCourseData] = useState(null);
+
   const plans = useSelector((state) => state.plansId.list);
+  const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const stages = useSelector((state) => state.stageId.list);
   const semesters = useSelector((state) => state.semestersId.list);
-  const coursesStudyLevels = useSelector(
-    (state) => state.coursesStudyLevelsId.list
-  );
-  const updateState = useSelector((state) => state.updateCourse);
+  const academicYears = useSelector((state) => state.academicYearsId.list);
 
-  const token = localStorage.getItem("token");
+  const courseDetails = useSelector((state) => state.courseDetails.list);
 
-  const [selectedStudyLevel, setSelectedStudyLevel] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  // ✅ إضافة useEffect لجلب تفاصيل الكورس عند تمرير courseData
+  useEffect(() => {
+    if (courseData && courseData.id && token) {
+      const courseId = courseData.id || courseData.courseId;
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
+      // تحديث الستيت المحلي
+      setSelectedPlans(courseData.coursesInPlans?.map((p) => p.planId) || []);
+      setSelectedStudyLevel(courseData.studyLevelId || "");
+      setSelectedCourse(courseId);
+
+      // جلب تفاصيل الكورس
+      dispatch(actGetCourseDetails({ token, id: courseId }));
+    }
+  }, [courseData, token, dispatch]);
+
+  // fetch base lists
+  useEffect(() => {
+    dispatch(fetchPlans(token));
+    dispatch(fetchStudyLevels(token));
+    dispatch(fetchStages(token));
+    dispatch(fetchSemesters(token));
+    dispatch(fetchAcademicYears(token));
+  }, [dispatch, token]);
+
+  // Schema
+  const validationSchema = yup.object({
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required"),
+    price: yup
+      .number()
+      .typeError("Price must be a number")
+      .min(0, "Price must be >= 0")
+      .required("Price is required"),
+    discountPercentage: yup
+      .number()
+      .typeError("Discount must be a number")
+      .min(0, "Discount must be >= 0")
+      .max(1, "Discount must be <= 1")
+      .required("Discount is required"),
+    stageId: yup
+      .number()
+      .typeError("Stage is required")
+      .required("Stage is required"),
+    semesterId: yup
+      .number()
+      .typeError("Semester is required")
+      .required("Semester is required"),
+    studyLevelId: yup
+      .number()
+      .typeError("Study Level is required")
+      .required("Study Level is required"),
+    plans: yup.array().min(1, "Plan is required"),
+    academicYearId: yup
+      .number()
+      .typeError("Academic Year is required")
+      .required("Academic Year is required"),
+  });
+
+  // Formik
+  const formik = useFormik({
+    initialValues: {
+      id: "",
+      name: "",
       description: "",
+      price: "",
+      discountPercentage: "",
       stageId: "",
       semesterId: "",
-      planId: "",
+      studyLevelId: "",
+      plans: [],
+      academicYearId: "",
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: (values) => {
+      dispatch(actUpdateCourse({ token, data: values }));
     },
   });
 
-  // Fetch base data
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchStudyLevels(token));
-      dispatch(fetchPlans(token));
-      dispatch(fetchStages(token));
-      dispatch(fetchSemesters(token));
-    }
-  }, [dispatch, token]);
+  const handleDeleteCourse = () => {
+    if (courseDetails) {
+      const courseDataForDelete = {
+        courseId: courseDetails.id,
+        courseName: courseDetails.name,
+        plans: courseDetails.plans || [],
+        // إضافة أي بيانات تانية محتاجها
+        ...courseDetails,
+      };
 
-  // Fetch courses when study level changes
-  useEffect(() => {
-    if (selectedStudyLevel) {
-      dispatch(fetchCoursesStudyLevels({ token, id: selectedStudyLevel }));
+      setSelectedCourseData(courseDataForDelete);
+      setDeleteCourseFromP(true);
     }
-  }, [selectedStudyLevel, dispatch, token]);
-
-  // Update selected course and populate form
-  useEffect(() => {
-    if (selectedCourseId && coursesStudyLevels.length > 0) {
-      const course = coursesStudyLevels.find(
-        (item) => item.id === +selectedCourseId
-      );
-      if (course) {
-        setSelectedCourse(course);
-        reset({
-          name: course.name || "",
-          description: course.description || "",
-          stageId: course.stageId?.toString() || "",
-          semesterId: course.semesterId?.toString() || "",
-          planId: course.planId?.toString() || "",
-        });
-      }
-    }
-  }, [selectedCourseId, coursesStudyLevels, reset]);
-
-  useEffect(() => {
-    if (updateState.successMessage || updateState.errorMessage) {
-      const timer = setTimeout(() => {
-        dispatch(clearUpdateMessages());
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [updateState.successMessage, updateState.errorMessage, dispatch]);
-
-  const onSubmit = (data) => {
-    const fullData = {
-      id: selectedCourse?.id,
-      name: data.name,
-      description: data.description,
-      stageId: +data.stageId,
-      semesterId: +data.semesterId,
-      planId: +data.planId,
-      studyLevelId: +selectedStudyLevel,
-      price: data.price,
-      discountPercentage: data.discountPercentage,
-    };
-    dispatch(actUpdateCourse({ data: fullData, token }));
-    reset();
-    setSelectedCourse(null);
-    setSelectedCourseId("");
-    setSelectedStudyLevel("");
   };
 
+  // ✅ دالة لتحضير بيانات الكورس للإضافة
+  const handleAddCourse = () => {
+    if (courseDetails) {
+      const courseDataForAdd = {
+        courseId: courseDetails.id,
+        courseName: courseDetails.name,
+        plans: courseDetails.plans || [],
+        // إضافة أي بيانات تانية محتاجها
+        ...courseDetails,
+      };
+
+      console.log("Course data for add:", courseDataForAdd);
+      setSelectedCourseData(courseDataForAdd);
+      setAddCourseToP(true);
+    }
+  };
+
+  const handleSelectCourse = (courseId) => {
+    setSelectedCourse(courseId);
+    if (courseId) {
+      dispatch(actGetCourseDetails({ token, id: courseId }));
+    }
+  };
+
+  // ✅ ملء الفورم عند وصول بيانات courseDetails
+  useEffect(() => {
+    if (courseDetails && courseDetails.id) {
+      formik.setValues({
+        id: courseDetails.id,
+        name: courseDetails.name || "",
+        description: courseDetails.description || "",
+        price: courseDetails.price ?? "",
+        discountPercentage: courseDetails.discountPercentage ?? "",
+        stageId: courseDetails.stageId ?? "",
+        semesterId: courseDetails.semesterId ?? "",
+        studyLevelId: courseDetails.studyLevelId ?? "",
+        plans: courseDetails.plans?.map((p) => p.id) ?? [],
+        academicYearId: courseDetails.academicYearId ?? "",
+      });
+    }
+  }, [courseDetails]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (successMessage || errorMessage) {
+      const timeoutId = setTimeout(() => {
+        dispatch(clearUpdateMessages());
+        setSelectedCourse("");
+        setSelectedPlans([]);
+        setSelectedStudyLevel("");
+      }, 3000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [successMessage, errorMessage, dispatch]);
+
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
-      <Typography variant="h5" mb={2}>
+    <Box p={3}>
+      {loading && <LinearProgress />}
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+      {deleteCourseFromP && (
+        <Dialog
+          onClose={() => setDeleteCourseFromP(false)}
+          open={deleteCourseFromP}
+        >
+          <DeleteCourseFromP
+            courseDataForDelete={selectedCourseData}
+            onClose={() => setDeleteCourseFromP(false)}
+          />
+        </Dialog>
+      )}
+      {addCourseToP && (
+        <Dialog
+          onClose={() => setAddCourseToP(false)}
+          open={addCourseToP}
+          maxWidth="sm"
+          fullWidth
+        >
+          <AddCourseToP
+            courseDataForAdd={selectedCourseData}
+            onClose={() => setAddCourseToP(false)}
+          />
+        </Dialog>
+      )}
+
+      <Typography variant="h5" gutterBottom>
         Update Course
       </Typography>
 
-      {updateState.successMessage && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {updateState.successMessage}
-        </Alert>
-      )}
-
-      {updateState.errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {updateState.errorMessage}
-        </Alert>
-      )}
-
-      {/* Study Level Select */}
+      {/* Filters: Plans */}
       <FormControl fullWidth margin="normal">
-        <InputLabel>Study Level</InputLabel>
-        <Select
-          value={selectedStudyLevel}
-          onChange={(e) => {
-            setSelectedStudyLevel(e.target.value);
-            setSelectedCourse(null);
-            setSelectedCourseId("");
-          }}
-          label="Study Level"
+        <InputLabel
+          id="plan-filter-label"
+          sx={{ fontSize: "15px", fontWeight: "bold", color: "black" }}
         >
-          {studyLevels?.map((level) => (
-            <MenuItem key={level.id} value={level.id}>
-              {level.level}
+          Current Plans
+        </InputLabel>
+        <Select
+          labelId="plan-filter-label"
+          multiple
+          value={selectedPlans}
+          onChange={(e) => setSelectedPlans(e.target.value)}
+          renderValue={(selected) =>
+            plans
+              ?.filter((plan) => selected.includes(plan.id))
+              .map((plan) => plan.name)
+              .join(", ")
+          }
+        >
+          {plans?.map((plan) => (
+            <MenuItem key={plan.id} value={plan.id}>
+              {plan.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* Filters: Study Level */}
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="level-filter-label">Study Level</InputLabel>
+        <Select
+          labelId="level-filter-label"
+          value={selectedStudyLevel}
+          onChange={(e) => setSelectedStudyLevel(e.target.value)}
+        >
+          {studyLevels?.map((lvl) => (
+            <MenuItem key={lvl.id} value={lvl.id}>
+              {lvl.studyLevelName || lvl.level}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
       {/* Course Select */}
-      {selectedStudyLevel && (
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Select Course</InputLabel>
-          <Select
-            value={selectedCourseId}
-            onChange={(e) => setSelectedCourseId(e.target.value)}
-            label="Select Course"
-          >
-            {coursesStudyLevels?.map((course) => (
-              <MenuItem key={course.id} value={course.id}>
-                {course.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="course-select-label">Course</InputLabel>
+        <Select
+          labelId="course-select-label"
+          label="Course"
+          value={selectedCourse || ""}
+          onChange={(e) => handleSelectCourse(e.target.value)}
+        >
+          {courseData ? (
+            <MenuItem value={courseData.id || courseData.courseId}>
+              {courseData.name || courseData.courseName}
+            </MenuItem>
+          ) : (
+            <MenuItem disabled>No courses available</MenuItem>
+          )}
+        </Select>
+      </FormControl>
+
+      {/* ✅ إضافة رسالة loading أثناء تحميل تفاصيل الكورس */}
+      {selectedCourse && !courseDetails && (
+        <Box mt={2} textAlign="center">
+          <Typography variant="body2" color="textSecondary">
+            Loading course details...
+          </Typography>
+        </Box>
       )}
 
-      {/* Form to update course details */}
-      {selectedCourse && (
-        <form onSubmit={handleSubmit(onSubmit)}>
+      {/* Form (يمتلئ من courseDetails) */}
+      {courseDetails && courseDetails.id && (
+        <Box component="form" mt={3} onSubmit={formik.handleSubmit}>
+          <Typography
+            align="center"
+            sx={{ fontWeight: "bold" }}
+            variant="body2"
+            color="initial"
+          >
+            Course Details
+          </Typography>
+
+          {/* Name */}
           <TextField
-            label="Course Name"
-            {...register("name")}
-            error={!!errors.name}
-            helperText={errors.name?.message}
             fullWidth
             margin="normal"
+            label="Name"
+            name="name"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.name && Boolean(formik.errors.name)}
+            helperText={formik.touched.name && formik.errors.name}
           />
 
+          {/* Description */}
           <TextField
+            fullWidth
+            margin="normal"
             label="Description"
-            {...register("description")}
-            error={!!errors.description}
-            helperText={errors.description?.message}
+            name="description"
+            value={formik.values.description}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={
+              formik.touched.description && Boolean(formik.errors.description)
+            }
+            helperText={formik.touched.description && formik.errors.description}
+          />
+
+          {/* Price */}
+          <TextField
             fullWidth
             margin="normal"
-          />
-          <TextField
             label="Price"
-            fullWidth
-            margin="normal"
-            {...register("price")}
-            error={!!errors.price}
-            helperText={errors.price?.message}
+            type="number"
+            name="price"
+            value={formik.values.price}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.price && Boolean(formik.errors.price)}
+            helperText={formik.touched.price && formik.errors.price}
           />
+
+          {/* Discount */}
           <TextField
-            label="Discount Percentage"
             fullWidth
             margin="normal"
-            {...register("discountPercentage")}
-            error={!!errors.discountPercentage}
-            helperText={errors.discountPercentage?.message}
+            label="Discount %"
+            type="number"
+            name="discountPercentage"
+            value={formik.values.discountPercentage}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={
+              formik.touched.discountPercentage &&
+              Boolean(formik.errors.discountPercentage)
+            }
+            helperText={
+              formik.touched.discountPercentage &&
+              formik.errors.discountPercentage
+            }
           />
 
-          {/* Stage Select */}
-          <FormControl fullWidth margin="normal" error={!!errors.stageId}>
-            <InputLabel>Stage</InputLabel>
-            <Controller
+          {/* Stage */}
+          <FormControl
+            fullWidth
+            margin="normal"
+            error={formik.touched.stageId && Boolean(formik.errors.stageId)}
+          >
+            <InputLabel id="stage-label">Stage</InputLabel>
+            <Select
+              labelId="stage-label"
+              label="Stage"
               name="stageId"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} label="Stage">
-                  {stages.map((stage) => (
-                    <MenuItem key={stage.id} value={stage.id}>
-                      {stage.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.stageId && (
-              <Typography color="error" variant="body2">
-                {errors.stageId.message}
-              </Typography>
-            )}
+              value={formik.values.stageId}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              {stages?.map((s) => (
+                <MenuItem key={s.id} value={s.id}>
+                  {s.stageName || s.name}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {formik.touched.stageId && formik.errors.stageId}
+            </FormHelperText>
           </FormControl>
 
-          {/* Semester Select */}
-          <FormControl fullWidth margin="normal" error={!!errors.semesterId}>
-            <InputLabel>Semester</InputLabel>
-            <Controller
+          {/* Semester */}
+          <FormControl
+            fullWidth
+            margin="normal"
+            error={
+              formik.touched.semesterId && Boolean(formik.errors.semesterId)
+            }
+          >
+            <InputLabel id="semester-label">Semester</InputLabel>
+            <Select
+              labelId="semester-label"
+              label="Semester"
               name="semesterId"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} label="Semester">
-                  {semesters.map((semester) => (
-                    <MenuItem key={semester.id} value={semester.id}>
-                      {semester.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.semesterId && (
-              <Typography color="error" variant="body2">
-                {errors.semesterId.message}
-              </Typography>
-            )}
+              value={formik.values.semesterId}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              {semesters?.map((s) => (
+                <MenuItem key={s.id} value={s.id}>
+                  {s.semesterName || s.name}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {formik.touched.semesterId && formik.errors.semesterId}
+            </FormHelperText>
           </FormControl>
 
-          {/* Plan Select */}
-          <FormControl fullWidth margin="normal" error={!!errors.planId}>
-            <InputLabel>Plan</InputLabel>
-            <Controller
-              name="planId"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} label="Plan">
-                  {plans.map((plan) => (
-                    <MenuItem key={plan.id} value={plan.id}>
-                      {plan.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.planId && (
-              <Typography color="error" variant="body2">
-                {errors.planId.message}
-              </Typography>
-            )}
+          {/* Academic Year */}
+          <FormControl
+            fullWidth
+            margin="normal"
+            error={
+              formik.touched.academicYearId &&
+              Boolean(formik.errors.academicYearId)
+            }
+          >
+            <InputLabel id="academicYear-label">Academic Year</InputLabel>
+            <Select
+              labelId="academicYear-label"
+              label="Academic Year"
+              name="academicYearId"
+              value={formik.values.academicYearId}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              {academicYears?.map((y) => (
+                <MenuItem key={y.id} value={y.id}>
+                  {y.academicYearName || y.date}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {formik.touched.academicYearId && formik.errors.academicYearId}
+            </FormHelperText>
           </FormControl>
 
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Submit Update
+          {/* Study Level */}
+          <FormControl
+            fullWidth
+            margin="normal"
+            error={
+              formik.touched.studyLevelId && Boolean(formik.errors.studyLevelId)
+            }
+          >
+            <InputLabel id="studyLevel-label">Study Level</InputLabel>
+            <Select
+              labelId="studyLevel-label"
+              label="Study Level"
+              name="studyLevelId"
+              value={formik.values.studyLevelId}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              {studyLevels?.map((lvl) => (
+                <MenuItem key={lvl.id} value={lvl.id}>
+                  {lvl.studyLevelName || lvl.level}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {formik.touched.studyLevelId && formik.errors.studyLevelId}
+            </FormHelperText>
+          </FormControl>
+
+          {/* Plan */}
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <FormControl
+              fullWidth
+              margin="normal"
+              error={formik.touched.plans && Boolean(formik.errors.plans)}
+            >
+              <InputLabel id="plans-label">Plans</InputLabel>
+              <Select
+                labelId="plans-label"
+                multiple
+                name="plans"
+                value={formik.values.plans}
+                onChange={formik.handleChange}
+                renderValue={(selected) =>
+                  plans
+                    ?.filter((plan) => selected.includes(plan.id))
+                    .map((plan) => plan.name)
+                    .join(", ")
+                }
+              >
+                {plans?.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                {formik.touched.plans && formik.errors.plans}
+              </FormHelperText>
+            </FormControl>
+
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddCourse}
+              >
+                <GridAddIcon />
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleDeleteCourse}
+              >
+                <GridDeleteIcon />
+              </Button>
+            </Box>
+          </Box>
+
+          <Button type="submit" variant="contained" color="primary">
+            Update Course
           </Button>
-        </form>
+        </Box>
       )}
     </Box>
   );

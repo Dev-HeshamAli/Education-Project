@@ -1,5 +1,4 @@
-// UpdateSchoolClass.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -33,64 +32,114 @@ const schema = yup.object().shape({
     .positive("Capacity must be positive"),
 });
 
-const UpdateSchoolClass = () => {
+const UpdateSchoolClass = ({ studyLevelId, classId, capacity, className }) => {
+  console.log(capacity);
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const schoolClasses = useSelector((state) => state.schoolClassId.list);
   const { error, success } = useSelector((state) => state.updateSchoolClass);
 
-  const [selectedStudyLevel, setSelectedStudyLevel] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const {
     handleSubmit,
     control,
-    reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      studyLevelId: "",
-      classId: "",
-      name: "",
-      capacity: "",
+      studyLevelId: studyLevelId || "",
+      classId: classId || "",
+      name: className || "",
+      capacity: capacity || "",
     },
   });
 
-  // Fetch study levels
+  // Watch form values
+  const watchedStudyLevelId = watch("studyLevelId");
+  const watchedClassId = watch("classId");
+
+  // Fetch study levels once
   useEffect(() => {
     if (token) {
       dispatch(fetchStudyLevels(token));
     }
   }, [dispatch, token]);
 
-  // Fetch school classes when a study level is selected
+  // Initialize form with props when component mounts
   useEffect(() => {
-    if (token && selectedStudyLevel) {
-      dispatch(fetchSchoolClassId({ token, id: selectedStudyLevel }));
+    if (studyLevelId && classId && capacity && className && !isInitialized) {
+      setValue("studyLevelId", studyLevelId);
+      setValue("classId", classId);
+      setValue("name", className);
+      setValue("capacity", capacity);
+      setIsInitialized(true);
     }
-  }, [dispatch, token, selectedStudyLevel]);
+  }, [studyLevelId, classId, capacity, className, setValue, isInitialized]);
 
-  // Set selected class info when picked
+  // Fetch school classes when studyLevelId changes
   useEffect(() => {
-    const selectedClass = schoolClasses.find(
-      (cls) => cls.id === Number(selectedClassId)
-    );
+    if (token && watchedStudyLevelId) {
+      dispatch(fetchSchoolClassId({ token, id: watchedStudyLevelId }));
+    }
+  }, [dispatch, token, watchedStudyLevelId]);
+
+  // Auto-fill name and capacity when class is selected
+  useEffect(() => {
+    if (watchedClassId && schoolClasses.length > 0) {
+      const selectedClass = schoolClasses.find(
+        (cls) => cls.id === Number(watchedClassId)
+      );
+
+      if (selectedClass) {
+        // Only auto-fill if we're not in initialization phase
+        if (isInitialized || !studyLevelId || !classId) {
+          setValue("name", selectedClass.name);
+          setValue("capacity", selectedClass.capacity);
+        }
+      }
+    }
+  }, [
+    watchedClassId,
+    schoolClasses,
+    setValue,
+    isInitialized,
+    studyLevelId,
+    classId,
+  ]);
+
+  // Reset success/error messages
+  useEffect(() => {
+    if (success || error) {
+      setTimeout(() => dispatch(resetSchoolClassState()), 3000);
+    }
+  }, [success, error, dispatch]);
+
+  const handleStudyLevelChange = (value, field) => {
+    field.onChange(value);
+
+    // Only reset class-related fields if we're changing to a different study level
+    if (value !== studyLevelId) {
+      setValue("classId", "");
+      setValue("name", "");
+      setValue("capacity", "");
+    }
+  };
+
+  const handleClassChange = (value, field) => {
+    field.onChange(value);
+
+    // Find selected class and auto-fill its data
+    const selectedClass = schoolClasses.find((cls) => cls.id === Number(value));
+
     if (selectedClass) {
       setValue("name", selectedClass.name);
       setValue("capacity", selectedClass.capacity);
     }
-  }, [selectedClassId, schoolClasses, setValue]);
-
-  useEffect(() => {
-    if (success) {
-      setTimeout(() => dispatch(resetSchoolClassState()), 3000);
-    } else if (error) {
-      setTimeout(() => dispatch(resetSchoolClassState()), 3000);
-    }
-  }, [success, dispatch, error]);
+  };
 
   const onSubmit = (data) => {
     const payload = {
@@ -99,18 +148,11 @@ const UpdateSchoolClass = () => {
       capacity: Number(data.capacity),
       studyLevelId: Number(data.studyLevelId),
     };
-    // console.log("Update Payload:", payload);
     dispatch(updateSchoolClass({ data: payload, token }));
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#f9f9f9"
-    >
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Card sx={{ width: 500, p: 2 }}>
         <CardContent>
           <Typography variant="h5" align="center" mb={3}>
@@ -139,17 +181,9 @@ const UpdateSchoolClass = () => {
                   <Select
                     {...field}
                     label="Study Level"
-                    onChange={(e) => {
-                      field.onChange(e);
-                      setSelectedStudyLevel(e.target.value);
-                      setSelectedClassId("");
-                      reset({
-                        studyLevelId: e.target.value,
-                        classId: "",
-                        name: "",
-                        capacity: "",
-                      });
-                    }}
+                    onChange={(e) =>
+                      handleStudyLevelChange(e.target.value, field)
+                    }
                   >
                     {studyLevels.map((level) => (
                       <MenuItem key={level.id} value={level.id}>
@@ -167,7 +201,7 @@ const UpdateSchoolClass = () => {
             </FormControl>
 
             {/* Class Select */}
-            {selectedStudyLevel && (
+            {watchedStudyLevelId && (
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Class</InputLabel>
                 <Controller
@@ -177,10 +211,7 @@ const UpdateSchoolClass = () => {
                     <Select
                       {...field}
                       label="Class"
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setSelectedClassId(e.target.value);
-                      }}
+                      onChange={(e) => handleClassChange(e.target.value, field)}
                     >
                       {schoolClasses.map((cls) => (
                         <MenuItem key={cls.id} value={cls.id}>
@@ -198,55 +229,54 @@ const UpdateSchoolClass = () => {
               </FormControl>
             )}
 
-            {/* Name Input */}
-            {selectedClassId && (
-              <>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Class Name"
-                      sx={{ mb: 2 }}
-                    />
-                  )}
-                />
-                {errors.name && (
-                  <Typography color="error" variant="caption">
-                    {errors.name.message}
-                  </Typography>
+            {/* Name Field - Always show when classId is selected */}
+            {watchedClassId && (
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Class Name"
+                    sx={{ mb: 2 }}
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
                 )}
+              />
+            )}
 
-                <Controller
-                  name="capacity"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Capacity"
-                      type="number"
-                      sx={{ mb: 2 }}
-                    />
-                  )}
-                />
-                {errors.capacity && (
-                  <Typography color="error" variant="caption">
-                    {errors.capacity.message}
-                  </Typography>
+            {/* Capacity Field - Always show when classId is selected */}
+            {watchedClassId && (
+              <Controller
+                name="capacity"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Capacity"
+                    type="number"
+                    sx={{ mb: 2 }}
+                    error={!!errors.capacity}
+                    helperText={errors.capacity?.message}
+                  />
                 )}
+              />
+            )}
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Update Class
-                </Button>
-              </>
+            {/* Submit Button */}
+            {watchedClassId && (
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                Update Class
+              </Button>
             )}
           </form>
         </CardContent>

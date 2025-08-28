@@ -7,7 +7,7 @@ import AppBarHeader from "../components/appbar/AppBarHeader";
 import Sidebar from "../components/sidbar/Sidebar";
 import { useState } from "react";
 
-const drawerWidth = 290;
+const drawerWidth = 300;
 
 const Main = styled("main", {
   shouldForwardProp: (prop) => prop !== "open",

@@ -8,16 +8,19 @@ import {
   Button,
   Typography,
   Box,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from "@mui/material";
 import Alert from "@mui/material/Alert";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { fetchPlans } from "../../store/shared/plan/actGetPlan";
-import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
 import { clearMessages } from "../../store/courses/deleteCourseFromPlan/deleteCourseFromPlanSlice";
 import { actDeleteCourseFromPlan } from "../../store/courses/deleteCourseFromPlan/actDeleteCourseFromPlan";
 
@@ -25,182 +28,209 @@ import { actDeleteCourseFromPlan } from "../../store/courses/deleteCourseFromPla
 const schema = yup.object({
   planId: yup.string().required("Plan is required"),
   courseId: yup.string().required("Course is required"),
-  studyLevelId: yup.string().required("Study Level is required"),
 });
 
-const DeleteCourseFromP = () => {
+const DeleteCourseFromP = ({ courseDataForDelete, onClose }) => {
+  console.log("courseDataForDelete:", courseDataForDelete);
+
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
   const {
     control,
-    reset,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       planId: "",
       courseId: "",
-      studyLevelId: "",
     },
   });
 
   const plans = useSelector((state) => state.plansId.list);
-  const studyLevels = useSelector((state) => state.studyLevelsId.list);
-  const courses = useSelector((state) => state.coursesStudyLevelsId.list);
   const deleteState = useSelector((state) => state.deleteCourseFromPlan);
 
-  // Fetch plans on mount
-  useEffect(() => {
-    dispatch(fetchPlans());
-  }, [dispatch]);
-
-  // Fetch study levels
+  // fetch plans on mount
   useEffect(() => {
     if (token) {
-      dispatch(fetchStudyLevels(token));
+      dispatch(fetchPlans(token));
     }
   }, [dispatch, token]);
 
-  // Fetch courses when study levels are ready
+  // ✅ ملء بيانات الكورس عند توفرها
   useEffect(() => {
-    if (token && studyLevels.length > 0) {
-      const firstStudyLevelId = studyLevels[0].id;
-      dispatch(fetchCoursesStudyLevels({ token, id: firstStudyLevelId }));
+    if (courseDataForDelete) {
+      setValue(
+        "courseId",
+        String(courseDataForDelete.courseId || courseDataForDelete.id || "")
+      );
     }
-  }, [dispatch, token, studyLevels]);
+  }, [courseDataForDelete, setValue]);
 
+  // watch selected plan
+  const selectedPlanId = watch("planId");
+
+  // clear course when plan changes
+  useEffect(() => {
+    if (selectedPlanId && courseDataForDelete) {
+      // إذا تغيرت الخطة، لكن نحتفظ بالكورس المحدد مسبقاً
+      // يمكنك تعديل هذا السلوك حسب المطلوب
+      console.log("Plan changed to:", selectedPlanId);
+    }
+  }, [selectedPlanId, courseDataForDelete]);
+
+  // clear messages after 3 sec
   useEffect(() => {
     if (deleteState.successMessage || deleteState.errorMessage) {
       const timer = setTimeout(() => {
         dispatch(clearMessages());
+        if (deleteState.successMessage) {
+          onClose(); // أغلق الـ Dialog عند نجاح العملية
+        }
       }, 3000);
-
       return () => clearTimeout(timer);
     }
-  }, [deleteState.successMessage, deleteState.errorMessage, dispatch]);
+  }, [deleteState.successMessage, deleteState.errorMessage, dispatch, onClose]);
 
   const onSubmit = (data) => {
     dispatch(
       actDeleteCourseFromPlan({
-        courseId: data.courseId,
-        planId: data.planId,
+        courseId: Number(data.courseId),
+        planId: Number(data.planId),
         token,
       })
     );
-    // Reset form after submission
-    reset();
   };
 
+  const coursesForDisplay = courseDataForDelete
+    ? [
+        {
+          courseId: courseDataForDelete.courseId || courseDataForDelete.id,
+          courseName:
+            courseDataForDelete.courseName || courseDataForDelete.name,
+        },
+      ]
+    : [];
+
+  // ✅ تحضير قائمة الخطط المتاحة للكورس
+  const availablePlans = courseDataForDelete?.plans || plans || [];
+
   return (
-    <Box sx={{ maxWidth: 400, mx: "auto", mt: 4 }}>
-      <Typography variant="h5" mb={2}>
-        Delete Course from Plan
-      </Typography>
-      {deleteState.successMessage && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {deleteState.successMessage}
-        </Alert>
-      )}
+    <>
+      <DialogTitle>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">Delete Course from Plan</Typography>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </DialogTitle>
 
-      {deleteState.errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {deleteState.errorMessage}
-        </Alert>
-      )}
+      <DialogContent>
+        {deleteState.successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {deleteState.successMessage}
+          </Alert>
+        )}
+        {deleteState.errorMessage && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {deleteState.errorMessage}
+          </Alert>
+        )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Plan Selection */}
-        <FormControl fullWidth margin="normal" error={!!errors.planId}>
-          <InputLabel>Choose Plan</InputLabel>
-          <Controller
-            name="planId"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} label="Choose Plan">
-                {plans?.map((plan) => (
-                  <MenuItem key={plan.id} value={plan.id}>
-                    {plan.name || `Plan ${plan.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
+        {courseDataForDelete && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            You are about to delete:{" "}
+            <strong>
+              {courseDataForDelete.courseName || courseDataForDelete.name}
+            </strong>
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} id="delete-course-form">
+          {/* ✅ Course Selection - مُحدد مسبقاً */}
+          <FormControl fullWidth margin="normal" error={!!errors.courseId}>
+            <InputLabel>Course</InputLabel>
+            <Controller
+              name="courseId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Course"
+                  disabled // مُحدد مسبقاً ولا يمكن تغييره
+                  renderValue={(selected) => {
+                    const course = coursesForDisplay.find(
+                      (c) => String(c.courseId) === String(selected)
+                    );
+                    return course ? course.courseName : "No course selected";
+                  }}
+                >
+                  {coursesForDisplay.map((course) => (
+                    <MenuItem
+                      key={course.courseId}
+                      value={String(course.courseId)}
+                    >
+                      {course.courseName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+            />
+            {errors.courseId && (
+              <Typography color="error" variant="caption">
+                {errors.courseId.message}
+              </Typography>
             )}
-          />
-          {errors.planId && (
-            <Typography color="error" variant="caption">
-              {errors.planId.message}
-            </Typography>
-          )}
-        </FormControl>
+          </FormControl>
 
-        {/* Study Level Select */}
-        <FormControl fullWidth margin="normal" error={!!errors.studyLevelId}>
-          <InputLabel>Choose Study Level</InputLabel>
-          <Controller
-            name="studyLevelId"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                label="Choose Study Level"
-                onChange={(e) => {
-                  const selectedLevelId = e.target.value;
-                  field.onChange(selectedLevelId); // Update form state
-                  dispatch(
-                    fetchCoursesStudyLevels({ token, id: selectedLevelId })
-                  ); // Fetch courses for selected level
-                }}
-              >
-                {studyLevels?.map((level) => (
-                  <MenuItem key={level.id} value={level.id}>
-                    {level.level || `Level ${level.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
+          {/* Plan Selection */}
+          <FormControl fullWidth margin="normal" error={!!errors.planId}>
+            <InputLabel>Choose Plan to Remove From</InputLabel>
+            <Controller
+              name="planId"
+              control={control}
+              render={({ field }) => (
+                <Select {...field} label="Choose Plan to Remove From">
+                  {availablePlans.length ? (
+                    availablePlans.map((plan) => (
+                      <MenuItem key={plan.id} value={String(plan.id)}>
+                        {plan.name || `Plan ${plan.id}`}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>No plans found</MenuItem>
+                  )}
+                </Select>
+              )}
+            />
+            {errors.planId && (
+              <Typography color="error" variant="caption">
+                {errors.planId.message}
+              </Typography>
             )}
-          />
-          {errors.studyLevelId && (
-            <Typography color="error" variant="caption">
-              {errors.studyLevelId.message}
-            </Typography>
-          )}
-        </FormControl>
+          </FormControl>
+        </form>
+      </DialogContent>
 
-        {/* Course Selection */}
-        <FormControl fullWidth margin="normal" error={!!errors.courseId}>
-          <InputLabel>Choose Course</InputLabel>
-          <Controller
-            name="courseId"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} label="Choose Course">
-                {courses?.map((course) => (
-                  <MenuItem key={course.id} value={course.id}>
-                    {course.name || `Course ${course.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          />
-          {errors.courseId && (
-            <Typography color="error" variant="caption">
-              {errors.courseId.message}
-            </Typography>
-          )}
-        </FormControl>
-
+      <DialogActions>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           variant="contained"
           color="error"
-          fullWidth
           type="submit"
-          sx={{ mt: 2 }}
+          form="delete-course-form"
+          disabled={deleteState.loading}
         >
-          Delete Course from Plan
+          {deleteState.loading ? "Deleting..." : "Delete Course from Plan"}
         </Button>
-      </form>
-    </Box>
+      </DialogActions>
+    </>
   );
 };
 

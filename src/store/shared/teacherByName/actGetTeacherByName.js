@@ -8,7 +8,7 @@ export const fetchTeachersByName = createAsyncThunk(
   "teacher/fetchTeachersByName",
   async ({token, name}, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/Shared/Teachers/${name}`, {
+      const response = await axios.get(`${BASE_URL}/api/Shared/TeachersByName/${name}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

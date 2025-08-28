@@ -22,12 +22,11 @@ import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 
 const CreatePL = () => {
-  const token = localStorage.getItem("token");
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.planLevel);
   const plans = useSelector((state) => state.plansId.list);
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
-  
 
   const { handleSubmit, control, reset } = useForm({
     defaultValues: {
@@ -51,20 +50,13 @@ const CreatePL = () => {
   }, [success, error, dispatch, reset]);
 
   const onSubmit = (formData) => {
-    if (formData.discount >0.99) return alert("Discount must not exceed 1");
+    if (formData.discount > 0.99) return alert("Discount must not exceed 1");
     dispatch(actCreatePlanLevel({ data: formData, token }));
     console.log("Form Data:", formData);
-    
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#f4f4f4"
-    >
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Card sx={{ width: 450, p: 3 }}>
         <CardContent>
           <Typography variant="h5" mb={3} align="center">

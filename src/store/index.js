@@ -15,7 +15,7 @@ import updatePlanLevelReducer from "./academicYear/updatePlanLevel/updatePlanLev
 import stageIdReducer from "./shared/stage/stageSlice";
 import semestersIdReducer from "./shared/semesters/semestersSlice";
 import academicYearsIdReducer from "./shared/academicYears/academicYearsSlice";
-import courseStudyLevelIdReducer from "./shared/coursesStudyLevel/coursesStudyLevelSlice";
+import coursesInStudyLevelIdReducer from "./shared/coursesInStudyLevel/coursesInStudyLevelSlice";
 import courseReducer from "./courses/createCourseSlice";
 import addCourseToPlanReducer from "./courses/addCourseToPlan/addCourseToPlanSlice";
 import deleteCourseFromPlanReducer from "./courses/deleteCourseFromPlan/deleteCourseFromPlanSlice";
@@ -33,9 +33,52 @@ import deleteTeacherReducer from "./deleteTeacher/deleteTeacherSlice";
 import addTeacherToStudyLevelReducer from "./addTeacherToStudyLevel/addTeacherToStudyLevelSlice";
 import teacherByStudyLevelReducer from "./shared/teacherByStudyLevel/teacherByStudyLevelSlice";
 import addTeacherToCourseReducer from "./addTeacherToCourse/addTeacherToCourseSlice";
-import addTeacherToClassReducer from "./addTeacherToClass/addTeacherToClassSlice";
+import removeTeacherFromCourseReducer from "./addTeacherToCourse/deleteTeacherFromCourse/deleteTeacherFromCourseSlice";
 import createScheduleReducer from "./schedule/createScheduleSlice";
-
+import updateScheduleReducer from "./schedule/updateSchedule/updateScheduleSlice";
+import deleteScheduleReducer from "./schedule/deleteSchedule/deleteScheduleSlice";
+import createDiscountCodeReducer from "./createDiscountCode/createDiscountCode";
+import createJobDiscountReducer from "./createJobDiscount/createJobDiscount";
+import getJobDiscountReducer from "./shared/jobDiscount/jobDiscountSlice";
+import updateJobDiscountReducer from "./createJobDiscount/updateJobDiscount/updateJobDiscountSlice";
+import deleteJobDiscountReducer from "./createJobDiscount/deleteJobDiscount/deleteJobDiscountSlice";
+import getDiscountCodeReducer from "./shared/discountCode/discountCodeSlice";
+import updateDiscountCodeReducer from "./createDiscountCode/updateDiscountCode/updateDiscountCodeSlice";
+import deleteStudyLevelReducer from "./academicYear/studyLevel/deleteStudyLevel/deleteStudyLevelSlice";
+import deleteDiscountCodeReducer from "./createDiscountCode/deleteDiscountCode/deleteDiscountCodeSlice";
+import getProblemsReducer from "./shared/problems/problemsSlice";
+import courseStudyLevelIdReducer from "./shared/coursesStudyLevel/coursesStudyLevelSlice";
+import getSolvedProblemsReducer from "./shared/solvedProblems/solvedProblemsSlice";
+import deleteProblemReducer from "./problemsForAdmin/deleteProblem/deleteProblemSlice";
+import solveProblemReducer from "./problemsForAdmin/solveProblem/solveProblemSlice";
+import scheduleIdIdReducer from "./shared/getScheduleId/getScheduleIdSlice";
+import scheduleInfoIdReducer from "./shared/getScheduleId/schedule/getScheduleInfoSlice";
+import deletePlanReducer from "./academicYear/plan/deleteplan/deletePlanSlice";
+import updatePlanReducer from "./academicYear/plan/updatePlan/updatePlanSlice";
+import deleteStageReducer from "./academicYear/stage/deleteStage/deleteStageSlice";
+import planDetailsReducer from "./shared/data/planDetails/planDetailsSlice";
+import courseDetailsReducer from "./shared/courseDetails/courseDetailsSlice";
+import allCoursesTableDetailsReducer from "./shared/data/allCoursesTable/allCoursesTableSlice";
+import levelsInPlanReducer from "./shared/data/getLevelsInPlan/levelsInPlanSlice";
+import updateStudyLevelReducer from "./academicYear/studyLevel/updateStudyLevel/updateStudyLevelSlice";
+import addLecToScheduleReducer from "./schedule/addLecToSchedule/addLecToScheduleSlice";
+import deletePlanLevelReducer from "./academicYear/deletePlanLevel/deletePlanLevelSlice";
+import deleteAcademicYearReducer from "./academicYear/createAcademicYear/deleteAY/deleteAYSlice";
+import updateLecToScheduleReducer from "./schedule/updateLecToSchedule/updateLecToScheduleSlice";
+import selectionIdsReducer from "./LOCAL_DATA/selectinIdsSlice";
+import lecturesReducer from "./shared/lectures/lecturesSlice";
+import createScheduleDayReducer from "./schedule/createScheduleDay/createScheduleDaySlice";
+import updateScheduleDayReducer from "./schedule/updateScheduleDay/updateScheduleDaySlice";
+import deleteScheduleDayReducer from "./schedule/deleteScheduleDay/deleteScheduleDaySlice";
+import deleteLectureReducer from "./shared/lectures/deleteCourseVideo/deleteCourseVideoSlice";
+import createLectureReducer from "./shared/lectures/createCourseVideo/createCourseVideoSlice";
+import updateLectureReducer from "./shared/lectures/updateCourseVideo/updateCourseVideoSlice";
+import lecturesVideoReducer from "./shared/lectures/lectureVideo/lecturesVideoSlice";
+import allLevelsReducer from "./shared/data/allLevelsAndSemester/allLevelsSlice";
+import anyCourseNameReducer from "./shared/anyCourseName/anyCourseNameSlice";
+import activeYearReducer from "./shared/academicYears/ActiveAcademicYear/activeAcademicYearSlice";
+import deleteLecFromScheduleReducer from "./schedule/deleteLecFromSchedule/deleteLecFromScheduleSlice";
+import schoolClassDetailsReducer from "./shared/schoolClass/getSchoolClassDetails/getSchoolClassDetailsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -48,11 +91,18 @@ export const store = configureStore({
     deleteAdmin: deleteAdminReducer,
     //--------------Academic Year Reducers----------------//
     academicYear: createAcademicYearReducer,
+    deleteAcademicYear: deleteAcademicYearReducer,
     plan: createPlanReducer,
+    updatePlan: updatePlanReducer,
+    deletePlan: deletePlanReducer,
     stage: createStageReducer,
+    deleteStage: deleteStageReducer,
     studyLevel: studyLevelReducer,
+    updateStudyLevel: updateStudyLevelReducer,
     planLevel: createPlanLevelReducer,
     updatePlanLevel: updatePlanLevelReducer,
+    deleteStudyLevel: deleteStudyLevelReducer,
+    deletePlanLevel: deletePlanLevelReducer,
     //--------------Shared Reducers----------------//
     studyLevelsId: studyLevelIdReducer,
     plansId: planIdlReducer,
@@ -60,10 +110,26 @@ export const store = configureStore({
     academicYearsId: academicYearsIdReducer,
     semestersId: semestersIdReducer,
     coursesStudyLevelsId: courseStudyLevelIdReducer,
+    coursesInStudyLevels: coursesInStudyLevelIdReducer,
     schoolClassId: createSchoolClassIdReducer,
+    schoolClassesDetails: schoolClassDetailsReducer,
     studentIdByClass: StudentIdByClassReducer,
     teacherByName: teacherByNameReducer,
     teacherByStudyLevel: teacherByStudyLevelReducer,
+    jobDiscount: getJobDiscountReducer,
+    discountCode: getDiscountCodeReducer,
+    problems: getProblemsReducer,
+    solvedProblems: getSolvedProblemsReducer,
+    getScheduleId: scheduleIdIdReducer,
+    getScheduleInfo: scheduleInfoIdReducer,
+    planDetails: planDetailsReducer,
+    allLevels: allLevelsReducer,
+    // coursesInStudyLevel: coursesInStudyLevelReducer,
+    levelsInPlan: levelsInPlanReducer,
+    courseDetails: courseDetailsReducer,
+    allCoursesTableDetails: allCoursesTableDetailsReducer,
+    activeYear: activeYearReducer,
+    anyCourseName: anyCourseNameReducer,
     //--------------Courses Study Level Reducers----------------//
     createCourse: courseReducer,
     addCourseToPlan: addCourseToPlanReducer,
@@ -72,16 +138,50 @@ export const store = configureStore({
     deleteCourse: deleteCourseReducer,
     updateCourse: updateCourseReducer,
     //--------------School Class Reducers----------------//
-    createSchoolClass:createSchoolClassReducer,
+    createSchoolClass: createSchoolClassReducer,
     updateSchoolClass: updateSchoolClassReducer,
     deleteSchoolClass: deleteSchoolClassReducer,
     //--------------Create Teacher Reducers----------------//
     createTeacher: createTeacherReducer,
     deleteTeacher: deleteTeacherReducer,
+    addTeacherToCourse: addTeacherToCourseReducer,
+    removeTeacherFromCourse: removeTeacherFromCourseReducer,
     addTeacherToStudyLevel: addTeacherToStudyLevelReducer,
-    addTeacherToCourse: addTeacherToCourseReducer, 
-    addTeacherToClass: addTeacherToClassReducer,
     // --------------Schedule Reducers----------------//
     createSchedule: createScheduleReducer,
+    updateSchedule: updateScheduleReducer,
+    deleteSchedule: deleteScheduleReducer,
+    addLecToSchedule: addLecToScheduleReducer,
+    updateLecToSchedule: updateLecToScheduleReducer,
+    deleteLecFromSchedule: deleteLecFromScheduleReducer,
+    createScheduleDay: createScheduleDayReducer,
+    updateScheduleDay: updateScheduleDayReducer,
+    deleteScheduleDay: deleteScheduleDayReducer,
+    // --------------Create Discount Code Reducers----------------//
+    createDiscountCode: createDiscountCodeReducer,
+    updateDiscountCode: updateDiscountCodeReducer,
+    deleteDiscountCode: deleteDiscountCodeReducer,
+    // --------------Create Job Discount Reducers----------------//
+    createJobDiscount: createJobDiscountReducer,
+    updateJobDiscount: updateJobDiscountReducer,
+    deleteJobDiscount: deleteJobDiscountReducer,
+    // --------------Problems Reducers----------------//
+    deleteProblem: deleteProblemReducer,
+    solveProblem: solveProblemReducer,
+    // --------------selection Ids----------------//
+    selectionIds: selectionIdsReducer,
+    // --------------lectures----------------//
+    lectures: lecturesReducer,
+    video: lecturesVideoReducer,
+    createLec: createLectureReducer,
+    updateLec: updateLectureReducer,
+    deleteLec: deleteLectureReducer
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["lecturesVideo/fetchlecturesVideo/fulfilled"],
+        ignoredPaths: ["lectureVideo.video"],
+      },
+    }),
 });

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,96 +10,116 @@ import {
   Alert,
   Autocomplete,
   TextField,
+  CircularProgress,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
+
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
-import { fetchTeachersByStudyLevel } from "../../store/shared/teacherByStudyLevel/actGetTeacherByStudyLevel";
+import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { actAddTeacherToCourse } from "../../store/addTeacherToCourse/actAddTeacherToCourse";
 import { clearMessageAddTeacherToCourse } from "../../store/addTeacherToCourse/addTeacherToCourseSlice";
 import { fetchTeachersByName } from "../../store/shared/teacherByName/actGetTeacherByName";
-const schema = yup.object().shape({
-  studyLevel: yup.string().required("Study level is required"),
-  teacherId: yup.string().required("Teacher is required"),
-  courseId: yup.string().required("Course is required"),
-});
+import { fetchSchoolClassId } from "../../store/shared/schoolClass/actGetSchoolClassId";
+import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
+import {
+  setPlanId,
+  setStudyLevelId,
+  setSemesterId,
+  setCourseId,
+} from "../../store/LOCAL_DATA/selectinIdsSlice";
+import { actanyCourseNameLevel } from "../../store/shared/anyCourseName/actanyCourseNameLevel";
 
-const AddTeacherToCourse = () => {
+const AddTeacherToCourseSimple = ({ onTeacherAdded }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const { loading, success, error } = useSelector(
     (state) => state.addTeacherToCourse
   );
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      studyLevel: "",
-      teacherId: "",
-      courseId: "",
-      name: null,
-    },
-  });
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  
 
-  const selectedStudyLevel = watch("studyLevel");
+  const studyLevels = useSelector((state) => state.studyLevelsId.list);
+  const plans = useSelector((state) => state.plansId.list);
+  const coursesStudyLevels = useSelector((state) => state.anyCourseName.list);
 
-  // Fetch study levels on mount
+  const teacherNames = useSelector((state) => state.teacherByName?.list || []);
+  const semesters = useSelector((state) => state.semestersId.list);
+
+  const { planId, studyLevelId, semesterId, courseId } = useSelector(
+    (state) => state.selectionIds
+  );
+
   useEffect(() => {
     if (token) {
       dispatch(fetchStudyLevels(token));
+      dispatch(fetchPlans(token));
+      dispatch(fetchSemesters(token));
     }
-  }, [dispatch, token]);
+  }, [dispatch, token, planId, studyLevelId, semesterId]);
 
-  const studyLevels = useSelector((state) => state.studyLevelsId.list);
-
-  // Fetch teachers and courses when study level is selected
   useEffect(() => {
-    if (selectedStudyLevel && token) {
-      dispatch(fetchCoursesStudyLevels({ token, id: selectedStudyLevel }));
-      dispatch(fetchTeachersByStudyLevel({ token, id: selectedStudyLevel }));
+    if (studyLevelId) {
+      dispatch(fetchSchoolClassId({ token, id: studyLevelId }));
     }
-  }, [selectedStudyLevel, dispatch, token]);
+  }, [studyLevelId, dispatch, token]);
 
-  // const teachers = useSelector((state) => state.teacherByStudyLevel.list);
-  const courses = useSelector((state) => state.coursesStudyLevelsId.list);
-  const teacherNames = useSelector((state) => state.teacherByName?.list || []);
+  // fetch courses & teachers عند تغيير Plan و Study Level
+  useEffect(() => {
+    if (planId && studyLevelId && token && semesterId) {
+      dispatch(
+        actanyCourseNameLevel({
+          token,
+          studyLevelId: studyLevelId,
+          planId: planId,
+          semesterId: semesterId,
+        })
+      );
+    }
+  }, [planId, studyLevelId, dispatch, token, semesterId]);
 
-  const onSubmit = (data) => {
+  // Submit
+  // const handleSubmit = () => {
+  //   if (!selectedTeacher || !courseId) return;
+  //   dispatch(
+  //     actAddTeacherToCourse({
+  //       teacherId: selectedTeacher.id,
+  //       courseId: courseId,
+  //       token,
+  //     })
+  //   );
+  // };
+
+  const handleSubmit = () => {
+    if (!selectedTeacher || !courseId) return;
     dispatch(
       actAddTeacherToCourse({
-        teacherId: data.teacherId,
-        courseId: data.courseId,
+        teacherId: selectedTeacher.id,
+        courseId: courseId,
         token,
       })
-    );
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        onTeacherAdded(selectedTeacher);
+      }
+    });
   };
 
+  // تفريغ الرسائل بعد 3 ثواني
   useEffect(() => {
     if (success || error) {
       const timer = setTimeout(() => {
         dispatch(clearMessageAddTeacherToCourse());
-        reset();
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [success, error, dispatch, reset]);
+  }, [success, error, dispatch]);
 
   return (
     <Box
       sx={{
-        maxWidth: 500,
         mx: "auto",
-        mt: 5,
+        m: 5,
         display: "flex",
         flexDirection: "column",
         gap: 3,
@@ -109,143 +129,104 @@ const AddTeacherToCourse = () => {
         Assign Teacher to Course
       </Typography>
 
-      {loading && (
-        <Alert sx={{ my: 2 }} severity="info">
-          {loading}
-        </Alert>
-      )}
-      {success && (
-        <Alert sx={{ my: 2 }} severity="success">
-          {success}
-        </Alert>
-      )}
-      {error && (
-        <Alert sx={{ my: 2 }} severity="error">
-          {error}
-        </Alert>
-      )}
+      {loading && <CircularProgress />}
+      {success && <Alert severity="success">{success}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
 
-      {/* select teacher BY study level*/}
-      {/* Select Teacher */}
-      {/* <Controller
-        name="teacherId"
-        control={control}
-        render={({ field }) => (
-          <FormControl fullWidth error={!!errors.teacherId}>
-            <InputLabel>Teacher</InputLabel>
-            <Select {...field} label="Teacher">
-              {teachers?.map((teacher) => (
-                <MenuItem key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      /> */}
-
-      <Controller
-        name="name"
-        control={control}
-        render={({ field }) => (
-          <Autocomplete
-            options={teacherNames}
-            getOptionLabel={(option) => option?.name || ""}
-            isOptionEqualToValue={(option, value) => option.id === value?.id}
-            onInputChange={(e, value) => {
-              if (value && value.length >= 2) {
-                dispatch(fetchTeachersByName({ token, name: value }));
-              }
-            }}
-            value={field.value || null}
-            onChange={(e, value) => {
-              field.onChange(value); // store whole object in `name`
-              setValue("teacherId", value?.id || ""); // store id in `teacherId`
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search by Name"
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            )}
-            renderOption={(props, option) => (
-              <Box component="li" {...props} key={option.id}>
-                {option.name}
-              </Box>
-            )}
-          />
-        )}
-      />
-
-      {/* Select Study Level */}
-      <Controller
-        name="studyLevel"
-        control={control}
-        render={({ field }) => (
-          <FormControl fullWidth error={!!errors.studyLevel}>
-            <InputLabel>Study Level</InputLabel>
-            <Select {...field} label="Study Level">
-              <MenuItem value="">Select a study level</MenuItem>
-              {studyLevels?.map((level) => (
-                <MenuItem key={level.id} value={level.id}>
-                  {level.level}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      />
-
-      {/* Select Course */}
-      {/* <Controller
-        name="courseId"
-        control={control}
-        render={({ field }) => (
-          <FormControl fullWidth error={!!errors.courseId}>
-            <InputLabel>Course</InputLabel>
-            <Select {...field} label="Course">
-              {courses?.map((course) => (
-                <MenuItem key={course.id} value={course.id}>
-                  {course.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      /> */}
-
-      <Controller
-        name="courseId"
-        control={control}
-        render={({ field }) => {
-          const validCourseIds = courses.map((c) => String(c.id)); // خليها كلها سترينج لو لازم
-          const currentValue = validCourseIds.includes(String(field.value))
-            ? field.value
-            : "";
-
-          return (
-            <FormControl fullWidth error={!!errors.courseId}>
-              <InputLabel>Course</InputLabel>
-              <Select {...field} value={currentValue} label="Course">
-                <MenuItem value="">Select a course</MenuItem>
-                {courses?.map((course) => (
-                  <MenuItem key={course.id} value={course.id}>
-                    {course.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          );
+      {/* Autocomplete Teacher */}
+      <Autocomplete
+        options={teacherNames}
+        getOptionLabel={(option) => option?.name || ""}
+        isOptionEqualToValue={(option, value) => option.id === value?.id}
+        value={selectedTeacher}
+        onChange={(e, value) => setSelectedTeacher(value)}
+        onInputChange={(e, value) => {
+          if (value && value.length >= 2) {
+            dispatch(fetchTeachersByName({ token, name: value }));
+          }
         }}
+        renderInput={(params) => (
+          <TextField {...params} label="Search Teacher" />
+        )}
+        renderOption={(props, option) => (
+          <Box component="li" {...props} key={option.id}>
+            {option.name}
+          </Box>
+        )}
       />
 
-      <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+      <FormControl fullWidth>
+        <InputLabel>Study Level</InputLabel>
+        <Select
+          value={studyLevelId}
+          onChange={(e) => dispatch(setStudyLevelId(e.target.value))}
+        >
+          <MenuItem value="">Select Study Level</MenuItem>
+          {studyLevels.map((lvl) => (
+            <MenuItem key={lvl.id} value={lvl.id}>
+              {lvl.level}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <InputLabel>Semester</InputLabel>
+        <Select
+          value={semesterId}
+          onChange={(e) => dispatch(setSemesterId(e.target.value))}
+        >
+          <MenuItem value="">Select Semester</MenuItem>
+          {semesters.map((s) => (
+            <MenuItem key={s.id} value={s.id}>
+              {s.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <InputLabel>Plan</InputLabel>
+        <Select
+          value={planId}
+          onChange={(e) => dispatch(setPlanId(e.target.value))}
+        >
+          <MenuItem value="">Select Plan</MenuItem>
+          {plans.map((plan) => (
+            <MenuItem key={plan.id} value={plan.id}>
+              {plan.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <InputLabel>Course</InputLabel>
+        <Select
+          value={courseId}
+          onChange={(e) => dispatch(setCourseId(e.target.value))}
+        >
+          <MenuItem value="">Select Course</MenuItem>
+          {coursesStudyLevels && coursesStudyLevels.length > 0 ? (
+            coursesStudyLevels.map((c) => (
+              <MenuItem key={c.id || c.courseId} value={c.id || c.courseId}>
+                {c.name || c.courseName}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem disabled>No courses available</MenuItem>
+          )}
+        </Select>
+      </FormControl>
+
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={!selectedTeacher || !courseId}
+      >
         Submit
       </Button>
     </Box>
   );
 };
 
-export default AddTeacherToCourse;
+export default AddTeacherToCourseSimple;

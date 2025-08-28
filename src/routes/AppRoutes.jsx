@@ -19,6 +19,8 @@ import CreatePlan from "../pages/academicYear/CreatePlan";
 import CreateStage from "../pages/academicYear/CreateStage";
 import CreateSL from "../pages/academicYear/CreateSL";
 import UpdatePL from "../pages/academicYear/UpdatePL";
+import DeletePL from "../pages/academicYear/DeletePL";
+import PlanDetails from "../pages/academicYear/PlanDetails";
 ///* --------------------Courses---------------------- */
 import CreateCourse from "../pages/courses/CreateCourse";
 import AddCourseToP from "../pages/courses/AddCourseToP";
@@ -26,6 +28,8 @@ import DeleteCourse from "../pages/courses/DeleteCourse";
 import DeleteCourseFromP from "../pages/courses/DeleteCourseFromP";
 import AddCourseToAY from "../pages/courses/AddCourseToAY";
 import UpdateCourse from "../pages/courses/UpdateCourse";
+import CoursesInSL from "../pages/courses/CoursesInSL";
+
 // /* --------------------School Class---------------------- */
 import CreateSchoolClass from "../pages/schoolClass/CreateSchoolClass";
 import UpdateSchoolClass from "../pages/schoolClass/UpdateSchoolClass";
@@ -35,16 +39,15 @@ import RemoveStudentFromSchoolClass from "../pages/schoolClass/RemoveStudentFrom
 // /* --------------------Teacher---------------------- */
 import CreateTeacher from "../pages/adminActionToTeacher/CreateTeacher";
 import DeleteTeacher from "../pages/adminActionToTeacher/DeleteTeacher";
-import AddTeacherToStudyLevel from "../pages/adminActionToTeacher/AddTeacherToStudyLevel";
+// import AddTeacherToStudyLevel from "../pages/adminActionToTeacher/AddTeacherToStudyLevel";
 import AddTeacherToCourse from "../pages/adminActionToTeacher/AddTeacherToCourse";
-import AddTeacherToClass from "../pages/adminActionToTeacher/AddTeacherToClass";
+// import AddTeacherToClass from "../pages/adminActionToTeacher/AddTeacherToClass";
 // /* --------------------schedule---------------------- */
 import CreateSchedule from "../pages/schedule/CreateSchedule";
+import ControlSchedule from "../pages/schedule/CONTROL/ControlSchedule";
 import UpdateSchedule from "../pages/schedule/UpdateSchedule";
-import DeleteSchedule from "../pages/schedule/DeleteSchedule";
 import AddLecToSchedule from "../pages/schedule/AddLecToSchedule";
 import UpdateLecToSchedule from "../pages/schedule/UpdateLecToSchedule";
-import DeleteLecFromSchedule from "../pages/schedule/DeleteLecFromSchedule";
 // /* --------------------Exam---------------------- */
 import AddExam from "../pages/exam/AddExam";
 import UpdateExam from "../pages/exam/UpdateExam";
@@ -56,18 +59,19 @@ import UnsolvedProblem from "../pages/contactUs/UnsolvedProblem";
 import DeleteProblem from "../pages/contactUs/DeleteProblem";
 // -----------------------Job Discount----------------------- */
 import CreateJobDiscount from "../pages/jobDiscount/CreateJobDiscount";
-import UpdateJobDiscount from "../pages/jobDiscount/UpdateJobDiscount";
-import DeleteJobDiscount from "../pages/jobDiscount/DeleteJobDiscount";
 // -----------------------------Discount Code----------------------- */
 import CreateDiscountCode from "../pages/discountCode/CreateDiscountCode";
-import UpdateDiscountCode from "../pages/discountCode/UpdateDiscountCode";
-import DeleteDiscountCode from "../pages/discountCode/DeleteDiscountCode";
 // -----------------------------Student----------------------- */
 import GetStudentFromExcel from "../pages/adminActionToStudent/GetStudentFromExcel";
 import UploadStudentFile from "../pages/adminActionToStudent/UploadStudentFile";
 import AllApplications from "../pages/adminActionToStudent/AllApplications";
 import AcceptanceApplication from "../pages/adminActionToStudent/AcceptanceApplication";
 import RejectionApplication from "../pages/adminActionToStudent/RejectionApplication";
+import AllLevelsInPlan from "../pages/academicYear/AllLevelsInPlan";
+import AllDetailsCourses from "../pages/courses/MANAGE_ALL_COURSES/AllDetailsCourses";
+import ManageClass from "../pages/schoolClass/ManageClass";
+import LecVideo from "../pages/courseLec/LecVideo";
+import UpdateLec from "../pages/schedule/CONTROL/UpdateLec";
 
 const AppRoutes = () => {
   const role = useSelector((state) => state.auth.role);
@@ -93,12 +97,16 @@ const AppRoutes = () => {
           {/* --------------------Academic Year---------------------- */}
           <Route path="create-academic-year" element={<CreateAY />} />
           <Route path="create-plan" element={<CreatePlan />} />
-          <Route path="create-stage" element={<CreateStage />} />
-          <Route path="create-plan-level" element={<CreatePL />} />
           <Route path="create-study-level" element={<CreateSL />} />
-          <Route path="update-plan-level" element={<UpdatePL />} />
+          <Route path="create-stage" element={<CreateStage />} />
+          <Route path="plan-details" element={<PlanDetails />} />
+          <Route
+            path="all-study-levels-in-plan"
+            element={<AllLevelsInPlan />}
+          />
           {/* --------------------Courses---------------------- */}
           <Route path="create-course" element={<CreateCourse />} />
+          <Route path="courses-in-study-level" element={<CoursesInSL />} />
           <Route path="update-course" element={<UpdateCourse />} />
           <Route path="add-course-to-plan" element={<AddCourseToP />} />
           <Route
@@ -106,12 +114,15 @@ const AppRoutes = () => {
             element={<DeleteCourseFromP />}
           />
           <Route path="delete-course" element={<DeleteCourse />} />
-          <Route
+          <Route path="courses-details" element={<AllDetailsCourses />} />
+          <Route path="lectures-in-course" element={<LecVideo />} />
+          {/* <Route
             path="add-course-to-academic-year"
             element={<AddCourseToAY />}
-          />
+          /> */}
           {/* --------------------School Class---------------------- */}
           <Route path="create-school-class" element={<CreateSchoolClass />} />
+          <Route path="manage-school-class" element={<ManageClass />} />
           <Route path="update-school-class" element={<UpdateSchoolClass />} />
           <Route path="delete-school-class" element={<DeleteSchoolClass />} />
           <Route
@@ -125,30 +136,27 @@ const AppRoutes = () => {
           {/* --------------------Teacher---------------------- */}
           <Route path="create-teacher" element={<CreateTeacher />} />
           <Route path="delete-teacher" element={<DeleteTeacher />} />
-          <Route
+          {/* <Route
             path="add-teacher-to-study-level"
             element={<AddTeacherToStudyLevel />}
-          />
+          /> */}
           <Route
             path="add-teacher-to-course"
             element={<AddTeacherToCourse />}
           />
-          <Route path="add-teacher-to-class" element={<AddTeacherToClass />} />
+          {/* <Route path="add-teacher-to-class" element={<AddTeacherToClass />} /> */}
 
           {/* --------------------schedule---------------------- */}
 
           <Route path="create-schedule" element={<CreateSchedule />} />
           <Route path="update-schedule" element={<UpdateSchedule />} />
-          <Route path="delete-schedule" element={<DeleteSchedule />} />
+          <Route path="control-schedule" element={<ControlSchedule />} />
           <Route path="add-lec-to-schedule" element={<AddLecToSchedule />} />
           <Route
             path="update-lec-to-schedule"
             element={<UpdateLecToSchedule />}
           />
-          <Route
-            path="delete-lec-from-schedule"
-            element={<DeleteLecFromSchedule />}
-          />
+          <Route path="UPDATE" element={<UpdateLec />} />
           {/* --------------------Exam---------------------- */}
           <Route path="add-exam" element={<AddExam />} />
           <Route path="update-exam" element={<UpdateExam />} />
@@ -160,12 +168,8 @@ const AppRoutes = () => {
           <Route path="delete-problem" element={<DeleteProblem />} />
           {/* -----------------------Job Discount----------------------- */}
           <Route path="create-job-discount" element={<CreateJobDiscount />} />
-          <Route path="update-job-discount" element={<UpdateJobDiscount />} />
-          <Route path="delete-job-discount" element={<DeleteJobDiscount />} />
           {/* -----------------------------Discount Code----------------------- */}
           <Route path="create-discount-code" element={<CreateDiscountCode />} />
-          <Route path="update-discount-code" element={<UpdateDiscountCode />} />
-          <Route path="delete-discount-code" element={<DeleteDiscountCode />} />
           {/* -----------------------------Student----------------------- */}
           <Route path="get-students" element={<GetStudentFromExcel />} />
           <Route path="upload-student" element={<UploadStudentFile />} />

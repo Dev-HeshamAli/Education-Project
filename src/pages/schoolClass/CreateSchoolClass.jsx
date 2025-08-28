@@ -27,8 +27,7 @@ const schema = yup.object().shape({
     .min(1, "Capacity must be at least 1"),
   studyLevelId: yup.number().required("Study level is required"),
 });
-
-const CreateSchoolClass = () => {
+const CreateSchoolClass = ({ studyLevelId }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
@@ -41,6 +40,11 @@ const CreateSchoolClass = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      capacity: "",
+      studyLevelId: studyLevelId || "", // ✅ هنا نحط default جاي من props
+    },
   });
 
   useEffect(() => {
@@ -50,21 +54,27 @@ const CreateSchoolClass = () => {
   }, [dispatch, token]);
 
   const onSubmit = (data) => {
-    // console.log("Submitted Data:", data);
-    dispatch(actSchoolClass({ data: data, token }));
-    reset();
+    // لو studyLevelId جاي من props، نضمن إنه يتبعت
+    const payload = {
+      ...data,
+      studyLevelId: studyLevelId || data.studyLevelId,
+    };
+    dispatch(actSchoolClass({ data: payload, token }));
+    reset({
+      name: "",
+      capacity: "",
+      studyLevelId: studyLevelId || "", // reset بنفس القيمة
+    });
   };
 
   useEffect(() => {
-    if (success) {
-      setTimeout(() => dispatch(resetSchoolClassState()), 3000);
-    } else if (error) {
+    if (success || error) {
       setTimeout(() => dispatch(resetSchoolClassState()), 3000);
     }
   }, [success, dispatch, error]);
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", m: 4 }}>
       <Typography variant="h5" gutterBottom>
         Create School Class
       </Typography>
@@ -81,6 +91,31 @@ const CreateSchoolClass = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Study Level Select */}
+        <Controller
+          name="studyLevelId"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <FormControl
+              fullWidth
+              margin="normal"
+              error={!!errors.studyLevelId}
+            >
+              <InputLabel>Study Level</InputLabel>
+              <Select {...field} label="Study Level">
+                {studyLevels?.map((level) => (
+                  <MenuItem key={level.id} value={level.id}>
+                    {level.level}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Typography variant="caption" color="error">
+                {errors.studyLevelId?.message}
+              </Typography>
+            </FormControl>
+          )}
+        />
         {/* Name */}
         <Controller
           name="name"
@@ -113,32 +148,6 @@ const CreateSchoolClass = () => {
               error={!!errors.capacity}
               helperText={errors.capacity?.message}
             />
-          )}
-        />
-
-        {/* Study Level Select */}
-        <Controller
-          name="studyLevelId"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <FormControl
-              fullWidth
-              margin="normal"
-              error={!!errors.studyLevelId}
-            >
-              <InputLabel>Study Level</InputLabel>
-              <Select {...field} label="Study Level">
-                {studyLevels?.map((level) => (
-                  <MenuItem key={level.id} value={level.id}>
-                    {level.level}
-                  </MenuItem>
-                ))}
-              </Select>
-              <Typography variant="caption" color="error">
-                {errors.studyLevelId?.message}
-              </Typography>
-            </FormControl>
           )}
         />
 

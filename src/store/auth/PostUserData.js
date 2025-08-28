@@ -1,8 +1,7 @@
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
 const BASE_URL = "https://edu-smart.runasp.net";
+import axios from "axios";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -10,9 +9,11 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await axios.post(`${BASE_URL}/api/Auth/Login`, userData);
       const token = res.data.token;
+      const data = res.data;
+      console.log(data);
 
       localStorage.setItem("token", token);
-      localStorage.setItem("userInfo", JSON.stringify(res.data));
+      localStorage.setItem("id", JSON.stringify(res.data.id));
       localStorage.setItem("role", JSON.stringify(res.data.roles));
 
       return res.data;
@@ -25,39 +26,9 @@ export const loginUser = createAsyncThunk(
           err.includes("No user was found with the provided ID")
         )
           ? "Email or Password is incorrect"
-          : error.response?.data?.title || "Something went wrong!";
+          : error.response?.data?.errors || "Something went wrong!";
 
       return rejectWithValue(message);
     }
   }
 );
-
-
-// export const loginUser = createAsyncThunk(
-//   "auth/loginUser",
-//   async (userData, { rejectWithValue }) => {
-//     try {
-//       const res = await axios.post(`${BASE_URL}/api/Auth/Login`, userData, {
-//         withCredentials: true // الكوكي HttpOnly هتيجي هنا
-//       });
-
-//       return {
-//         token: res.data.token,
-//         roles: res.data.roles,
-//         userInfo: res.data
-//       };
-//     } catch (error) {
-//       const backendErrors = error.response?.data?.errors;
-
-//       const message =
-//         Array.isArray(backendErrors) &&
-//         backendErrors.some((err) =>
-//           err.includes("No user was found with the provided ID")
-//         )
-//           ? "Email or Password is incorrect"
-//           : error.response?.data?.title || "Something went wrong!";
-
-//       return rejectWithValue(message);
-//     }
-//   }
-// );

@@ -16,14 +16,17 @@
     "@hookform/resolvers": "^5.2.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
+    "@mui/x-data-grid": "^8.10.0",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.11.0",
+    "formik": "^2.4.6",
     "lucide-react": "^0.534.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.61.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.7.1",
+    "react-toastify": "^11.0.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {

@@ -7,9 +7,8 @@ const BASE_URL = "https://edu-smart.runasp.net";
 
 export const actDeleteAdmin = createAsyncThunk(
   "admin/deleteAdmin",
-  async (id, { rejectWithValue }) => {
+  async ({ token, id}, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
 
       const res = await axios.delete(
         ` ${BASE_URL}/api/Admin/delete-Admin/${id}`,{

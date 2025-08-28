@@ -5,7 +5,7 @@ import { fetchAdminById } from "./fetchAdminById";
 const initialState = {
   loading: false,
   error: null,
-  userData: localStorage.getItem("adminInfo") || null,
+  userData: null,
 };
 
 const adminDataSlice = createSlice({

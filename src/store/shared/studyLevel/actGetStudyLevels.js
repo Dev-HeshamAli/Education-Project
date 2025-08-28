@@ -12,7 +12,7 @@ export const fetchStudyLevels = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.title || "Something went wrong");
+      return rejectWithValue(error.response?.data?.errors || "Something went wrong");
     }
   }
 );

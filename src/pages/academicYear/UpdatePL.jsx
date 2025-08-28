@@ -21,10 +21,12 @@ import { resetUpdatePlanLevelState } from "../../store/academicYear/updatePlanLe
 import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 
-const UpdatePL = () => {
-  const token = localStorage.getItem("token");
+const UpdatePL = ({ editData }) => {
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
-  const { loading, error, success } = useSelector((state) => state.updatePlanLevel);
+  const { loading, error, success } = useSelector(
+    (state) => state.updatePlanLevel
+  );
   const plans = useSelector((state) => state.plansId.list);
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
 
@@ -43,6 +45,23 @@ const UpdatePL = () => {
   }, [dispatch, token]);
 
   useEffect(() => {
+    if (!editData || !studyLevels?.length) return;
+
+    const matchedLevel = studyLevels.find(
+      (lvl) =>
+        String(lvl.level).toUpperCase() ===
+        String(editData.studyLevelName).toUpperCase()
+    );
+
+    reset({
+      planId: editData.planId ?? "",
+      studyLevelId: matchedLevel ? matchedLevel.id : "", // ✅ دلوقتي بيدي الـ id
+      price: editData.price ?? "",
+      discount: editData.discount ?? "",
+    });
+  }, [editData, studyLevels, reset]);
+
+  useEffect(() => {
     if (success || error) {
       setTimeout(() => dispatch(resetUpdatePlanLevelState()), 3000);
       if (success) reset();
@@ -56,13 +75,7 @@ const UpdatePL = () => {
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#f4f4f4"
-    >
+    <Box display="flex" justifyContent="center" alignItems="center">
       <Card sx={{ width: 450, p: 3 }}>
         <CardContent>
           <Typography variant="h5" mb={3} align="center">

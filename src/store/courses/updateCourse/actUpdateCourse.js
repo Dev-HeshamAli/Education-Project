@@ -17,7 +17,6 @@ export const actUpdateCourse = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-    //   console.error("❌ Error updating course:", error.response?.data?.message || error.message);
       return rejectWithValue(error.response?.data?.errors || "Something went wrong");
     }
   }

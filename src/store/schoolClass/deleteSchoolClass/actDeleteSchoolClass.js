@@ -20,7 +20,7 @@ export const actDeleteSchoolClass = createAsyncThunk(
       return response.data;
     } catch (error) {
       const message =
-        error.response?.data?.message || "Failed to delete school class";
+        error.response?.data?.errors || "Failed to delete school class";
       return rejectWithValue(message);
     }
   }

@@ -10,7 +10,7 @@ export const actAddTeacherToCourse = createAsyncThunk(
   async ({ teacherId, courseId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/api/Admin/add-teacher-to-course/${teacherId}/${courseId}`,
+        `${API_URL}/api/Admin/add-teacher-to-Course/${teacherId}/${courseId}`,
         null,
         {
           headers: {
@@ -23,7 +23,7 @@ export const actAddTeacherToCourse = createAsyncThunk(
       if (error.response?.status === 500) {
         return rejectWithValue("This teacher is already assigned to this Course");
       }
-      return rejectWithValue(error.response?.data || "Unknown error occurred");
+      return rejectWithValue(error.response?.data.errors || "Unknown error occurred");
     }
   }
 );

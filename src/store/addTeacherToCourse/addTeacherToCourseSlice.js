@@ -19,22 +19,23 @@ const addTeacherToCourseSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(actAddTeacherToCourse.pending, (state) => {
-        state.loading = "Please wait...";
+        state.loading = true;
         state.success = null;
         state.error = null;
       })
       .addCase(actAddTeacherToCourse.fulfilled, (state) => {
         state.loading = false;
-        state.success = "Teacher added to Course successfully";
+        state.success = "Teacher added to course successfully.";
         state.error = null;
       })
       .addCase(actAddTeacherToCourse.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error = action.payload;
+        state.error = action.payload || "Failed to delete course.";
       });
   },
 });
 
-export const { clearMessageAddTeacherToCourse } = addTeacherToCourseSlice.actions;
+export const { clearMessageAddTeacherToCourse } =
+  addTeacherToCourseSlice.actions;
 export default addTeacherToCourseSlice.reducer;

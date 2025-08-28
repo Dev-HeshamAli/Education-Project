@@ -13,7 +13,7 @@ export const fetchPlans = createAsyncThunk(
       });
       return response.data;
     } catch (err) {
-        return rejectWithValue(err.response?.data?.title || "Something went wrong");
+        return rejectWithValue(err.response?.data?.errors || "Something went wrong");
     }
   }
 );

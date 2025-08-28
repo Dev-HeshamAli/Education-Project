@@ -12,7 +12,7 @@ const stageSlice = createSlice({
   name: "stage/create",
   initialState,
   reducers: {
-    resetCreatePlanState: () => initialState,
+    resetCreateStageState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -34,5 +34,5 @@ const stageSlice = createSlice({
   },
 });
 
-export const { resetCreatePlanState } = stageSlice.actions;
+export const { resetCreateStageState } = stageSlice.actions;
 export default stageSlice.reducer;

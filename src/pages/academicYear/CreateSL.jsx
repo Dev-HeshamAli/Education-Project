@@ -13,12 +13,30 @@ import {
   MenuItem,
   TextField,
   Alert,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { actStudyLevel } from "../../store/academicYear/studyLevel/actStudyLevel";
 import { fetchStages } from "../../store/shared/stage/actGetStage";
+import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { actDeleteStudyLevel } from "../../store/academicYear/studyLevel/deleteStudyLevel/actDeleteStudyLevel";
+import { clearMessageDeleteStudyLevel } from "../../store/academicYear/studyLevel/deleteStudyLevel/deleteStudyLevelSlice";
+import { actUpdateStudyLevel } from "../../store/academicYear/studyLevel/updateStudyLevel/actUpdateStudyLevel";
+import { resetUpdateStudyLevelState } from "../../store/academicYear/studyLevel/updateStudyLevel/updateStudyLevelSlice";
+// import { fetchAcademicYears } from "../../store/shared/academicYears/actGetAcademicYears";
 
 const schema = yup.object().shape({
   stage: yup.string().required("Stage is required"),
@@ -27,19 +45,32 @@ const schema = yup.object().shape({
 
 const CreateSL = () => {
   const dispatch = useDispatch();
-  const token = localStorage.getItem("token");
+  const token = useSelector((state) => state.auth.token);
 
   const { loading, error, success } = useSelector((state) => state.studyLevel);
+  const { error: deleteError, success: deleteSuccess } = useSelector(
+    (state) => state.deleteStudyLevel
+  );
+  const { error: updateError, success: updateSuccess } = useSelector(
+    (state) => state.updateStudyLevel
+  );
   const stages = useSelector((state) => state.stageId.list || []);
+  const studyLevels = useSelector((state) => state.studyLevelsId.list || []);
+  // const scademicYears = useSelector(
+  //   (state) => state.academicYearsId.list || []
+  // );
 
-  const [existingLevels, setExistingLevels] = useState([]);
+  // console.log("scademicYears", scademicYears);
+  // console.log(studyLevels);
+
   const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState(""); // "success" or "error"
+  const [messageType, setMessageType] = useState("");
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState(null);
 
   const {
     handleSubmit,
     control,
-    setValue,
     reset,
     formState: { errors },
   } = useForm({
@@ -50,97 +81,71 @@ const CreateSL = () => {
     },
   });
 
-  // ✅ Fetch stages from Redux
+  // Fetch stages & studyLevels
   useEffect(() => {
     dispatch(fetchStages());
-  }, [dispatch]);
+    dispatch(fetchStudyLevels(token));
+    // dispatch(fetchAcademicYears(token));
+  }, [dispatch, token]);
 
-  // ✅ Fetch existing levels from API
-  // useEffect(() => {
-  //   const fetchExistingLevels = async () => {
-  //     try {
-  //       const { data } = await fetch(
-  //         "https://edu-smart.runasp.net/api/Shared/StudyLevels",
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` },
-  //         }
-  //       ).then((res) => res.json());
-
-  //       const normalized = data.map((item) =>
-  //         item.level?.toLowerCase().replace(/\s/g, "")
-  //       );
-  //       setExistingLevels(normalized);
-  //     } catch (err) {
-  //       console.error("Failed to fetch study levels:", err);
-  //     }
-  //   };
-
-  //   fetchExistingLevels();
-  // }, [token]);
-
-  useEffect(() => {
-    const fetchExistingLevels = async () => {
-      try {
-        const res = await fetch(
-          "https://edu-smart.runasp.net/api/Shared/StudyLevels",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const json = await res.json();
-
-        const levels = json.data || []; // تأكيد وجود data
-        const normalized = levels.map((item) =>
-          item.level?.toLowerCase().replace(/\s/g, "")
-        );
-
-        setExistingLevels(normalized);
-      } catch (err) {
-        console.error("Failed to fetch study levels:", err);
-      }
-    };
-
-    fetchExistingLevels();
-  }, [token]);
-
-  // ✅ Handle success/error messages
+  // Handle success/error messages
   useEffect(() => {
     if (success) {
-      setMessage("Study Level added successfully.");
+      setMessage("Study Level created successfully.");
       setMessageType("success");
       reset();
+      dispatch(fetchStudyLevels(token));
     } else if (error) {
-      setMessage("Something went wrong. Please try again.");
+      setMessage(error);
       setMessageType("error");
     }
 
-    if (success || error) {
+    if (deleteSuccess || updateSuccess) {
+      dispatch(fetchStudyLevels(token));
+    }
+
+    if (
+      success ||
+      error ||
+      deleteSuccess ||
+      deleteError ||
+      updateSuccess ||
+      updateError
+    ) {
       const timer = setTimeout(() => {
         setMessage(null);
         setMessageType("");
+        dispatch(clearMessageDeleteStudyLevel());
+        dispatch(resetUpdateStudyLevelState());
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [success, error, reset]);
+  }, [
+    success,
+    error,
+    reset,
+    dispatch,
+    token,
+    deleteSuccess,
+    deleteError,
+    updateSuccess,
+    updateError,
+  ]);
 
-  // ✅ Submit handler
   const onSubmit = (formData) => {
+    const matchedLevel = studyLevels.find(
+      (lvl) => lvl.level.toLowerCase() === formData.name.toLowerCase()
+    );
+
+    if (matchedLevel) {
+      setMessage("Study Level already exists.");
+      setMessageType("error");
+      return;
+    }
+
     const matchedStage = stages.find(
       (s) => s.name.toLowerCase() === formData.stage.toLowerCase()
     );
-
-    const normalizedLevel = formData.name.toLowerCase().replace(/\s/g, "");
-
-    if (existingLevels.includes(normalizedLevel)) {
-      setMessage("This level already exists.");
-      setMessageType("error");
-      setTimeout(() => {
-        setMessage(null);
-        setMessageType("");
-      }, 3000);
-      return;
-    }
 
     const payload = {
       name: formData.name,
@@ -150,96 +155,223 @@ const CreateSL = () => {
     dispatch(actStudyLevel({ data: payload, token }));
   };
 
+  // Handle Edit (Dialog open)
+  const handleEdit = (level) => {
+    setSelectedLevel(level);
+    setOpenEditDialog(true);
+  };
+
+  // Handle Delete
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this study level?"))
+      dispatch(actDeleteStudyLevel({ id, token }));
+  };
+
+  // Handle Save in Dialog
+  const handleSaveEdit = () => {
+    if (!selectedLevel) return;
+
+    const payload = {
+      id: selectedLevel.id,
+      name: selectedLevel.level,
+    };
+
+    console.log("Edit payload:", payload);
+    dispatch(actUpdateStudyLevel({ data: payload, token }));
+    setOpenEditDialog(false);
+  };
+
   return (
     <Box
       display="flex"
       justifyContent="center"
-      alignItems="center"
+      alignItems="flex-start"
       minHeight="100vh"
       bgcolor="#f9f9f9"
+      py={6}
     >
-      <Card sx={{ width: 400, p: 2 }}>
-        <CardContent>
-          <Typography variant="h5" mb={2} align="center">
-            Create Study Level
-          </Typography>
+      <Box
+        width="100%"
+        maxWidth="800px"
+        display="flex"
+        flexDirection="column"
+        gap={4}
+      >
+        {message && (
+          <Alert severity={messageType} sx={{ mb: 2 }}>
+            {message}
+          </Alert>
+        )}
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Stage Dropdown */}
-            <FormControl fullWidth required sx={{ mb: 2 }}>
-              <InputLabel>Stage</InputLabel>
+        {deleteSuccess && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {deleteSuccess}
+          </Alert>
+        )}
+        {deleteError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {deleteError}
+          </Alert>
+        )}
+
+        {updateSuccess && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {updateSuccess}
+          </Alert>
+        )}
+        {updateError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {updateError}
+          </Alert>
+        )}
+
+        {/* FORM (create) */}
+        <Card>
+          <CardContent>
+            <Typography variant="h5" mb={2} align="center">
+              Create Study Level
+            </Typography>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Stage Dropdown */}
+              <FormControl fullWidth required sx={{ mb: 2 }}>
+                <InputLabel>Stage</InputLabel>
+                <Controller
+                  name="stage"
+                  control={control}
+                  render={({ field }) => (
+                    <Select {...field} label="Stage">
+                      {stages.map((stage) => (
+                        <MenuItem key={stage.id} value={stage.name}>
+                          {stage.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                {errors.stage && (
+                  <Typography variant="caption" color="error">
+                    {errors.stage.message}
+                  </Typography>
+                )}
+              </FormControl>
+
+              {/* Level Input */}
               <Controller
-                name="stage"
+                name="name"
                 control={control}
-                render={({ field }) => (
-                  <Select
+                render={({ field, fieldState }) => (
+                  <TextField
                     {...field}
-                    label="Stage"
-                    onChange={(e) => {
-                      setValue("stage", e.target.value);
-                      setValue("name", ""); // Reset level input
-                    }}
-                  >
-                    {stages.map((stage) => (
-                      <MenuItem key={stage.id} value={stage.name}>
-                        {stage.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    fullWidth
+                    label="Level Name"
+                    variant="outlined"
+                    margin="normal"
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  />
                 )}
               />
-              {errors.stage && (
-                <Typography variant="caption" color="error">
-                  {errors.stage.message}
-                </Typography>
-              )}
-            </FormControl>
 
-            {/* Level Input (TextField) */}
-            <Controller
-              name="name"
-              control={control}
-              rules={{ required: "Level name is required" }}
-              render={({ field, fieldState }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Level Name"
-                  variant="outlined"
-                  margin="normal"
-                  error={!!fieldState.error}
-                  helperText={fieldState.error?.message}
-                />
-              )}
-            />
-
-            {message && (
-              <Alert
-                severity={messageType}
-                sx={{
-                  color: messageType === "success" ? "green" : "red",
-                }}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 3 }}
+                disabled={loading}
+                startIcon={
+                  loading && <CircularProgress size={20} color="inherit" />
+                }
               >
-                {message}
-              </Alert>
-            )}
+                {loading ? "Saving..." : "Add Study Level"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
+        {/* TABLE */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Study Levels List
+            </Typography>
+            <Table sx={{ border: "1px solid #eee" }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#f1f1f1" }}>
+                  <TableCell align="center">
+                    <b>Name</b>
+                  </TableCell>
+                  <TableCell align="right">
+                    <b style={{ marginRight: "70px" }}>Actions</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {studyLevels && studyLevels.length > 0 ? (
+                  studyLevels.map((level) => (
+                    <TableRow key={level.id}>
+                      <TableCell sx={{ fontWeight: "bold" }} align="center">
+                        {level.level}
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEdit(level)}
+                        >
+                          <Button variant="outlined" color="primary">
+                            Edit
+                          </Button>
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(level.id)}
+                        >
+                          <Button variant="outlined" color="error">
+                            Delete
+                          </Button>
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No Study Levels Found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* EDIT DIALOG */}
+        <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+          <DialogTitle>Edit Study Level</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="normal"
+              label="Level Name"
+              fullWidth
+              value={selectedLevel?.level || ""}
+              onChange={(e) =>
+                setSelectedLevel({ ...selectedLevel, level: e.target.value })
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
             <Button
-              type="submit"
+              onClick={handleSaveEdit}
               variant="contained"
               color="primary"
-              fullWidth
-              sx={{ mt: 3 }}
-              disabled={loading}
-              startIcon={
-                loading && <CircularProgress size={20} color="inherit" />
-              }
             >
-              {loading ? "Adding..." : "Add Study Level"}
+              Save Changes
             </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Box>
   );
 };

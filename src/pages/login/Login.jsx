@@ -22,8 +22,8 @@ const schema = yup.object().shape({
 });
 
 const Login = () => {
-  const admin = JSON.parse(localStorage.getItem("userInfo"));
-  const id = admin?.id;
+  const id = JSON.parse(localStorage.getItem("id"));
+  // const id = admin?.id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token, loading, error, role } = useSelector((state) => state.auth);
@@ -51,7 +51,7 @@ const Login = () => {
     if (token && Array.isArray(role)) {
       if (role.includes("Admin__Role")) {
         navigate("/dashboard", { replace: true });
-        dispatch(fetchAdminById(id));
+        dispatch(fetchAdminById({ id, token }));
       } else if (role.includes("Student")) {
         navigate("/student", { replace: true });
       } else if (role.includes("Teacher")) {

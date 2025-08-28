@@ -161,14 +161,14 @@ const CreateTeacher = () => {
   };
 
   useEffect(() => {
-    if (success) {
+    if (success || error) {
       const timeout = setTimeout(() => {
         dispatch(resetCreateTeacherState());
       }, 3000);
 
       return () => clearTimeout(timeout);
     }
-  }, [success, dispatch]);
+  }, [success, dispatch, error]);
 
   return (
     <Box sx={{ maxWidth: 900, mx: "auto", mt: 4, p: 3 }}>

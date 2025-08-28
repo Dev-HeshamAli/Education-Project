@@ -41,7 +41,7 @@ export const actCreateAcademicYearSlice = createAsyncThunk(
       const message =
         Array.isArray(errorsArray) && errorsArray.length > 0
           ? errorsArray[errorsArray.length - 1]
-          : err.response?.data?.title || "Something went wrong";
+          : err.response?.data?.errors || "Something went wrong";
 
       return rejectWithValue(message);
     }

@@ -10,7 +10,7 @@ const schoolClassIdSlice = createSlice({
     error: null,
   },
   reducers: {
-    resetSchoolClassState: (state) => {
+    resetCreateSchoolClassState: (state) => {
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -33,5 +33,5 @@ const schoolClassIdSlice = createSlice({
   },
 });
 
-export const { resetPlansState } = schoolClassIdSlice.actions;
+export const { resetCreateSchoolClassState } = schoolClassIdSlice.actions;
 export default schoolClassIdSlice.reducer;

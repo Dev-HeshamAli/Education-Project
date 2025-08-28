@@ -1,313 +1,142 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
 import {
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
+  Box,
   Button,
   Typography,
-  Box,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  Divider,
 } from "@mui/material";
-import Alert from "@mui/material/Alert";
+import { useDispatch, useSelector } from "react-redux";
 
-import { useForm, Controller } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
-import { actDeleteCourse } from "../../store/courses/deleteCourse/actDeleteCourse";
 import { resetDeleteStatus } from "../../store/courses/deleteCourse/deleteCourseSlice";
+import { actDeleteCourse } from "../../store/courses/deleteCourse/actDeleteCourse";
 
-// ✅ Yup validation schema
-const schema = yup.object().shape({
-  selectedCourse: yup.string().required("Please select a course"),
-  studyLevelId: yup.string().required("Please select a study level"),
-});
-
-const DeleteCourse = () => {
+const DeleteCourse = ({ courseData, onClose }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const { success, error } = useSelector((state) => state.deleteCourse);
 
   const {
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      selectedCourse: "",
-      studyLevelId: "",
-    },
-    resolver: yupResolver(schema),
-  });
+    success: successMessage,
+    error: errorMessage,
+    loading,
+  } = useSelector((state) => state.deleteCourse);
 
-  // ✅ جلب study levels
+  // إغلاق المودال بعد الحذف الناجح
   useEffect(() => {
-    if (token) {
-      dispatch(fetchStudyLevels(token));
-    }
-  }, [dispatch, token]);
-
-  useEffect(() => {
-    if (success || error) {
-      const timer = setTimeout(() => {
+    if (successMessage) {
+      const timeoutId = setTimeout(() => {
         dispatch(resetDeleteStatus());
-      }, 3000);
-      return () => clearTimeout(timer);
+        onClose();
+      }, 2000);
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [success, error, dispatch]);
+  }, [successMessage, dispatch, onClose]);
 
-  const studyLevels = useSelector((state) => state.studyLevelsId.list);
-
-  // ✅ جلب الكورسات عند وجود studyLevels
+  // تنظيف الحالة عند إغلاق المودال
   useEffect(() => {
-    if (token && studyLevels.length > 0) {
-      const firstStudyLevelId = studyLevels[0].id;
-      dispatch(fetchCoursesStudyLevels({ token, id: firstStudyLevelId }));
+    return () => {
+      dispatch(resetDeleteStatus());
+    };
+  }, [dispatch]);
+
+  const handleDeleteCourse = () => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${courseData?.name}" course?`
+      )
+    ) {
+      dispatch(actDeleteCourse({ token, id: courseData?.id }));
     }
-  }, [dispatch, token, studyLevels]);
-
-  const courses = useSelector((state) => state.coursesStudyLevelsId.list);
-
-  const onSubmit = (data) => {
-    dispatch(actDeleteCourse({ token, id: data.selectedCourse }));
-    reset();
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: "auto", mt: 4 }}>
-      <Typography variant="h5" mb={2}>
+    <Box p={3} sx={{ minWidth: 400 }}>
+      {loading && (
+        <Box display="flex" justifyContent="center" mb={2}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {successMessage}
+        </Alert>
+      )}
+
+      <Typography variant="h5" gutterBottom color="error" textAlign="center">
         Delete Course
       </Typography>
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          Course deleted successfully!
-        </Alert>
-      )}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          Error deleting course: {error}
-        </Alert>
+
+      <Typography variant="body1" sx={{ mb: 3, textAlign: "center" }}>
+        Are you sure you want to delete this course? This action cannot be
+        undone.
+      </Typography>
+
+      {courseData && (
+        <Card sx={{ mb: 3, border: "1px solid #f44336" }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom sx={{ color: "#1976d2" }}>
+              Course Details:
+            </Typography>
+
+            <Divider sx={{ mb: 2 }} />
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Typography variant="body1">
+                <strong>Name:</strong> {courseData.name}
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>Description:</strong> {courseData.description}
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>Old Price:</strong> {courseData.oldPrice}
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>Discount:</strong> {courseData.discountPercentage * 100}
+                %
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>Final Price:</strong> {courseData.finalPrice}
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>Teachers:</strong> {courseData.teachers?.length || 0}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* Study Level Select */}
-        <FormControl fullWidth margin="normal" error={!!errors.studyLevelId}>
-          <InputLabel>Choose Study Level</InputLabel>
-          <Controller
-            name="studyLevelId"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                label="Choose Study Level"
-                onChange={(e) => {
-                  const selectedLevelId = e.target.value;
-                  field.onChange(selectedLevelId); // Update form state
-                  dispatch(
-                    fetchCoursesStudyLevels({ token, id: selectedLevelId })
-                  ); // Fetch courses for selected level
-                }}
-              >
-                {studyLevels?.map((level) => (
-                  <MenuItem key={level.id} value={level.id}>
-                    {level.level || `Level ${level.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          />
-          {errors.studyLevelId && (
-            <Typography color="error" variant="caption">
-              {errors.studyLevelId.message}
-            </Typography>
-          )}
-        </FormControl>
-        <FormControl fullWidth margin="normal" error={!!errors.selectedCourse}>
-          <InputLabel>Choose Course</InputLabel>
-          <Controller
-            name="selectedCourse"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} label="Choose Course">
-                {courses?.map((course) => (
-                  <MenuItem key={course.id} value={course.id}>
-                    {course.name || `Course ${course.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          />
-          {errors.selectedCourse && (
-            <Typography color="error" variant="body2">
-              {errors.selectedCourse.message}
-            </Typography>
-          )}
-        </FormControl>
-
-        <Button variant="contained" color="error" fullWidth type="submit">
-          Delete Course
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button variant="outlined" onClick={onClose} disabled={loading}>
+          Cancel
         </Button>
-      </form>
+
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleDeleteCourse}
+          disabled={loading || !courseData}
+        >
+          {loading ? "Deleting..." : "Delete Course"}
+        </Button>
+      </Box>
     </Box>
   );
 };
 
 export default DeleteCourse;
-
-// import { useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import {
-//   MenuItem,
-//   Select,
-//   FormControl,
-//   InputLabel,
-//   Button,
-//   Typography,
-//   Box,
-// } from "@mui/material";
-// import { useForm, Controller } from "react-hook-form";
-// import * as yup from "yup";
-// import { yupResolver } from "@hookform/resolvers/yup";
-// import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
-// import { fetchCoursesStudyLevels } from "../../store/shared/coursesStudyLevel/actGetCoursesStudyLevel";
-// import { actDeleteCourse } from "../../store/courses/deleteCourse/actDeleteCourse";
-// import { resetDeleteStatus } from "../../store/courses/deleteCourse/deleteCourseSlice";
-
-// const schema = yup.object().shape({
-//   selectedStudyLevel: yup.string().required("Please select a study level"),
-//   selectedCourse: yup.string().required("Please select a course"),
-// });
-
-// const DeleteCourse = () => {
-//   const dispatch = useDispatch();
-//   const token = useSelector((state) => state.auth.token);
-//   const { success, error } = useSelector((state) => state.deleteCourse);
-
-//   const {
-//     handleSubmit,
-//     control,
-//     watch,
-//     setValue,
-//     formState: { errors },
-//   } = useForm({
-//     defaultValues: {
-//       selectedStudyLevel: "",
-//       selectedCourse: "",
-//     },
-//     resolver: yupResolver(schema),
-//   });
-
-//   const studyLevels = useSelector((state) => state.studyLevelsId.list);
-//   const courses = useSelector((state) => state.coursesStudyLevelsId.list);
-
-//   const selectedStudyLevel = watch("selectedStudyLevel");
-
-//   // ✅ جلب study levels
-//   useEffect(() => {
-//     if (token) {
-//       dispatch(fetchStudyLevels(token));
-//     }
-//   }, [dispatch, token]);
-
-//   // ✅ عند تغيير المستوى الدراسي، يتم جلب الكورسات
-//   useEffect(() => {
-//     if (token && selectedStudyLevel) {
-//       dispatch(fetchCoursesStudyLevels({ token, id: selectedStudyLevel }));
-//       setValue("selectedCourse", ""); // تصفير الكورس المختار
-//     }
-//   }, [dispatch, token, selectedStudyLevel, setValue]);
-
-//   // ✅ إخفاء الرسائل بعد وقت
-//   useEffect(() => {
-//     if (success || error) {
-//       const timer = setTimeout(() => {
-//         dispatch(resetDeleteStatus());
-//       }, 3000);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [success, error, dispatch]);
-
-//   const onSubmit = (data) => {
-//     dispatch(actDeleteCourse({ token, id: data.selectedCourse }));
-//   };
-
-//   return (
-//     <Box sx={{ maxWidth: 400, mx: "auto", mt: 4 }}>
-//       <Typography variant="h5" mb={2}>
-//         Delete Course
-//       </Typography>
-
-//       {success && (
-//         <Typography color="success.main" mb={2}>
-//           Course deleted successfully!
-//         </Typography>
-//       )}
-//       {error && (
-//         <Typography color="error.main" mb={2}>
-//           Error deleting course: {error}
-//         </Typography>
-//       )}
-
-//       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-//         {/* 🟡 اختيار المستوى الدراسي */}
-//         <FormControl
-//           fullWidth
-//           margin="normal"
-//           error={!!errors.selectedStudyLevel}
-//         >
-//           <InputLabel>Choose Study Level</InputLabel>
-//           <Controller
-//             name="selectedStudyLevel"
-//             control={control}
-//             render={({ field }) => (
-//               <Select {...field} label="Choose Study Level">
-//                 {studyLevels?.map((level) => (
-//                   <MenuItem key={level.id} value={level.id}>
-//                     {level.level || `Level ${level.id}`}
-//                   </MenuItem>
-//                 ))}
-//               </Select>
-//             )}
-//           />
-//           {errors.selectedStudyLevel && (
-//             <Typography color="error" variant="body2">
-//               {errors.selectedStudyLevel.message}
-//             </Typography>
-//           )}
-//         </FormControl>
-
-//         {/* 🟡 اختيار الكورس */}
-//         <FormControl fullWidth margin="normal" error={!!errors.selectedCourse}>
-//           <InputLabel>Choose Course</InputLabel>
-//           <Controller
-//             name="selectedCourse"
-//             control={control}
-//             render={({ field }) => (
-//               <Select {...field} label="Choose Course">
-//                 {courses?.map((course) => (
-//                   <MenuItem key={course.id} value={course.id}>
-//                     {course.name || `Course ${course.id}`}
-//                   </MenuItem>
-//                 ))}
-//               </Select>
-//             )}
-//           />
-//           {errors.selectedCourse && (
-//             <Typography color="error" variant="body2">
-//               {errors.selectedCourse.message}
-//             </Typography>
-//           )}
-//         </FormControl>
-
-//         <Button variant="contained" color="error" fullWidth type="submit">
-//           Delete Course
-//         </Button>
-//       </form>
-//     </Box>
-//   );
-// };
-
-// export default DeleteCourse;

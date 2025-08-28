@@ -1,4 +1,3 @@
-
 import { useDispatch, useSelector } from "react-redux";
 import { actDeleteAdmin } from "../../../store/admin/deleteAdmin/actDeleteAdmin";
 import { resetDeleteState } from "../../../store/admin/deleteAdmin/deleteAdminSlice";
@@ -16,9 +15,12 @@ import {
   Box,
 } from "@mui/material";
 import { Trash2, AlertTriangle } from "lucide-react";
+import Profile from "../profile/Profile";
 
 const DeleteAdmin = () => {
   const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+
   const { loading, success, error } = useSelector((state) => state.deleteAdmin);
   const admin = JSON.parse(localStorage.getItem("userInfo"));
   const id = admin?.id;
@@ -30,7 +32,7 @@ const DeleteAdmin = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await dispatch(actDeleteAdmin(id)).unwrap();
+      await dispatch(actDeleteAdmin({ id, token })).unwrap();
       dispatch(logout());
     } catch (err) {
       console.error("Delete failed:", err);

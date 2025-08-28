@@ -20,7 +20,7 @@ export const actStudyLevel = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Something went wrong");
+      return rejectWithValue(error.response?.data?.errors || "Something went wrong");
     }
   }
 );

@@ -1,19 +1,29 @@
 import { useForm } from "react-hook-form";
 import InputField from "../createAdmin/InputField";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as yup from "yup";
 import { Eye, EyeClosed } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { actUpdateAdmin } from "../../../store/admin/updateAdmin/actUpdateAdmin";
 import { resetUpdateState } from "../../../store/admin/updateAdmin/updateAdminSlice";
-import { useNavigate } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
+import { fetchAdminById } from "../../../store/admin/getAdminInfo/fetchAdminById";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  Alert,
+  Button,
+  Box,
+} from "@mui/material";
+import { logout } from "../../../store/auth/authSlice";
+import { actDeleteAdmin } from "../../../store/admin/deleteAdmin/actDeleteAdmin";
 
 const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   secondName: yup.string().required("Second name is required"),
-  thirdName: yup.string(),
+  thirdName: yup.string().required("Third name is required"),
   phone: yup
     .string()
     .matches(/^01[0-9]{9}$/, "Invalid phone number")
@@ -28,46 +38,25 @@ const schema = yup.object().shape({
     ),
   password: yup
     .string()
-    .min(
-      8,
-      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
-    )
-    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .matches(/[0-9]/, "Password must contain at least one number")
-    .matches(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
-    )
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[a-z]/, "Must contain lowercase letter")
+    .matches(/[A-Z]/, "Must contain uppercase letter")
+    .matches(/[0-9]/, "Must contain a number")
+    .matches(/[^a-zA-Z0-9]/, "Must contain special character")
     .required("Password is required"),
 });
 
 const UpdateAdmin = () => {
-  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, success } = useSelector((state) => state.updateAdmin);
 
-  const admin = JSON.parse(localStorage.getItem("userInfo"));
-  const id = admin?.id;
-  // console.log(id, userData);
+  const userData = useSelector((state) => state.adminInfo.userData);
+  const id = JSON.parse(localStorage.getItem("id"));
 
-  const onSubmit = (data) => {
-    const payload = {
-      id,
-      firstName: data.firstName,
-      secondName: data.secondName,
-      thirdName: data.thirdName,
-      phone: data.phone,
-      job: data.job,
-      email: data.email,
-      password: data.password,
-    };
-    // console.log(payload);
-    dispatch(actUpdateAdmin({ ...payload, id }));
-    localStorage.setItem("adminInfo", JSON.stringify(payload));
-    reset();
-  };
+  const hasLoadedData = useRef(false);
+  const isDataLoaded = useRef(false);
 
   const {
     register,
@@ -79,119 +68,176 @@ const UpdateAdmin = () => {
     mode: "onBlur",
   });
 
-  useEffect(() => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("adminInfo"));
-
-      if (
-        userData &&
-        typeof userData === "object" &&
-        !Array.isArray(userData)
-      ) {
-        reset(userData);
-      }
-    } catch (error) {
-      console.error("Error parsing adminInfo:", error);
+  const onSubmit = (data) => {
+    const payload = { id, ...data };
+    dispatch(actUpdateAdmin({ adminData: payload, token }));
+  };
+  const handelDelete = () => {
+    if (window.confirm("Are you sure you want to delete this admin?")) {
+      dispatch(actDeleteAdmin({ id, token })).unwrap();
+      dispatch(logout());
     }
-  }, [reset]);
+    console.log("delete", id);
+  };
+
+  useEffect(() => {
+    if (id && token && !hasLoadedData.current) {
+      dispatch(fetchAdminById({ id, token }));
+      hasLoadedData.current = true;
+    }
+  }, [dispatch, id, token]);
+
+  useEffect(() => {
+    if (userData && !isDataLoaded.current) {
+      reset({
+        firstName: userData.firstName || "",
+        secondName: userData.secondName || "",
+        thirdName: userData.thirdName || "",
+        phone: userData.phone || "",
+        job: userData.job || "",
+        email: userData.email || "",
+        password: userData.password || "",
+      });
+      isDataLoaded.current = true;
+    }
+  }, [userData, reset]);
 
   useEffect(() => {
     if (success || error) {
       const timer = setTimeout(() => {
         dispatch(resetUpdateState());
-        navigate("/dashboard", { replace: true });
-      }, 1000);
-
+        dispatch(fetchAdminById({ id, token }));
+      }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [success, error, dispatch, navigate]);
+  }, [success, error, dispatch, id, token]);
 
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-64px)] bg-gray-100">
-      <div className="w-full max-w-4xl p-8 bg-white shadow-xl rounded-xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">Update Admin</h2>
-        {success && (
-          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-center">
-            {success}
-          </div>
-        )}
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
-            {error}
-          </div>
-        )}
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 64px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#f4f6f8",
+        p: 2,
+      }}
+    >
+      <Card
+        sx={{ width: "100%", maxWidth: 600, borderRadius: 4, boxShadow: 4 }}
+      >
+        <CardHeader
+          title={
+            <Typography variant="h5" fontWeight="bold" align="center">
+              Admin Info
+            </Typography>
+          }
+          sx={{
+            bgcolor: "#2972b1",
+            color: "white",
+            borderRadius: "16px 16px 0 0",
+            textAlign: "center",
+          }}
+        />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              label="First Name"
-              name="firstName"
-              register={register}
-              error={errors.firstName}
-            />
-            <InputField
-              label="Second Name"
-              name="secondName"
-              register={register}
-              error={errors.secondName}
-            />
-            <InputField
-              label="Third Name"
-              name="thirdName"
-              register={register}
-              // error={errors.thirdName}
-            />
-            <InputField
-              label="Phone"
-              name="phone"
-              register={register}
-              error={errors.phone}
-            />
-            <InputField
-              label="Job"
-              name="job"
-              register={register}
-              error={errors.job}
-            />
-            <InputField
-              label="Email"
-              name="email"
-              type="email"
-              register={register}
-              error={errors.email}
-            />
-            <div className="relative">
+        <CardContent>
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Updated Successfully
+            </Alert>
+          )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {!userData && !error && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Loading...
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <InputField
-                label="Password"
-                name="password"
-                type={showPassword ? "text" : "password"}
+                label="First Name"
+                name="firstName"
                 register={register}
-                error={errors.password}
+                error={errors.firstName}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-[38px] text-gray-600"
-              >
-                {showPassword ? <EyeClosed /> : <Eye />}
-              </button>
-            </div>
-          </div>
+              <InputField
+                label="Second Name"
+                name="secondName"
+                register={register}
+                error={errors.secondName}
+              />
+              <InputField
+                label="Third Name"
+                name="thirdName"
+                register={register}
+                error={errors.thirdName}
+              />
+              <InputField
+                label="Phone"
+                name="phone"
+                register={register}
+                error={errors.phone}
+              />
+              <InputField
+                label="Job"
+                name="job"
+                register={register}
+                error={errors.job}
+              />
+              <InputField
+                label="Email"
+                name="email"
+                type="email"
+                register={register}
+                error={errors.email}
+              />
 
-          <button
-            type="submit"
-            disabled={loading === "pending"}
-            className={`w-full py-2 px-4 rounded-md transition duration-300 font-semibold ${
-              loading === "pending"
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#1976d2] hover:bg-[#1e1ca9] text-white"
-            } `}
-          >
-            {loading === "pending" ? "Loading..." : "Update"}
-          </button>
-        </form>
-      </div>
-    </div>
+              <Box sx={{ position: "relative" }}>
+                <InputField
+                  label="Password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  register={register}
+                  error={errors.password}
+                />
+                <Button
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  size="small"
+                  sx={{ position: "absolute", top: 35, right: 10 }}
+                >
+                  {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                </Button>
+              </Box>
+
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  bgcolor: "#2972b1",
+                  "&:hover": { bgcolor: "#6f3ce0" },
+                }}
+                disabled={loading === "pending"}
+              >
+                {loading === "pending" ? "Please wait..." : "update Admin"}
+              </Button>
+
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => handelDelete()}
+              >
+                Delete Admin
+              </Button>
+            </Box>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
