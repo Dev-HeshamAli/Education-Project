@@ -382,6 +382,7 @@ const ManageClass = () => {
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const classesList = useSelector((state) => state.schoolClassId.list);
   const classDetails = useSelector((state) => state.schoolClassesDetails.list);
+  console.log(classDetails);
 
   const { success: createSuccess } = useSelector(
     (state) => state.createSchoolClass
@@ -805,7 +806,7 @@ const ManageClass = () => {
                 </Card>
               </Stack>
 
-              {/* Semester Courses */}
+              {/* Semester Courses
               {classDetails.semesterCourses &&
                 classDetails.semesterCourses.length > 0 && (
                   <Box sx={{ mb: 4 }}>
@@ -861,7 +862,7 @@ const ManageClass = () => {
                       ))}
                     </Stack>
                   </Box>
-                )}
+                )} */}
 
               {/* Students Section */}
               <Divider sx={{ mb: 3 }} />
@@ -917,6 +918,12 @@ const ManageClass = () => {
                         align="center"
                         sx={{ color: "white", fontWeight: "bold" }}
                       >
+                        Parent Phones
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{ color: "white", fontWeight: "bold" }}
+                      >
                         Study Plan
                       </TableCell>
                     </TableRow>
@@ -945,6 +952,29 @@ const ManageClass = () => {
                               {student.name}
                             </Typography>
                           </TableCell>
+                          <TableCell align="center">
+                            {student.parentPhones &&
+                            student.parentPhones.length > 0 ? (
+                              student.parentPhones.map((phone, index) => (
+                                <Chip
+                                  key={index}
+                                  label={phone}
+                                  color="info"
+                                  variant="outlined"
+                                  size="small"
+                                  sx={{ fontWeight: "medium", m: 0.5 }}
+                                />
+                              ))
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                No parent phones
+                              </Typography>
+                            )}
+                          </TableCell>
+
                           <TableCell align="center">
                             <Chip
                               label={student.plan}

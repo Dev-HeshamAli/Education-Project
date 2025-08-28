@@ -92,16 +92,16 @@ const Dashboard = () => {
   // const dispatch = useDispatch();
 
   // useEffect(() => {
-    // dispatch(refreshAccessToken());
-    // dispatch(
-    //   actGetScheduleInfo({
-    //     token,
-    //     studyLevelId: 14,
-    //     semesterId: 1,
-    //     academicYearId: 23,
-    //   })
-    // );
-    // dispatch(actGetScheduleId({token, id: SchoolClassId}));
+  // dispatch(refreshAccessToken());
+  // dispatch(
+  //   actGetScheduleInfo({
+  //     token,
+  //     studyLevelId: 14,
+  //     semesterId: 1,
+  //     academicYearId: 23,
+  //   })
+  // );
+  // dispatch(actGetScheduleId({token, id: SchoolClassId}));
   // }, [dispatch, token]);
 
   // const scheduleId = useSelector((state) => state.getScheduleId.list);

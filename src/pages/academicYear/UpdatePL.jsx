@@ -22,6 +22,8 @@ import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 
 const UpdatePL = ({ editData }) => {
+  const discountEditData = editData?.discount * 100;
+
   const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector(
@@ -57,9 +59,9 @@ const UpdatePL = ({ editData }) => {
       planId: editData.planId ?? "",
       studyLevelId: matchedLevel ? matchedLevel.id : "", // ✅ دلوقتي بيدي الـ id
       price: editData.price ?? "",
-      discount: editData.discount ?? "",
+      discount: discountEditData ?? "",
     });
-  }, [editData, studyLevels, reset]);
+  }, [editData, studyLevels, reset, discountEditData]);
 
   useEffect(() => {
     if (success || error) {
@@ -69,9 +71,14 @@ const UpdatePL = ({ editData }) => {
   }, [success, error, dispatch, reset]);
 
   const onSubmit = (formData) => {
-    if (formData.discount > 0.99) return alert("Discount must not exceed 1");
-    dispatch(actUpdatePlanLevel({ data: formData, token }));
-    // console.log("Form Data:", formData);
+    if (formData.discount > 100) return alert("Discount must not exceed 100");
+
+    const payload = {
+      ...formData,
+      discount: formData.discount / 100,
+    };
+
+    dispatch(actUpdatePlanLevel({ data: payload, token }));
   };
 
   return (
@@ -163,11 +170,11 @@ const UpdatePL = ({ editData }) => {
             <Controller
               name="discount"
               control={control}
-              rules={{ required: "Discount is required", min: 0, max: 1 }}
+              rules={{ required: "Discount is required", min: 0, max: 100 }}
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
-                  label="Discount (e.g., 0.2)"
+                  label="Discount (%)"
                   fullWidth
                   type="number"
                   error={!!fieldState.error}

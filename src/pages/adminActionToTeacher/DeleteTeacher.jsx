@@ -7,6 +7,13 @@ import {
   Autocomplete,
   TextField,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,6 +22,10 @@ import { fetchTeachersByName } from "../../store/shared/teacherByName/actGetTeac
 import { actDeleteTeacher } from "../../store/deleteTeacher/actDeleteTeacher";
 import { resetDeleteTeacherState } from "../../store/deleteTeacher/deleteTeacherSlice";
 import { useEffect } from "react";
+import { actGetInActiveTeacher } from "../../store/deleteTeacher/inActiveTeacher/actGetInActiveTeacher";
+import { actActiveTeacher } from "../../store/deleteTeacher/activeTeacher/actActiveTeacher";
+import { resetActiveTeacherStates } from "../../store/deleteTeacher/activeTeacher/activeTeacherSlice";
+
 const schema = yup.object().shape({
   name: yup.object().required("Please select a teacher"),
 });
@@ -24,7 +35,16 @@ const DeleteTeacher = () => {
   const { loading, error, success } = useSelector(
     (state) => state.deleteTeacher
   );
+  const {
+    success: inActiveTeacherSuccess,
+    loading: inActiveTeacherLoading,
+    error: inActiveTeacherError,
+  } = useSelector((state) => state.activeTeacher);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(actGetInActiveTeacher(token));
+  }, [dispatch, token]);
 
   const {
     control,
@@ -41,6 +61,11 @@ const DeleteTeacher = () => {
 
   const teacherNames = useSelector((state) => state.teacherByName?.list || []);
 
+  const inactiveTeachers = useSelector(
+    (state) => state.inActiveTeacher.list || []
+  );
+  console.log(inactiveTeachers);
+
   const onSubmit = (data) => {
     if (data.name) {
       console.log("Selected Teacher ID:", data.name.id);
@@ -55,13 +80,31 @@ const DeleteTeacher = () => {
   };
 
   useEffect(() => {
-    if (success || error) {
+    if (success || error || inActiveTeacherSuccess || inActiveTeacherError) {
       setTimeout(() => {
         dispatch(resetDeleteTeacherState());
+        dispatch(resetActiveTeacherStates());
+        dispatch(actGetInActiveTeacher(token));
       }, 3000);
     }
-  }, [success, error, dispatch]);
+  }, [
+    success,
+    error,
+    dispatch,
+    inActiveTeacherSuccess,
+    token,
+    inActiveTeacherError,
+  ]);
 
+  const handleActiveTeacher = (id) => {
+    if (window.confirm("Are you sure you want to active this teacher?"))
+      dispatch(
+        actActiveTeacher({
+          token: token,
+          id: id,
+        })
+      );
+  };
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>
@@ -83,7 +126,23 @@ const DeleteTeacher = () => {
           {success}
         </Alert>
       )}
+      {inActiveTeacherSuccess && (
+        <Alert sx={{ m: 2 }} severity="success">
+          {inActiveTeacherSuccess}
+        </Alert>
+      )}
+      {inActiveTeacherLoading && (
+        <Alert sx={{ m: 2 }} severity="info">
+          Loading...
+        </Alert>
+      )}
+      {inActiveTeacherError && (
+        <Alert sx={{ m: 2 }} severity="error">
+          {inActiveTeacherError}
+        </Alert>
+      )}
 
+      {/* Form */}
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -97,7 +156,6 @@ const DeleteTeacher = () => {
               {...field}
               options={teacherNames}
               getOptionLabel={(option) => option.name || ""}
-              getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value?.id}
               onInputChange={(e, value) => {
                 if (value && value.length >= 2) {
@@ -127,6 +185,57 @@ const DeleteTeacher = () => {
         <Button type="submit" variant="contained" color="error">
           Delete Teacher
         </Button>
+      </Box>
+
+      {/* جدول المدرسين الغير Active */}
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="h6" gutterBottom>
+          Inactive Teachers
+        </Typography>
+
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">
+                  <b>Name</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Deleted Time</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Action</b>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {inactiveTeachers.map((teacher) => (
+                <TableRow key={teacher.id}>
+                  <TableCell align="center">{teacher.name}</TableCell>
+                  <TableCell align="center">
+                    {new Date(teacher.deletedTime).toLocaleString()}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={() => handleActiveTeacher(teacher.id)}
+                    >
+                      Active
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {inactiveTeachers.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    No inactive teachers
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
     </Container>
   );

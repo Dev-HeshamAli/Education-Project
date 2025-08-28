@@ -13,6 +13,8 @@ import studyLevelIdReducer from "./shared/studyLevel/studyLevelsSlice";
 import planIdlReducer from "./shared/plan/planSlice";
 import updatePlanLevelReducer from "./academicYear/updatePlanLevel/updatePlanLevelSlice";
 import stageIdReducer from "./shared/stage/stageSlice";
+import inActiveTeacherReducer from "./deleteTeacher/inActiveTeacher/inActiveTeacherSlice";
+import activeTeacherReducer from "./deleteTeacher/activeTeacher/activeTeacherSlice";
 import semestersIdReducer from "./shared/semesters/semestersSlice";
 import academicYearsIdReducer from "./shared/academicYears/academicYearsSlice";
 import coursesInStudyLevelIdReducer from "./shared/coursesInStudyLevel/coursesInStudyLevelSlice";
@@ -147,6 +149,8 @@ export const store = configureStore({
     addTeacherToCourse: addTeacherToCourseReducer,
     removeTeacherFromCourse: removeTeacherFromCourseReducer,
     addTeacherToStudyLevel: addTeacherToStudyLevelReducer,
+    inActiveTeacher: inActiveTeacherReducer,
+    activeTeacher: activeTeacherReducer,
     // --------------Schedule Reducers----------------//
     createSchedule: createScheduleReducer,
     updateSchedule: updateScheduleReducer,

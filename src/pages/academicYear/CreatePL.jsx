@@ -21,7 +21,7 @@ import { resetCreateStudyLevelState } from "../../store/academicYear/createPlanL
 import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { fetchStudyLevels } from "../../store/shared/studyLevel/actGetStudyLevels";
 
-const CreatePL = () => {
+const CreatePL = ({ selectedPlan }) => {
   const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.planLevel);
@@ -50,10 +50,28 @@ const CreatePL = () => {
   }, [success, error, dispatch, reset]);
 
   const onSubmit = (formData) => {
-    if (formData.discount > 0.99) return alert("Discount must not exceed 1");
-    dispatch(actCreatePlanLevel({ data: formData, token }));
-    console.log("Form Data:", formData);
+    if (formData.discount > 100) return alert("Discount must not exceed 100%");
+
+    const payload = {
+      ...formData,
+      discount: formData.discount / 100, // 👈 حوّل من % إلى 0–1
+    };
+
+    dispatch(actCreatePlanLevel({ data: payload, token }));
   };
+
+  useEffect(() => {
+    if (selectedPlan && plans?.length) {
+      const matchedPlan = plans.find((plan) => plan.id === selectedPlan);
+
+      if (matchedPlan) {
+        reset((prev) => ({
+          ...prev,
+          planId: matchedPlan.id, // 👈 خلي القيمة الافتراضية هي اللي جايه من البروبس
+        }));
+      }
+    }
+  }, [selectedPlan, plans, reset]);
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center">
@@ -144,11 +162,11 @@ const CreatePL = () => {
             <Controller
               name="discount"
               control={control}
-              rules={{ required: "Discount is required", min: 0, max: 1 }}
+              rules={{ required: "Discount is required", min: 0, max: 100 }}
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
-                  label="Discount (e.g., 0.2)"
+                  label="Discount (%)"
                   fullWidth
                   type="number"
                   error={!!fieldState.error}

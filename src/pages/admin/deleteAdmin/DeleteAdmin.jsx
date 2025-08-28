@@ -22,8 +22,7 @@ const DeleteAdmin = () => {
   const token = useSelector((state) => state.auth.token);
 
   const { loading, success, error } = useSelector((state) => state.deleteAdmin);
-  const admin = JSON.parse(localStorage.getItem("userInfo"));
-  const id = admin?.id;
+  const id = JSON.parse(localStorage.getItem("id"));
 
   const [open, setOpen] = useState(false);
 

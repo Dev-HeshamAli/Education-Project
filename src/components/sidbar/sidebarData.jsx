@@ -116,7 +116,7 @@ export const listSidebar = [
     children: [
       { name: "Manage Academic Year", link: "/dashboard/create-academic-year" },
     ],
-    border: true,
+    // border: true,
   },
   {
     name: "Courses",

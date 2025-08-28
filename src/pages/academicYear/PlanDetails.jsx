@@ -66,7 +66,7 @@ const PlanDetails = () => {
   const planDetails = useSelector((state) => state.planDetails.list);
   const loadingPlans = useSelector((state) => state.plansId.loading);
   const loadingDetails = useSelector((state) => state.planDetails.loading);
-
+  console.log(planDetails);
 
   const handleSelectPlan = (id, name) => {
     setSelectedPlan(id);
@@ -97,7 +97,7 @@ const PlanDetails = () => {
       {/* ✅ Dialogs */}
       {open && (
         <Dialog open={open} onClose={() => setOpen(false)}>
-          <CreatePL setOpen={setOpen} />
+          <CreatePL setOpen={setOpen} selectedPlan={selectedPlan} />
         </Dialog>
       )}
       {openUpdate && (
@@ -168,10 +168,15 @@ const PlanDetails = () => {
                       <TableCell align="center">{lvl.oldPrice}</TableCell>
                     )}
                     {isOnlineSchool && (
-                      <TableCell align="center">{lvl.descount}</TableCell>
+                      <TableCell align="center">
+                        {lvl.descount * 100}%
+                      </TableCell>
                     )}
                     {isOnlineSchool && (
-                      <TableCell align="center">{lvl.finalPrice}</TableCell>
+                      <TableCell align="center">
+                        {lvl.finalPrice ??
+                          lvl.oldPrice - lvl.oldPrice * lvl.descount}
+                      </TableCell>
                     )}
                     {isOnlineSchool && (
                       <TableCell align="center">

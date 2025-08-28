@@ -23,6 +23,8 @@ import {
   Avatar,
   ListItemText,
   List,
+  Chip,
+  IconButton,
 } from "@mui/material";
 
 import {
@@ -44,7 +46,7 @@ import { fetchAcademicYears } from "../../../store/shared/academicYears/actGetAc
 import Sidebar from "./Sidebar";
 import { GridAddIcon } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import AddTeacherToCourse from "../../adminActionToTeacher/AddTeacherToCourse";
 const AllDetailsCourses = () => {
   const dispatch = useDispatch();
@@ -65,6 +67,7 @@ const AllDetailsCourses = () => {
   const [addTeacher, setAddTeachers] = useState(false);
 
   const { courseId } = useSelector((state) => state.selectionIds);
+  console.log("courses", selectedCourseData);
 
   const { successMessage: successMessageCreate } = useSelector(
     (state) => state.createCourse
@@ -232,11 +235,6 @@ const AllDetailsCourses = () => {
             />
           </Dialog>
         )}
-        {/* {addTeacher && (
-          <Dialog onClose={() => setAddTeachers(false)} open={addTeacher}>
-            <AddTeacherToCourse onClose={() => setAddTeachers(false)} />
-          </Dialog>
-        )} */}
 
         {addTeacher && (
           <Dialog onClose={() => setAddTeachers(false)} open={addTeacher}>
@@ -367,8 +365,17 @@ const AllDetailsCourses = () => {
             </Select>
           </FormControl>
         </Box>
+        <Button
+          sx={{ mr: 2, my: 2 }}
+          variant="contained"
+          color="primary"
+          startIcon={<GridAddIcon />}
+          onClick={() => setCreateCourse(true)}
+        >
+          Create Course
+        </Button>
 
-        {courses.length > 0 ? (
+        {/* {courses.length > 0 ? (
           <TableContainer component={Paper}>
             <Typography align="center" variant="h5" mb={2}>
               Courses Details Table
@@ -379,23 +386,18 @@ const AllDetailsCourses = () => {
                 Academic Year ( {allLevels?.academicYearName} )
               </span>
             </Typography>
-            <Button
-              sx={{ mr: 2, my: 2 }}
-              variant="contained"
-              color="primary"
-              startIcon={<GridAddIcon />}
-              onClick={() => setCreateCourse(true)}
-            >
-              Create Course
-            </Button>
+
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                   <TableCell align="center">Name</TableCell>
                   <TableCell align="center">Description</TableCell>
-                  <TableCell align="center"> Old Price</TableCell>
-                  <TableCell align="center"> Discount</TableCell>
-                  <TableCell align="center">Final Price</TableCell>
+                  <TableCell align="center">Online Old Price</TableCell>
+                  <TableCell align="center">Online Discount</TableCell>
+                  <TableCell align="center">Online Final Price</TableCell>
+                  <TableCell align="center">Offline Old Price</TableCell>
+                  <TableCell align="center">Offline Discount</TableCell>
+                  <TableCell align="center">Offline Final Price</TableCell>
                   <TableCell align="center">Teacher</TableCell>
                   <TableCell align="center">Paln</TableCell>
                   <TableCell align="center">Actions</TableCell>
@@ -420,11 +422,24 @@ const AllDetailsCourses = () => {
                       {course.name}
                     </TableCell>
                     <TableCell align="center">{course.description}</TableCell>
-                    <TableCell align="center">{course.oldPrice}</TableCell>
                     <TableCell align="center">
-                      {course.discountPercentage * 100}%
+                      {course.onlineOldPrice}
                     </TableCell>
-                    <TableCell align="center">{course.finalPrice}</TableCell>
+                    <TableCell align="center">
+                      {course.onlineDiscountPercentage * 100}%
+                    </TableCell>
+                    <TableCell align="center">
+                      {course.onlineFinalPrice}
+                    </TableCell>
+                    <TableCell align="center">
+                      {course.offlineOldPrice}
+                    </TableCell>
+                    <TableCell align="center">
+                      {course.offlineDiscountPercentage * 100}%
+                    </TableCell>
+                    <TableCell align="center">
+                      {course.offlineFinalPrice}
+                    </TableCell>
                     <TableCell align="center">
                       <Button
                         variant="text"
@@ -481,6 +496,338 @@ const AllDetailsCourses = () => {
           <Alert severity="info" sx={{ mb: 3 }}>
             No Courses Found
           </Alert>
+        )} */}
+        {courses.length > 0 ? (
+          <TableContainer component={Paper} sx={{ mt: 3, overflow: "auto" }}>
+            <Typography
+              align="center"
+              variant="h5"
+              sx={{
+                p: 3,
+                backgroundColor: "#f8f9fa",
+                borderBottom: "2px solid #dee2e6",
+              }}
+            >
+              Courses Details Table
+              <Box
+                sx={{
+                  mt: 1,
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 3,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Chip
+                  label={`Plan: ${allLevels?.planName || "N/A"}`}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ fontWeight: "bold", fontSize: "14px" }}
+                />
+                <Chip
+                  label={`Academic Year: ${
+                    allLevels?.academicYearName || "N/A"
+                  }`}
+                  color="secondary"
+                  variant="outlined"
+                  sx={{ fontWeight: "bold", fontSize: "14px" }}
+                />
+              </Box>
+            </Typography>
+
+            <Table sx={{ minWidth: 1200 }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 120 }}
+                  >
+                    Course Name
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 150 }}
+                  >
+                    Description
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 100 }}
+                  >
+                    Online Prices
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 100 }}
+                  >
+                    Offline Prices
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 120 }}
+                  >
+                    Teachers
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 100 }}
+                  >
+                    Plans
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "white", fontWeight: "bold", minWidth: 120 }}
+                  >
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {courses?.map((course) => (
+                  <TableRow
+                    key={course.id}
+                    sx={{
+                      "&:nth-of-type(odd)": { backgroundColor: "#f8f9fa" },
+                      "&:hover": { backgroundColor: "#e3f2fd" },
+                      transition: "background-color 0.2s ease",
+                    }}
+                  >
+                    {/* اسم الكورس */}
+                    <TableCell align="center">
+                      <Typography
+                        sx={{
+                          color: "#1976d2",
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                          "&:hover": { color: "#1565c0" },
+                        }}
+                        onClick={() => {
+                          navigate("/dashboard/lectures-in-course");
+                          dispatch(setCourseId(course.id));
+                        }}
+                      >
+                        {course.name}
+                      </Typography>
+                    </TableCell>
+
+                    {/* الوصف */}
+                    <TableCell align="center">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          maxWidth: 200,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {course.description || "No description"}
+                      </Typography>
+                    </TableCell>
+
+                    {/* الأسعار الأونلاين */}
+                    <TableCell align="center">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            textDecoration: "line-through",
+                            color: "#666",
+                            fontSize: "15px",
+                          }}
+                        >
+                          Old: ${course.onlineOldPrice}
+                        </Typography>
+                        <Chip
+                          label={`${
+                            course.onlineDiscountPercentage * 100
+                          }% OFF`}
+                          size="small"
+                          color="success"
+                          sx={{
+                            fontSize: "14px",
+                            height: 25,
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#2e7d32",
+                            fontSize: "15px",
+                          }}
+                        >
+                          Final: ${course.onlineFinalPrice}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+
+                    {/* الأسعار الأوفلاين */}
+                    <TableCell align="center">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            textDecoration: "line-through",
+                            color: "#666",
+                            fontSize: "15px",
+                          }}
+                        >
+                          Old: ${course.offlineOldPrice}
+                        </Typography>
+                        <Chip
+                          label={`${
+                            course.offlineDiscountPercentage * 100
+                          }% OFF`}
+                          size="small"
+                          color="warning"
+                          sx={{ fontSize: "14px", height: 25 }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#ed6c02",
+                            fontSize: "15px",
+                          }}
+                        >
+                          Final: ${course.offlineFinalPrice}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+
+                    {/* المدرسين */}
+                    <TableCell align="center">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handelViewTeachers(course)}
+                        sx={{
+                          minWidth: "auto",
+                          fontSize: "12px",
+                          padding: "4px 8px",
+                          borderRadius: "16px",
+                        }}
+                      >
+                        {course.teachers?.length || 0} Teachers
+                      </Button>
+                    </TableCell>
+
+                    {/* الخطط */}
+                    <TableCell align="center">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
+                        }}
+                      >
+                        {course.coursesInPlans?.length > 0 ? (
+                          course.coursesInPlans
+                            .slice(0, 2)
+                            .map((plan, i) => (
+                              <Chip
+                                key={i}
+                                label={plan.planName}
+                                size="small"
+                                variant="outlined"
+                                sx={{ fontSize: "13px", height: 20 }}
+                              />
+                            ))
+                        ) : (
+                          <Typography variant="caption" color="textSecondary">
+                            No plans
+                          </Typography>
+                        )}
+                        {course.coursesInPlans?.length > 2 && (
+                          <Typography variant="caption" color="primary">
+                            +{course.coursesInPlans.length - 2} more
+                          </Typography>
+                        )}
+                      </Box>
+                    </TableCell>
+
+                    {/* الأكشن */}
+                    <TableCell align="center">
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 1,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <IconButton
+                          onClick={() => {
+                            setSelectedCourseData({
+                              ...course,
+                              studyLevelId,
+                            });
+                            setUpdateCourse(true);
+                          }}
+                          size="small"
+                          sx={{
+                            color: "#1976d2",
+                            "&:hover": {
+                              backgroundColor: "rgba(25, 118, 210, 0.1)",
+                            },
+                          }}
+                        >
+                          <Edit size={18} />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => {
+                            setSelectedCourseData(course);
+                            setDeleteCourse(true);
+                          }}
+                          size="small"
+                          sx={{
+                            color: "#d32f2f",
+                            "&:hover": {
+                              backgroundColor: "rgba(211, 47, 47, 0.1)",
+                            },
+                          }}
+                        >
+                          <Trash2 size={18} />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+
+                {courses?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                      <Typography variant="h6" color="textSecondary">
+                        No Courses Found
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Paper sx={{ p: 4, mt: 3, textAlign: "center" }}>
+            <Typography variant="h6" color="textSecondary" gutterBottom>
+              📚 No Courses Available
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Start by adding your first course to see it appear here.
+            </Typography>
+          </Paper>
         )}
       </Box>
     </Box>

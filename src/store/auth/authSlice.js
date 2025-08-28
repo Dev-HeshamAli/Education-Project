@@ -21,8 +21,10 @@ const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+      localStorage.removeItem("id");
       state.token = null;
-      state.userData = null;
+      state.role = null;
+      state.id = null;
     },
     resetLoginMessages: (state) => {
       state.successMessage = null;
