@@ -46,7 +46,17 @@ export default function Profile() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 40, height: 40 }}>A</Avatar>
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                bgcolor: "#fff",
+                color: "#1976d2",
+                fontWeight: "bold",
+              }}
+            >
+              A
+            </Avatar>
           </IconButton>
         </Tooltip>
       </Box>

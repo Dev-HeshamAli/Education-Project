@@ -55,28 +55,24 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
           }}
         >
           <Typography
+            onClick={() => navigate("/dashboard")}
             variant="h6"
             sx={{
               color: "#fff",
               fontWeight: "bold",
               textAlign: "center",
               textTransform: "capitalize",
+              cursor: "pointer",
+              "&:hover": {
+                color: "#fff",
+                fontWeight: "bold",
+                scale: "1.03",
+                transition: "all 0.2s ease-in-out",
+              },
             }}
           >
-            Admin Dashboard
+            DASHBOARD
           </Typography>
-          <Button
-            onClick={() => navigate("/dashboard")}
-            variant="contained"
-            sx={{
-              ml: 2,
-              bgcolor: "white",
-              color: "primary.main",
-              fontWeight: "bold",
-            }}
-          >
-            Dashboard
-          </Button>
           <Profile />
         </Box>
       </Toolbar>
