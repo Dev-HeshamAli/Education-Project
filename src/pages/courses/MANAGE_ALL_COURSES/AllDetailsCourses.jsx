@@ -191,6 +191,7 @@ const AllDetailsCourses = () => {
         <Box
           sx={{
             flex: 1,
+            height: "100vh",
             display: "flex",
             flexDirection: "column",
             gap: 2,
@@ -496,7 +497,7 @@ const AllDetailsCourses = () => {
           </Alert>
         )} */}
         {courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ mt: 3, overflow: "auto" }}>
+          <TableContainer component={Paper} sx={{  height: "70vh" }}>
             <Typography
               align="center"
               variant="h5"

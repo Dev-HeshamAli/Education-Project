@@ -2,14 +2,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actUpdateSchedule = createAsyncThunk(
   "actUpdateSchedule/update",
   async ({ token, data}, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/Admin/update-schedule`,
+        `${BASE_URL}/api/Admin/update-schedule`,
         data,
         {
           headers: {

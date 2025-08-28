@@ -129,12 +129,12 @@ const Dashboard = () => {
         Delete
       </Button> */}
 
-      {/* <Typography variant="h2" color="initial">
+      <Typography variant="h2" color="initial">
         PlatformAdmin987@gmail.com
       </Typography>
       <Typography variant="h2" color="initial">
         P@ssword123
-      </Typography> */}
+      </Typography>
     </Box>
   );
 };

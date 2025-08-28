@@ -2,13 +2,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../api/BASE_URL";
 
 export const actCreateCourse = createAsyncThunk(
   "course/create",
   async ({ data, token }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/api/Admin/create-course`, data, {
+      const response = await axios.post(`${BASE_URL}/api/Admin/create-course`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -2,15 +2,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const CREATE_URL = "https://edu-smart.runasp.net";
-const GET_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
+
 
 export const actCreateAcademicYearSlice = createAsyncThunk(
   "academicYear/create",
   async ({ data, token }, { rejectWithValue }) => {
     try {
       // Step 1: Check if the academic year exists
-      const res = await axios.get(`${GET_URL}/api/Shared/AcademicYears`, {
+      const res = await axios.get(`${BASE_URL}/api/Shared/AcademicYears`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -28,7 +28,7 @@ export const actCreateAcademicYearSlice = createAsyncThunk(
       }
 
       // Step 2: Create new academic year
-      const response = await axios.post(`${CREATE_URL}/api/Admin/create-academic-year`, data, {
+      const response = await axios.post(`${BASE_URL}/api/Admin/create-academic-year`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

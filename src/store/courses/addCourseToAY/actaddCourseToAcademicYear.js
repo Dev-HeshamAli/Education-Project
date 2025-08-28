@@ -2,14 +2,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://edu-smart.runasp.net"; // عدّل حسب اسم API الحقيقي
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actAddCourseToAcademicYear = createAsyncThunk(
   "academicYearCourse/delete",
   async ({ courseId, academicYearId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/api/Admin/add-course-to-academic-year/${courseId}/${academicYearId}`,
+        `${BASE_URL}/api/Admin/add-course-to-academic-year/${courseId}/${academicYearId}`,
         null,
         {
           headers: {

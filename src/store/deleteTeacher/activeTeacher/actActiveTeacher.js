@@ -2,14 +2,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actActiveTeacher = createAsyncThunk(
   "ActiveTeacher/active",
   async ({ token, id }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/Admin/Active-Teacher/${id}`,
+        `${BASE_URL}/api/Admin/Active-Teacher/${id}`,
         {}, // body فاضي
         {
           headers: {

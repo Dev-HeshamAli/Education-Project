@@ -2,7 +2,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
+
 
 export const actCreatePlan = createAsyncThunk(
   "plan/create",

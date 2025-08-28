@@ -2,7 +2,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-    const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 // ✅ Create School Class
 export const actDeleteLecFromSchedule = createAsyncThunk(
@@ -10,7 +10,7 @@ export const actDeleteLecFromSchedule = createAsyncThunk(
   async ({ token, id }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/Admin/Delete-lec-to-schedule/${id}`,
+        `${BASE_URL}/api/Admin/Delete-lec-to-schedule/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

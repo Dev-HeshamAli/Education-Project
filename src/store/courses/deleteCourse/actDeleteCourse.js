@@ -2,12 +2,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://edu-smart.runasp.net"
+import { BASE_URL } from "../../../api/BASE_URL";
 export const actDeleteCourse = createAsyncThunk(
   "deleteCourse/delete",
   async ({ token, id }, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${API_URL}/api/Admin/delete-course/${id}`, {
+      const response = await axios.delete(`${BASE_URL}/api/Admin/delete-course/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -15,7 +15,6 @@ export const actDeleteCourse = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.error("❌ Delete error:", error.response?.data?.errors || error.message);
       return rejectWithValue(error.response?.data?.errors || "Something went wrong");
     }
   }

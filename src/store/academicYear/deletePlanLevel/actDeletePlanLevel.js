@@ -1,14 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actDeletePlanLevel = createAsyncThunk(
   "DeletePlanLevel/delete",
   async ({ token, planId, studyLevelId }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/Admin/Delete-plan-level/${planId}/${studyLevelId}`,
+        `${BASE_URL}/api/Admin/Delete-plan-level/${planId}/${studyLevelId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -1,7 +1,6 @@
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
-const BASE_URL = "https://edu-smart.runasp.net";
 import axios from "axios";
+import { BASE_URL } from "../../api/BASE_URL";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",

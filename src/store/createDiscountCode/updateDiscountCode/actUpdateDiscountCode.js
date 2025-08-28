@@ -3,14 +3,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actUpdateDiscountCode = createAsyncThunk(
   "updateDiscountCode/update",
   async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/Admin/update-discount-code`,
+        `${BASE_URL}/api/Admin/update-discount-code`,
         data,
         {
           headers: {

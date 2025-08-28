@@ -3,14 +3,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = "https://edu-smart.runasp.net";
+import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actSolveProblem = createAsyncThunk(
   "solveProblem/reply",
   async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/Admin/Solve-UserProblem`,
+        `${BASE_URL}/api/Admin/Solve-UserProblem`,
         data,
         {
           headers: {

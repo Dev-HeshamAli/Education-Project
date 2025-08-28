@@ -2,7 +2,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://edu-smart.runasp.net"; 
+import { BASE_URL } from "../../api/BASE_URL";
 
 
 export const addTeacherToStudyLevel = createAsyncThunk(
@@ -10,7 +10,7 @@ export const addTeacherToStudyLevel = createAsyncThunk(
   async ({ teacherId, studyLevelId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/api/Admin/add-teacher-to-study-level/${teacherId}/${studyLevelId}`,
+        `${BASE_URL}/api/Admin/add-teacher-to-study-level/${teacherId}/${studyLevelId}`,
         null,
         {
           headers: {
