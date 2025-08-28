@@ -22,7 +22,7 @@ export default function SidebarAccordion({ item }) {
         "&::before": {
           display: "none",
         },
-        pb: 1,
+        pb: 0.5,
         borderBottom: item.border ? "3px solid #1976d2" : "none",
       }}
     >
@@ -38,7 +38,7 @@ export default function SidebarAccordion({ item }) {
         <ListItemIcon sx={{ color: "#839ec5" }}>{item.icon}</ListItemIcon>
         <Typography
           sx={{
-            color: "#6d6777",
+            color: "#000",
             fontSize: "20px",
             fontWeight: "bold",
             "&:hover": { color: "#fff !important" },
@@ -59,7 +59,6 @@ export default function SidebarAccordion({ item }) {
               sx={{
                 // width: "100%",
                 borderRadius: 4,
-                mb: 0.5,
                 transition: "all 0.2s ease-in-out",
                 background: isChildSelected
                   ? "linear-gradient(270deg, #1976d2 0%, #2a4155 100%)"

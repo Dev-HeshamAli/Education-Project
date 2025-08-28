@@ -191,7 +191,6 @@ const AllDetailsCourses = () => {
         <Box
           sx={{
             flex: 1,
-            height: "100vh",
             display: "flex",
             flexDirection: "column",
             gap: 2,

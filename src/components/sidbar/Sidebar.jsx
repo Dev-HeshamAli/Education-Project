@@ -5,6 +5,7 @@ import { styled, useTheme } from "@mui/material/styles";
 import { listSidebar } from "./sidebarData.jsx";
 import SidebarItem from "./SidebarItem";
 import SidebarAccordion from "./SidebarAccordion";
+import Logo from "./logo";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -46,19 +47,20 @@ export default function Sidebar({ open, handleDrawerClose, drawerWidth }) {
       open={open}
     >
       <DrawerHeader>
+        <Logo />
         <Typography
-          variant="h5"
+          variant="h6"
           sx={{
             fontWeight: "800",
             // background: "linear-gradient(45deg, #1976d2, #ff4081)", // الأزرق + بينك
-            background: "#1976d2", // الأزرق + بينك
+            background: "#1976d2",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
             textFillColor: "transparent",
-            letterSpacing: 1.5,
+            letterSpacing: 1,
             textTransform: "uppercase",
-            mr: 2,
+            mr: 1,
           }}
         >
           edu-smart.ai

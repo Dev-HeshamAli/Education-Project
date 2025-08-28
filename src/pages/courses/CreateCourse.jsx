@@ -235,7 +235,7 @@ const CreateCourse = () => {
         />
 
         <TextField
-          label="Price"
+          label="Online Price"
           fullWidth
           margin="normal"
           {...register("price")}
@@ -243,7 +243,7 @@ const CreateCourse = () => {
           helperText={errors.price?.message}
         />
         <TextField
-          label="Discount Percentage"
+          label="Online Discount Percentage"
           fullWidth
           margin="normal"
           {...register("discountPercentage")}

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -31,7 +30,6 @@ import DeleteCourseFromP from "./DeleteCourseFromP";
 import AddCourseToP from "./AddCourseToP";
 
 const UpdateCourse = ({ courseData }) => {
-
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -392,7 +390,7 @@ const UpdateCourse = ({ courseData }) => {
           <TextField
             fullWidth
             margin="normal"
-            label="Price"
+            label="Online Price"
             type="number"
             name="price"
             value={formik.values.price || ""}
@@ -405,7 +403,7 @@ const UpdateCourse = ({ courseData }) => {
           <TextField
             fullWidth
             margin="normal"
-            label="Discount %"
+            label="Online Discount %"
             type="number"
             name="discountPercentage"
             value={formik.values.discountPercentage || ""}
