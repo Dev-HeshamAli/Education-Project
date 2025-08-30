@@ -59,7 +59,8 @@ const schema = yup.object().shape({
 
 const FormCreateLec = () => {
   const dispatch = useDispatch();
-  const { courseId } = useSelector((state) => state.selectionIds);
+  // const { courseId } = useSelector((state) => state.selectionIds);
+  const courseId = localStorage.getItem("1");
   const token = useSelector((state) => state.auth.token);
   const { success, error, loading } = useSelector((state) => state.createLec);
   const [dragOver, setDragOver] = useState(false);

@@ -15,7 +15,6 @@ import {
   Divider,
   Alert,
   CircularProgress,
-  LinearProgress,
   Dialog,
 } from "@mui/material";
 import {
@@ -34,8 +33,9 @@ import FormUpdateLec from "./FormUpdateLec";
 const LecVideo = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const { courseId } = useSelector((state) => state.selectionIds);
+  const selectionIds = useSelector((state) => state.selectionIds);
   const lectures = useSelector((state) => state.lectures.list);
+
   const [lectureForm, setLectureForm] = useState(false);
   const [updateLectureForm, setUpdateLectureForm] = useState(false);
   const { success } = useSelector((state) => state.createLec);
@@ -54,10 +54,19 @@ const LecVideo = () => {
 
   const [selectedLecture, setSelectedLecture] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
+  const [courseId, setCourseId] = useState(selectionIds.courseId || null);
+
+  // ✅ حفظ courseId في localStorage وارجاعه لو الصفحة ريفريش
+  useEffect(() => {
+    const savedCourseId = localStorage.getItem("1");
+    if (!courseId && savedCourseId) {
+      setCourseId(savedCourseId);
+    }
+  }, [courseId]);
 
   useEffect(() => {
-    dispatch(actGetlectures({ token, id: courseId }));
-    if (success || updateSuccess || deleteSuccess) {
+    if (courseId) {
+      localStorage.setItem("1", courseId);
       dispatch(actGetlectures({ token, id: courseId }));
     }
   }, [dispatch, token, courseId, success, updateSuccess, deleteSuccess]);
@@ -67,7 +76,6 @@ const LecVideo = () => {
     if (video && !videoLoading) {
       const url = video;
       setVideoUrl(url);
-
       return () => {
         URL.revokeObjectURL(url);
       };
@@ -95,6 +103,7 @@ const LecVideo = () => {
       dispatch(actDeleteCourseVideo({ token, lecId: lectureId, courseId }));
   };
 
+  // إعادة ضبط حالة الحذف بعد 4 ثواني
   useEffect(() => {
     if (deleteError || deleteSuccess) {
       const timer = setTimeout(() => {
@@ -104,6 +113,13 @@ const LecVideo = () => {
       return () => clearTimeout(timer);
     }
   }, [dispatch, deleteError, deleteSuccess]);
+
+  // ✅ مسح courseId من localStorage عند الخروج من الصفحة
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem("courseId");
+    };
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "100vh", bgcolor: "#f5f5f5" }}>
@@ -144,9 +160,6 @@ const LecVideo = () => {
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             {lectures?.courseName || "Course Name"}
           </Typography>
-          {/* <Typography variant="body2" sx={{ opacity: 0.8 }}>
-            Course ID: {lectures?.courseId || courseId}
-          </Typography> */}
         </Box>
 
         {/* Add Lecture Button */}
@@ -296,15 +309,15 @@ const LecVideo = () => {
                 ) : videoUrl ? (
                   <video
                     controls
+                    preload="none"
+                    controlsList="nodownload"
+                    onContextMenu={(e) => e.preventDefault()}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "contain",
                     }}
                     src={videoUrl}
-                    onError={(e) => {
-                      console.error("Video playback error:", e);
-                    }}
                   >
                     Your browser does not support the video tag.
                   </video>

@@ -497,7 +497,7 @@ const AllDetailsCourses = () => {
           </Alert>
         )} */}
         {courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{  height: "70vh" }}>
+          <TableContainer component={Paper} sx={{ height: "70vh" }}>
             <Typography
               align="center"
               variant="h5"

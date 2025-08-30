@@ -501,7 +501,9 @@ const UpdateSchedule = ({
   action = "update", // إضافة قيمة افتراضية
 }) => {
   const dispatch = useDispatch();
-  const { scheduleId } = useSelector((state) => state.selectionIds);
+  const { scheduleId } = useSelector((state) => state.selectinIdsForSchedule);
+  // console.log(scheduleId);
+  
 
   const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(validationSchema),

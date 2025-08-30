@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { fetchPlans } from "../../store/shared/plan/actGetPlan";
 import { actGetPlanDetails } from "../../store/shared/data/planDetails/actGetPlanDetails";
+import CreatePlanLevelForOfflineCourse from "./CreatePlanLevelForOfflineCourse";
 import CreatePL from "./CreatePL";
 import UpdatePL from "./UpdatePL";
 import { Add } from "@mui/icons-material";
@@ -30,6 +31,7 @@ const PlanDetails = () => {
 
   const token = useSelector((state) => state.auth.token);
   const [open, setOpen] = useState(false);
+  const [openOffline, setOpenOffline] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
 
@@ -73,6 +75,14 @@ const PlanDetails = () => {
     dispatch(actGetPlanDetails({ token, planId: id }));
   };
 
+  const handleCreatePlan = () => {
+    if (isOnlineSchool) {
+      setOpen(true);
+    } else {
+      setOpenOffline(true);
+    }
+  };
+
   const isOnlineSchool =
     String(selectedPlanName).toUpperCase() === "ONLINE SCHOOL";
 
@@ -87,13 +97,21 @@ const PlanDetails = () => {
         sx={{ mb: 2, float: "right", mr: 2 }}
         variant="outlined"
         color="primary"
-        onClick={() => setOpen(true)}
+        onClick={handleCreatePlan}
         startIcon={<Add />}
       >
         Create Plan Level
       </Button>
 
       {/* ✅ Dialogs */}
+      {openOffline && (
+        <Dialog open={openOffline} onClose={() => setOpenOffline(false)}>
+          <CreatePlanLevelForOfflineCourse
+            setOpenOffline={setOpenOffline}
+            selectedPlan={selectedPlan}
+          />
+        </Dialog>
+      )}
       {open && (
         <Dialog open={open} onClose={() => setOpen(false)}>
           <CreatePL setOpen={setOpen} selectedPlan={selectedPlan} />
