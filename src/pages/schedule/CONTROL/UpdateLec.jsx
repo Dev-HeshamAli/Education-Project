@@ -59,7 +59,7 @@ const UpdateLec = ({
 
   // الحصول على القيم من Redux store
   const { studyLevelId, semesterId } = useSelector(
-    (state) => state.selectionIds
+    (state) => state.selectinIdsForSchedule
   );
 
   // State للحقول المختارة
