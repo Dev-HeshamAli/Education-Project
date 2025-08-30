@@ -12,6 +12,7 @@ import {
   IconButton,
   FormHelperText,
   InputAdornment,
+  LinearProgress,
 } from "@mui/material";
 import { Eye, EyeClosed } from "lucide-react";
 
@@ -85,7 +86,7 @@ const CreateTeacher = () => {
   const {
     control,
     handleSubmit,
-    reset,
+    // reset,
     formState: { errors },
   } = useForm({
     mode: "onBlur",
@@ -147,7 +148,7 @@ const CreateTeacher = () => {
     }
 
     dispatch(actCreateTeacher({ data: formData, token }));
-    reset();
+    // reset();
   };
 
   const addPhoneField = () => {
@@ -183,9 +184,13 @@ const CreateTeacher = () => {
       </Typography>
 
       {loading && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Creating teacher...
-        </Alert>
+        <LinearProgress
+          sx={{
+            mb: 3,
+            borderRadius: 100,
+            height: 5,
+          }}
+        />
       )}
 
       {success && (

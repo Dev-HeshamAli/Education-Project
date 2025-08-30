@@ -22,10 +22,11 @@ const schema = yup.object().shape({
 });
 
 const Login = () => {
-  const id = JSON.parse(localStorage.getItem("id"));
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error, role } = useSelector((state) => state.auth);
+  const { token, loading, error, role, id } = useSelector(
+    (state) => state.auth
+  );
 
   const [showPassword, setShowPassword] = useState(false);
 

@@ -49,9 +49,9 @@ const schema = yup.object().shape({
       }
       return true;
     })
-    .test("fileSize", "File size must be less than 500MB", (value) => {
+    .test("fileSize", "File size must be less than 1GB", (value) => {
       if (value && value[0]) {
-        return value[0].size <= 500 * 1024 * 1024; // 500MB
+        return value[0].size <= 500 * 1024 * 1024 * 1024;
       }
       return true;
     }),
@@ -308,7 +308,7 @@ const FormCreateLec = () => {
                     />
                   </Button>
                   <Typography variant="caption" display="block" sx={{ mt: 2 }}>
-                    Supported formats: MP4, WebM, OGG (Max 500MB)
+                    Supported formats: MP4, WebM, OGG (Max 1GB)
                   </Typography>
                 </Box>
               ) : (

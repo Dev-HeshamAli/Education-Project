@@ -31,7 +31,7 @@ import {
   setSemesterId,
   setStudyLevelId,
   setScheduleId,
-} from "../../../store/LOCAL_DATA/selectinIdsSlice";
+} from "../../../store/LOCAL_DATA/selectinIdsForSchedule";
 
 import { actGetScheduleInfo } from "../../../store/shared/getScheduleId/schedule/actGetScheduleInfo";
 import { GridAddIcon } from "@mui/x-data-grid";
@@ -42,7 +42,7 @@ const ControlSchedule = () => {
 
   const token = useSelector((state) => state.auth.token);
   const { studyLevelId, academicYearId, semesterId } = useSelector(
-    (state) => state.selectionIds
+    (state) => state.selectinIdsForSchedule
   );
 
   const availableDays = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"];

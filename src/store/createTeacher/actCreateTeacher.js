@@ -1,4 +1,3 @@
-
 // src/store/createTeacher/actCreateTeacher.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -6,7 +5,7 @@ import axios from "axios";
 import { BASE_URL } from "../../api/BASE_URL";
 
 export const actCreateTeacher = createAsyncThunk(
-  "createTeacher/create", // ⚠️ صحح الاسم هنا
+  "createTeacher/create",
   async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
@@ -18,10 +17,15 @@ export const actCreateTeacher = createAsyncThunk(
           },
         }
       );
-      
+
       return response.data;
     } catch (error) {
-      const message = error.response?.data?.errors || "Failed to create teacher";
+      const message =
+        error.response?.data?.errors ||
+        error.response?.data?.errors.CVPath ||
+        error.response?.data?.message ||
+        error.response?.data?.title ||
+        "Failed to create teacher";
       return rejectWithValue(message);
     }
   }

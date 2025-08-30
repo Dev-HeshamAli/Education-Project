@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
+// import newAuthReducer from "./newAuth/authSlice";
 import adminReducer from "./admin/createAdmin/createAdminSlice";
 import adminInfoReducer from "./admin/getAdminInfo/getAdminInfoSlice";
 import updateAdminReducer from "./admin/updateAdmin/updateAdminSlice";
@@ -68,6 +69,7 @@ import deletePlanLevelReducer from "./academicYear/deletePlanLevel/deletePlanLev
 import deleteAcademicYearReducer from "./academicYear/createAcademicYear/deleteAY/deleteAYSlice";
 import updateLecToScheduleReducer from "./schedule/updateLecToSchedule/updateLecToScheduleSlice";
 import selectionIdsReducer from "./LOCAL_DATA/selectinIdsSlice";
+import selectinIdsForScheduleReducer from "./LOCAL_DATA/selectinIdsForSchedule";
 import lecturesReducer from "./shared/lectures/lecturesSlice";
 import createScheduleDayReducer from "./schedule/createScheduleDay/createScheduleDaySlice";
 import updateScheduleDayReducer from "./schedule/updateScheduleDay/updateScheduleDaySlice";
@@ -86,6 +88,7 @@ export const store = configureStore({
   reducer: {
     //--------------Auth Reducers----------------//
     auth: authReducer,
+    // newAuth: newAuthReducer,
     //--------------Admin Reducers----------------//
     admin: adminReducer,
     adminInfo: adminInfoReducer,
@@ -174,12 +177,13 @@ export const store = configureStore({
     solveProblem: solveProblemReducer,
     // --------------selection Ids----------------//
     selectionIds: selectionIdsReducer,
+    selectinIdsForSchedule: selectinIdsForScheduleReducer,
     // --------------lectures----------------//
     lectures: lecturesReducer,
     video: lecturesVideoReducer,
     createLec: createLectureReducer,
     updateLec: updateLectureReducer,
-    deleteLec: deleteLectureReducer
+    deleteLec: deleteLectureReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

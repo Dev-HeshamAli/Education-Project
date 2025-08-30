@@ -464,7 +464,7 @@ export default function ScheduleTable({ data = [], academicScheduleId }) {
   const [isEnglish, setIsEnglish] = useState(false);
 
   const { studyLevelId, semesterId, academicYearId } = useSelector(
-    (state) => state.selectionIds
+    (state) => state.selectinIdsForSchedule
   );
 
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
