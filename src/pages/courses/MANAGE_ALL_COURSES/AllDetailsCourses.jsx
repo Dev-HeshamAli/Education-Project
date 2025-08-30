@@ -199,6 +199,7 @@ const AllDetailsCourses = () => {
             overflowY: "auto",
             borderRight: "2px solid #eee",
             bgcolor: "#2972b1",
+            width: "250px",
           }}
         >
           <Typography mt={2} align="center" variant="h5" color="white">
@@ -373,129 +374,6 @@ const AllDetailsCourses = () => {
         >
           Create Course
         </Button>
-
-        {/* {courses.length > 0 ? (
-          <TableContainer component={Paper}>
-            <Typography align="center" variant="h5" mb={2}>
-              Courses Details Table
-              <span style={{ margin: " 0 10px", fontWeight: "bold" }}>
-                Plan ( {allLevels?.planName} )
-              </span>
-              <span style={{ margin: " 0 10px", fontWeight: "bold" }}>
-                Academic Year ( {allLevels?.academicYearName} )
-              </span>
-            </Typography>
-
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                  <TableCell align="center">Name</TableCell>
-                  <TableCell align="center">Description</TableCell>
-                  <TableCell align="center">Online Old Price</TableCell>
-                  <TableCell align="center">Online Discount</TableCell>
-                  <TableCell align="center">Online Final Price</TableCell>
-                  <TableCell align="center">Offline Old Price</TableCell>
-                  <TableCell align="center">Offline Discount</TableCell>
-                  <TableCell align="center">Offline Final Price</TableCell>
-                  <TableCell align="center">Teacher</TableCell>
-                  <TableCell align="center">Paln</TableCell>
-                  <TableCell align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {courses?.map((course) => (
-                  <TableRow key={course.id}>
-                    <TableCell
-                      align="center"
-                      sx={{
-                        color: "#1976d2",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                      }}
-                      onClick={() => {
-                        navigate("/dashboard/lectures-in-course");
-                        dispatch(setCourseId(course.id));
-                      }}
-                    >
-                      {course.name}
-                    </TableCell>
-                    <TableCell align="center">{course.description}</TableCell>
-                    <TableCell align="center">
-                      {course.onlineOldPrice}
-                    </TableCell>
-                    <TableCell align="center">
-                      {course.onlineDiscountPercentage * 100}%
-                    </TableCell>
-                    <TableCell align="center">
-                      {course.onlineFinalPrice}
-                    </TableCell>
-                    <TableCell align="center">
-                      {course.offlineOldPrice}
-                    </TableCell>
-                    <TableCell align="center">
-                      {course.offlineDiscountPercentage * 100}%
-                    </TableCell>
-                    <TableCell align="center">
-                      {course.offlineFinalPrice}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Button
-                        variant="text"
-                        onClick={() => handelViewTeachers(course)}
-                      >
-                        View Teachers ({course.teachers?.length})
-                      </Button>
-                    </TableCell>{" "}
-                    <TableCell align="center">
-                      {course.coursesInPlans.map((c) => c.planName).join(", ")}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Button
-                        onClick={() => {
-                          setSelectedCourseData({
-                            ...course,
-                            studyLevelId,
-                          });
-                          setUpdateCourse(true);
-                        }}
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        sx={{ mr: 1 }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => {
-                          setSelectedCourseData(course); // تمرير بيانات الكورس الكاملة
-                          setDeleteCourse(true);
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-                {courses?.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      No Courses Found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Alert severity="info" sx={{ mb: 3 }}>
-            No Courses Found
-          </Alert>
-        )} */}
         {courses.length > 0 ? (
           <TableContainer component={Paper} sx={{ height: "70vh" }}>
             <Typography
@@ -736,7 +614,7 @@ const AllDetailsCourses = () => {
                       >
                         {course.coursesInPlans?.length > 0 ? (
                           course.coursesInPlans
-                            .slice(0, 2)
+                            .slice(0, 3)
                             .map((plan, i) => (
                               <Chip
                                 key={i}
@@ -751,9 +629,9 @@ const AllDetailsCourses = () => {
                             No plans
                           </Typography>
                         )}
-                        {course.coursesInPlans?.length > 2 && (
+                        {course.coursesInPlans?.length > 3 && (
                           <Typography variant="caption" color="primary">
-                            +{course.coursesInPlans.length - 2} more
+                            +{course.coursesInPlans.length - 3} more
                           </Typography>
                         )}
                       </Box>
