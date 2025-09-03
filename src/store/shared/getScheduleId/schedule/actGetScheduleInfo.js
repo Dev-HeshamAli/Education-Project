@@ -6,12 +6,12 @@ import { BASE_URL } from "../../../../api/BASE_URL";
 export const actGetScheduleInfo = createAsyncThunk(
   "schedule/fetchSchedule",
   async (
-    { token, studyLevelId, semesterId, academicYearId },
+    { token, studyLevelId, semesterId, ScheduleTimeId  },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/api/Student/class-schedule/${studyLevelId}/${semesterId}?YearId=${academicYearId}`,
+        `${BASE_URL}/api/Student/class-schedule/${studyLevelId}/${semesterId}/${ScheduleTimeId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

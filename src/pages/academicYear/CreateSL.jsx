@@ -56,10 +56,11 @@ const CreateSL = () => {
   );
   const stages = useSelector((state) => state.stageId.list || []);
   const studyLevels = useSelector((state) => state.studyLevelsId.list || []);
+  console.log(studyLevels);
+
   // const scademicYears = useSelector(
   //   (state) => state.academicYearsId.list || []
   // );
-
 
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState("");
@@ -76,6 +77,7 @@ const CreateSL = () => {
     defaultValues: {
       stage: "",
       name: "",
+      maxStudents: "",
     },
   });
 
@@ -148,7 +150,10 @@ const CreateSL = () => {
     const payload = {
       name: formData.name,
       stageId: matchedStage?.id || null,
+      maxStudntNumber: Number(formData.maxStudents) || null,
     };
+
+    // console.log("Payload for creating Study Level:", payload);
 
     dispatch(actStudyLevel({ data: payload, token }));
   };
@@ -172,6 +177,7 @@ const CreateSL = () => {
     const payload = {
       id: selectedLevel.id,
       name: selectedLevel.level,
+      maxStudntNumber: Number(selectedLevel.maxStudntNumber),
     };
 
     dispatch(actUpdateStudyLevel({ data: payload, token }));
@@ -253,6 +259,24 @@ const CreateSL = () => {
                 )}
               </FormControl>
 
+              {/* Max Students */}
+              <Controller
+                name="maxStudents"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    type="number"
+                    label="Max Students"
+                    variant="outlined"
+                    margin="normal"
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+
               {/* Level Input */}
               <Controller
                 name="name"
@@ -293,48 +317,156 @@ const CreateSL = () => {
             <Typography variant="h6" mb={2}>
               Study Levels List
             </Typography>
-            <Table sx={{ border: "1px solid #eee" }}>
+            <Table
+              sx={{
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                overflow: "hidden",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                backgroundColor: "#fff",
+              }}
+            >
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#f1f1f1" }}>
-                  <TableCell align="center">
-                    <b>Name</b>
+                <TableRow
+                  sx={{
+                    backgroundColor: "#f5f5f5",
+                    borderBottom: "2px solid #e0e0e0",
+                  }}
+                >
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "600",
+                      fontSize: "20px",
+                      color: "#333",
+                      padding: "16px",
+                      borderRight: "1px solid #e0e0e0",
+                    }}
+                  >
+                    Level
                   </TableCell>
-                  <TableCell align="right">
-                    <b style={{ marginRight: "70px" }}>Actions</b>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "600",
+                      fontSize: "20px",
+                      color: "#333",
+                      padding: "16px",
+                      borderRight: "1px solid #e0e0e0",
+                    }}
+                  >
+                    Max Students
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "600",
+                      fontSize: "20px",
+                      color: "#333",
+                      padding: "16px",
+                    }}
+                  >
+                    Actions
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {studyLevels && studyLevels.length > 0 ? (
-                  studyLevels.map((level) => (
-                    <TableRow key={level.id}>
-                      <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  studyLevels.map((level, index) => (
+                    <TableRow
+                      key={level.id}
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#f9f9f9",
+                        },
+                        backgroundColor: index % 2 === 0 ? "#fafafa" : "#fff",
+                        transition: "background-color 0.2s ease",
+                      }}
+                    >
+                      <TableCell
+                        align="center"
+                        sx={{
+                          fontWeight: "500",
+                          fontSize: "18px",
+                          color: "#555",
+                          padding: "12px 16px",
+                          borderRight: "1px solid #f0f0f0",
+                        }}
+                      >
                         {level.level}
                       </TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleEdit(level)}
+                      <TableCell
+                        align="center"
+                        sx={{
+                          fontWeight: "500",
+                          fontSize: "18px",
+                          color: "#555",
+                          padding: "12px 16px",
+                          borderRight: "1px solid #f0f0f0",
+                        }}
+                      >
+                        {level.maxStudntNumber}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          padding: "8px 16px",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 1,
+                            justifyContent: "center",
+                          }}
                         >
-                          <Button variant="outlined" color="primary">
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleEdit(level)}
+                            sx={{
+                              minWidth: "70px",
+                              fontSize: "15px",
+                              borderRadius: "6px",
+                              textTransform: "none",
+                              fontWeight: "500",
+                            }}
+                          >
                             Edit
                           </Button>
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDelete(level.id)}
-                        >
-                          <Button variant="outlined" color="error">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDelete(level.id)}
+                            sx={{
+                              minWidth: "70px",
+                              fontSize: "15px",
+                              borderRadius: "6px",
+                              textTransform: "none",
+                              fontWeight: "500",
+                            }}
+                          >
                             Delete
                           </Button>
-                        </IconButton>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} align="center">
-                      No Study Levels Found
+                    <TableCell
+                      colSpan={3}
+                      align="center"
+                      sx={{
+                        padding: "40px 16px",
+                        color: "#999",
+                        fontSize: "14px",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      لا توجد مستويات دراسية
                     </TableCell>
                   </TableRow>
                 )}
@@ -354,6 +486,19 @@ const CreateSL = () => {
               value={selectedLevel?.level || ""}
               onChange={(e) =>
                 setSelectedLevel({ ...selectedLevel, level: e.target.value })
+              }
+            />
+            <TextField
+              type="number"
+              margin="normal"
+              label="Max Students"
+              fullWidth
+              value={selectedLevel?.maxStudntNumber || ""}
+              onChange={(e) =>
+                setSelectedLevel({
+                  ...selectedLevel,
+                  maxStudntNumber: e.target.value,
+                })
               }
             />
           </DialogContent>

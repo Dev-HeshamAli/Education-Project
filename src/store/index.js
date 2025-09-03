@@ -25,6 +25,8 @@ import deleteCourseFromPlanReducer from "./courses/deleteCourseFromPlan/deleteCo
 import addCourseToAcademicYearReducer from "./courses/addCourseToAY/addCourseToAcademicYearSlice";
 import deleteCourseReducer from "./courses/deleteCourse/deleteCourseSlice";
 import updateCourseReducer from "./courses/updateCourse/updateCourseSlice";
+import uploadLinkCourseReducer from "./courses/uploadLink/createLinkSlice";
+import deleteLecLinkReducer from "./courses/deleteLecLink/deleteLecLinkSlice";
 import createSchoolClassReducer from "./schoolClass/schoolClassSlice";
 import createSchoolClassIdReducer from "./shared/schoolClass/schoolClassIdSlice";
 import updateSchoolClassReducer from "./schoolClass/updateSchoolClass/updateSchoolClassSlice";
@@ -74,6 +76,7 @@ import lecturesReducer from "./shared/lectures/lecturesSlice";
 import createScheduleDayReducer from "./schedule/createScheduleDay/createScheduleDaySlice";
 import updateScheduleDayReducer from "./schedule/updateScheduleDay/updateScheduleDaySlice";
 import deleteScheduleDayReducer from "./schedule/deleteScheduleDay/deleteScheduleDaySlice";
+import scheduleTimeReducer from "./shared/scheduleTime/scheduleTime";
 import deleteLectureReducer from "./shared/lectures/deleteCourseVideo/deleteCourseVideoSlice";
 import createLectureReducer from "./shared/lectures/createCourseVideo/createCourseVideoSlice";
 import updateLectureReducer from "./shared/lectures/updateCourseVideo/updateCourseVideoSlice";
@@ -142,6 +145,9 @@ export const store = configureStore({
     addCourseToAcademicYear: addCourseToAcademicYearReducer,
     deleteCourse: deleteCourseReducer,
     updateCourse: updateCourseReducer,
+    uploadLinkCourse: uploadLinkCourseReducer,
+    deleteLecLink: deleteLecLinkReducer,
+
     //--------------School Class Reducers----------------//
     createSchoolClass: createSchoolClassReducer,
     updateSchoolClass: updateSchoolClassReducer,
@@ -164,6 +170,7 @@ export const store = configureStore({
     createScheduleDay: createScheduleDayReducer,
     updateScheduleDay: updateScheduleDayReducer,
     deleteScheduleDay: deleteScheduleDayReducer,
+    scheduleTime: scheduleTimeReducer,
     // --------------Create Discount Code Reducers----------------//
     createDiscountCode: createDiscountCodeReducer,
     updateDiscountCode: updateDiscountCodeReducer,

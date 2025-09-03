@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import {
   Avatar,
   Grid,
   CardHeader,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -25,23 +26,63 @@ import {
   Link as LinkIcon,
   CheckCircle,
   XCircle,
+  UploadIcon,
 } from "lucide-react";
 import UpdateLec from "./UpdateLec";
 import DeleteLec from "./DeleteLec";
+import UploadLInk from "./UploadLInk";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCreateLinkMessagesSuccess } from "../../../store/courses/uploadLink/createLinkSlice";
+import { resetDeleteLinkState } from "../../../store/courses/deleteLecLink/deleteLecLinkSlice";
+import { actDeleteLecLink } from "../../../store/courses/deleteLecLink/actDeleteLecLink";
 
-const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
+const LecDetails = ({ lecture, scheduleDayesIdForUpdate, onClose }) => {  
+  const token = useSelector((state) => state.auth.token);
   const courseName = lecture.courseName || "غير محدد";
   const teacherName = lecture.teacherName || "غير محدد";
   const startTime = lecture.startTime;
   const endTime = lecture.endTime;
+  const link = lecture.lectureLink;
   const id = lecture.id;
+
+  const dispatch = useDispatch();
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openUploadLinkDialog, setOpenUploadLinkDialog] = useState(false);
+  const { successMessage } = useSelector((state) => state.uploadLinkCourse);
+  const { success, error, loading } = useSelector(
+    (state) => state.deleteLecLink
+  );
+
+  useEffect(() => {
+    if (successMessage || success) {
+      const timer = setTimeout(() => {
+        dispatch(resetDeleteLinkState());
+        dispatch(clearCreateLinkMessagesSuccess());
+        onClose();
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, onClose, dispatch, success]);
+
+  const handelDeleteLink = () => {
+    if (window.confirm("هل أنت متأكد من حذف رابط المحاضرة؟"))
+      dispatch(actDeleteLecLink({ token, id }));
+  };
 
   // تنسيق الوقت لعرض أجمل
   const formatTime = (time) => {
-    return time ? time.slice(0, 5) : "غير محدد";
+    if (!time) return "غير محدد";
+
+    const [hours, minutes] = time.split(":").map(Number);
+
+    const period = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // يخلي 0 -> 12
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+
+    return `${formattedHours}:${formattedMinutes} ${period}`;
   };
 
   // تحويل مدة المحاضرة لصيغة مفهومة
@@ -75,6 +116,22 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
         border: "1px solid #e0e0e0",
       }}
     >
+      {success && (
+        <Alert severity="success" sx={{ my: 2 }}>
+          {success}
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ my: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {loading && (
+        <Alert severity="info" sx={{ my: 2 }}>
+          Loading...
+        </Alert>
+      )}
+
       {/* Dialog للتعديل */}
       {openEditDialog && (
         <Dialog
@@ -88,8 +145,18 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
           <Box sx={{ p: 1, display: "flex", justifyContent: "flex-end" }}>
             <IconButton
               onClick={() => setOpenEditDialog(false)}
-              color="error"
-              size="small"
+              size="large"
+              sx={{
+                bgcolor: "error.light",
+                color: "#fff",
+                mt: 1,
+                mr: 2,
+                "&:hover": {
+                  bgcolor: "error.main",
+                  transition: "all 0.2s ease",
+                  transform: "scale(1.1)",
+                },
+              }}
             >
               <X size={20} />
             </IconButton>
@@ -118,6 +185,21 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
             id={id}
             open={openDeleteDialog}
             onClose={() => setOpenDeleteDialog(false)}
+          />
+        </Dialog>
+      )}
+      {/* Dialog لتحميل رابط */}
+      {openUploadLinkDialog && (
+        <Dialog
+          open={openUploadLinkDialog}
+          onClose={() => setOpenUploadLinkDialog(false)}
+          fullWidth
+        >
+          <UploadLInk
+            id={id}
+            lectureLink={link}
+            open={openUploadLinkDialog}
+            onClose={() => setOpenUploadLinkDialog(false)}
           />
         </Dialog>
       )}
@@ -279,7 +361,14 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
           </Grid>
 
           {/* رابط المحاضرة */}
-          <Grid item xs={12}>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <Box
               sx={{
                 p: 2,
@@ -297,27 +386,44 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
                   رابط المحاضرة:
                 </Typography>
               </Box>
-              {lecture.lectureLink ? (
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mt: 1,
+              <Typography
+                variant="body1"
+                sx={{ mt: 1, wordBreak: "break-all" }}
+              >
+                <a
+                  href={lecture.lectureLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
                     color: "#1976d2",
                     textDecoration: "underline",
                     cursor: "pointer",
                   }}
                 >
-                  {lecture.lectureLink}
-                </Typography>
-              ) : (
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 1, fontStyle: "italic", color: "#999" }}
-                >
-                  لم يتم إضافة رابط بعد
-                </Typography>
-              )}
+                  {lecture.lectureLink?.length > 30
+                    ? lecture.lectureLink.slice(0, 20) + "..."
+                    : lecture.lectureLink || "لم يتم إضافة رابط بعد"}
+                </a>
+              </Typography>
             </Box>
+
+            <IconButton
+              title="حذف رابط المحاضرة"
+              size="small"
+              color="error"
+              onClick={() => handelDeleteLink()}
+              sx={{
+                "&:hover": {
+                  bgcolor: "rgba(244, 67, 54, 0.1)",
+                  transform: "scale(1.1)",
+                },
+                transition: "all 0.2s ease",
+                display: lecture.lectureLink ? "block" : "none",
+                mr: 1,
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
           </Grid>
         </Grid>
 
@@ -327,27 +433,13 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
         <Stack
           direction="row"
           spacing={2}
-          justifyContent="flex-end"
+          justifyContent="space-between"
           alignItems="center"
         >
-          <IconButton
-            color="error"
-            onClick={() => setOpenDeleteDialog(true)}
-            sx={{
-              "&:hover": {
-                bgcolor: "rgba(244, 67, 54, 0.1)",
-                transform: "scale(1.1)",
-              },
-              transition: "all 0.2s ease",
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-
           <Button
-            onClick={() => setOpenEditDialog(true)}
+            onClick={() => setOpenUploadLinkDialog(true)}
             variant="contained"
-            startIcon={<EditIcon />}
+            startIcon={<UploadIcon size={20} />}
             sx={{
               bgcolor: "#1976d2",
               borderRadius: 3,
@@ -362,8 +454,47 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate }) => {
               transition: "all 0.2s ease",
             }}
           >
-            تعديل المحاضرة
+            {lecture.lectureLink ? "تعديل " : "اضافة"} رابط المحاضرة
           </Button>
+          <Box>
+            <IconButton
+              title="حذف المحاضرة"
+              size="small"
+              color="error"
+              onClick={() => setOpenDeleteDialog(true)}
+              sx={{
+                "&:hover": {
+                  bgcolor: "rgba(244, 67, 54, 0.1)",
+                  transform: "scale(1.1)",
+                },
+                transition: "all 0.2s ease",
+                mr: 1,
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+
+            <Button
+              onClick={() => setOpenEditDialog(true)}
+              variant="contained"
+              startIcon={<EditIcon />}
+              sx={{
+                bgcolor: "#1976d2",
+                borderRadius: 3,
+                px: 3,
+                py: 1,
+                fontWeight: "bold",
+                "&:hover": {
+                  bgcolor: "#1565c0",
+                  transform: "translateY(-1px)",
+                  boxShadow: 4,
+                },
+                transition: "all 0.2s ease",
+              }}
+            >
+              تعديل المحاضرة
+            </Button>
+          </Box>
         </Stack>
       </CardContent>
     </Card>

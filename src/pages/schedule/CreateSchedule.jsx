@@ -17,9 +17,12 @@ import { fetchSemesters } from "../../store/shared/semesters/actGetSemesters";
 import { actCreateSchedule } from "../../store/schedule/actCreateSchedule";
 import { resetCreateScheduleState } from "../../store/schedule/createScheduleSlice";
 import { fetchAcademicYears } from "../../store/shared/academicYears/actGetAcademicYears";
+import { actGetScheduleTime } from "../../store/shared/scheduleTime/actGetScheduleTime";
+import { setScheduleTime } from "../../store/LOCAL_DATA/selectinIdsSlice";
 
 const validationSchema = yup.object().shape({
   scheduleName: yup.string().required("Schedule name is required"),
+  scheduleTime: yup.number().required("Schedule time is required"),
   studyLevelId: yup.number().required("Study level is required"),
   semesterId: yup.number().required("Semester is required"),
   academicYearId: yup.number().required("Academic year is required"),
@@ -32,6 +35,7 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       scheduleName: "",
+      scheduleTime: "",
       studyLevelId: "",
       semesterId: "",
       academicYearId: "",
@@ -42,6 +46,9 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const semesters = useSelector((state) => state.semestersId.list);
   const academicYears = useSelector((state) => state.academicYearsId.list);
+  const scheduleTimes = useSelector((state) => state.scheduleTime.list);
+
+  const { scheduleTime } = useSelector((state) => state.selectionIds);
 
   const { loading, error, success } = useSelector(
     (state) => state.createSchedule
@@ -50,29 +57,30 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
   const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
+    dispatch(actGetScheduleTime(token));
     dispatch(fetchStudyLevels(token));
     dispatch(fetchSemesters(token));
     dispatch(fetchAcademicYears(token));
   }, [dispatch, token]);
 
-  // ✨ هنا نعيّن الـ props جوه الفورم
   useEffect(() => {
     reset((prev) => ({
       ...prev,
+      scheduleTime: scheduleTime,
       studyLevelId: studyLevelId || "",
       semesterId: semesterId || "",
       academicYearId: academicYearId || "",
     }));
-  }, [studyLevelId, semesterId, academicYearId, reset]);
+  }, [studyLevelId, semesterId, academicYearId, reset, scheduleTime]);
 
   const onSubmit = (data) => {
     const scheduleData = {
       name: data.scheduleName,
+      scheduleTimeId: data.scheduleTime,
       academicYearId: data.academicYearId,
       semesterId: data.semesterId,
       studyLevelId: data.studyLevelId,
     };
-
 
     dispatch(actCreateSchedule({ token, data: scheduleData }));
   };
@@ -122,6 +130,33 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name="scheduleTime"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              select
+              label="Schedule Time"
+              fullWidth
+              margin="normal"
+              error={!!error}
+              helperText={error?.message}
+              value={scheduleTime ?? ""}
+              onChange={(e) => {
+                field.onChange(e);
+                dispatch(setScheduleTime(e.target.value));
+              }}
+            >
+              {scheduleTimes.map((time) => (
+                <MenuItem key={time.id} value={time.id}>
+                  {time.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
+
         {/* Schedule Name */}
         <Controller
           name="scheduleName"

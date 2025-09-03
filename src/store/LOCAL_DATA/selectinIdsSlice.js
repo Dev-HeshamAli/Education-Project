@@ -14,11 +14,19 @@ const selectinIdsSlice = createSlice({
     stageId: null,
     scheduleId: null,
         activeAccordion: null,   // 👈 الجديد
-    activeItem: null,        // 👈 الجديد
+    activeItem: null,  
+    scheduleTime: null,      // 👈 الجديد
+    scheduleTime2: null,      // 👈 الجديد
   },
   reducers: {
     setTeacherId: (state, action) => {
       state.teacherId = action.payload;
+    },
+    setScheduleTime: (state, action) => {
+      state.scheduleTime = action.payload;
+    },
+    setScheduleTime2: (state, action) => {
+      state.scheduleTime2 = action.payload;
     },
     setStudyLevelId: (state, action) => {
       state.studyLevelId = action.payload;
@@ -64,6 +72,10 @@ const selectinIdsSlice = createSlice({
       state.studentId = null;
       state.academicYearId = null;
       state.semesterId = null;
+      state.activeAccordion = null;
+      state.activeItem = null;
+      state.scheduleTime = null;
+      state.scheduleTime2 = null;
     },
   },
 });
@@ -82,5 +94,7 @@ export const {
   setSemesterId,
     setActiveAccordion,
   setActiveItem,
+  setScheduleTime,
+  setScheduleTime2
 } = selectinIdsSlice.actions;
 export default selectinIdsSlice.reducer;

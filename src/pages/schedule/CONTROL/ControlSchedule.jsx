@@ -32,10 +32,12 @@ import {
   setStudyLevelId,
   setScheduleId,
 } from "../../../store/LOCAL_DATA/selectinIdsForSchedule";
+import { setScheduleTime } from "../../../store/LOCAL_DATA/selectinIdsSlice";
 
 import { actGetScheduleInfo } from "../../../store/shared/getScheduleId/schedule/actGetScheduleInfo";
 import { GridAddIcon } from "@mui/x-data-grid";
 import { Edit, Trash2 } from "lucide-react";
+import { actGetScheduleTime } from "../../../store/shared/scheduleTime/actGetScheduleTime";
 
 const ControlSchedule = () => {
   const dispatch = useDispatch();
@@ -45,12 +47,16 @@ const ControlSchedule = () => {
     (state) => state.selectinIdsForSchedule
   );
 
+  const { scheduleTime } = useSelector((state) => state.selectionIds);
+
   const availableDays = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"];
 
   const studyLevels = useSelector((state) => state.studyLevelsId.list);
   const academicYears = useSelector((state) => state.academicYearsId.list);
   const semesters = useSelector((state) => state.semestersId.list);
   const scheduleInfo = useSelector((state) => state.getScheduleInfo.list);
+
+  const scheduleTimes = useSelector((state) => state.scheduleTime.list);
 
   const scheduleDayes = scheduleInfo.scheduleDayes || [];
   const academicScheduleId = scheduleInfo.id || null;
@@ -89,12 +95,25 @@ const ControlSchedule = () => {
   const { success: deleteLecSuccess } = useSelector(
     (state) => state.deleteLecFromSchedule
   );
+  const { successMessage } = useSelector((state) => state.uploadLinkCourse);
+  const { success } = useSelector((state) => state.deleteLecLink);
 
   useEffect(() => {
+    dispatch(actGetScheduleTime());
     dispatch(fetchStudyLevels());
     dispatch(fetchSemesters());
     dispatch(fetchAcademicYears());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (scheduleTimes.length > 0 && !scheduleTime) {
+      const defaultMorning = scheduleTimes.find((s) => s.name === "صباحي");
+      if (defaultMorning) {
+        dispatch(setScheduleTime(defaultMorning.id));
+      }
+    }
+  }, [scheduleTimes, scheduleTime, dispatch]);
+
   useEffect(() => {
     if (
       (studyLevelId && semesterId && academicYearId) ||
@@ -106,7 +125,9 @@ const ControlSchedule = () => {
       deleteDaySuccess ||
       addLecSuccess ||
       updateLecSuccess ||
-      deleteLecSuccess
+      deleteLecSuccess ||
+      successMessage ||
+      success
     ) {
       dispatch(
         actGetScheduleInfo({
@@ -114,6 +135,7 @@ const ControlSchedule = () => {
           studyLevelId,
           semesterId,
           academicYearId,
+          ScheduleTimeId: scheduleTime,
         })
       ).then((res) => {
         if (res.payload?.id) {
@@ -122,10 +144,13 @@ const ControlSchedule = () => {
       });
     }
   }, [
+    successMessage,
+    success,
     studyLevelId,
     semesterId,
     academicYearId,
     dispatch,
+    scheduleTime,
     token,
     createSuccess,
     deleteSuccess,
@@ -166,13 +191,13 @@ const ControlSchedule = () => {
             studyLevelId={studyLevelId}
             semesterId={semesterId}
             academicYearId={academicYearId}
+            scheduleTimeId={scheduleTime}
             name={scheduleInfo.name}
             action="update"
           />
         </Dialog>
       )}
 
-      {/* Dialog لإنشاء يوم جديد */}
       {openCreateDay && (
         <Dialog open={openCreateDay} onClose={() => setopenCreateDay(false)}>
           <CreateDay
@@ -241,6 +266,23 @@ const ControlSchedule = () => {
                 label="Semester"
               >
                 {semesters.map((s) => (
+                  <MenuItem key={s.id} value={s.id}>
+                    {s.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Schedule Time</InputLabel>
+              <Select
+                value={scheduleTime ?? ""}
+                onChange={(e) => {
+                  dispatch(setScheduleTime(e.target.value));
+                }}
+                label="Schedule Time"
+              >
+                {scheduleTimes.map((s) => (
                   <MenuItem key={s.id} value={s.id}>
                     {s.name}
                   </MenuItem>

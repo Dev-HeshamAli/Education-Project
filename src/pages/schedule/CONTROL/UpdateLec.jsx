@@ -243,7 +243,7 @@ const UpdateLec = ({
           {success}
         </Alert>
       )}
-      <Card sx={{ boxShadow: 3, borderRadius: 3 }}>
+      <Card sx={{ borderRadius: 3 }} elevation={0}>
         <CardHeader sx={{ textAlign: "center" }} title="Update Lecture" />
         <Table>
           <TableBody>
