@@ -56,7 +56,7 @@ const CreateSL = () => {
   );
   const stages = useSelector((state) => state.stageId.list || []);
   const studyLevels = useSelector((state) => state.studyLevelsId.list || []);
-  console.log(studyLevels);
+  // console.log(studyLevels);
 
   // const scademicYears = useSelector(
   //   (state) => state.academicYearsId.list || []

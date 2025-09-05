@@ -47,12 +47,13 @@ const schema = yup.object().shape({
 });
 
 const UpdateAdmin = () => {
-  const { token, id } = useSelector((state) => state.auth);  
+  const { token, id } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, success } = useSelector((state) => state.updateAdmin);
 
   const userData = useSelector((state) => state.adminInfo.userData);
+
   // const id = JSON.parse(localStorage.getItem("id"));
 
   const hasLoadedData = useRef(false);

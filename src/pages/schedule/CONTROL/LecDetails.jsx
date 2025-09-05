@@ -36,10 +36,11 @@ import { clearCreateLinkMessagesSuccess } from "../../../store/courses/uploadLin
 import { resetDeleteLinkState } from "../../../store/courses/deleteLecLink/deleteLecLinkSlice";
 import { actDeleteLecLink } from "../../../store/courses/deleteLecLink/actDeleteLecLink";
 
-const LecDetails = ({ lecture, scheduleDayesIdForUpdate, onClose }) => {  
+const LecDetails = ({ lecture, scheduleDayesIdForUpdate, onClose }) => {
   const token = useSelector((state) => state.auth.token);
   const courseName = lecture.courseName || "غير محدد";
   const teacherName = lecture.teacherName || "غير محدد";
+  const teacherId = lecture.teacherId || "غير محدد";
   const startTime = lecture.startTime;
   const endTime = lecture.endTime;
   const link = lecture.lectureLink;
@@ -168,6 +169,7 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate, onClose }) => {
             teacherName={teacherName}
             startTime={startTime}
             endTime={endTime}
+            teacherId={teacherId}
           />
         </Dialog>
       )}

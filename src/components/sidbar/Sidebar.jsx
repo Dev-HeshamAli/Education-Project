@@ -2,7 +2,7 @@ import { Drawer, IconButton, Divider, List, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { styled, useTheme } from "@mui/material/styles";
-import { listSidebar } from "./sidebarData.jsx";
+import { useSidebarList } from "./sidebarData.jsx";
 import SidebarItem from "./SidebarItem";
 import SidebarAccordion from "./SidebarAccordion";
 import Logo from "./logo";
@@ -17,6 +17,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function Sidebar({ open, handleDrawerClose, drawerWidth }) {
   const theme = useTheme();
+  const listSidebar = useSidebarList(); // <-- هنا نستدعي hook ونجيب القايمة
 
   return (
     <Drawer

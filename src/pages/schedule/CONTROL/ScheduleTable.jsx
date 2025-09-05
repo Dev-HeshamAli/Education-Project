@@ -452,7 +452,7 @@ const translations = {
   },
 };
 
-export default function ScheduleTable({ data = [], academicScheduleId }) {  
+export default function ScheduleTable({ data = [], academicScheduleId }) {    
   const dispatch = useDispatch();
   const [lecDetailsOpen, setLecDetailsOpen] = useState(false);
   const [selectedLecture, setSelectedLecture] = useState(null);

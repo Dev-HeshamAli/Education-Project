@@ -33,12 +33,15 @@ import { fetchStudyLevels } from "../../../store/shared/studyLevel/actGetStudyLe
 import { actUpdateLecToSchedule } from "../../../store/schedule/updateLecToSchedule/actUpdateLecToSchedule";
 import { clearMessageUpdateLecToSchedule } from "../../../store/schedule/updateLecToSchedule/updateLecToScheduleSlice";
 
-const schema = yup.object().shape({
-  teacher: yup.object().required("Please select a teacher"),
-  course: yup.object().required("Please select a course"),
-  startTime: yup.string().required("Start time is required"),
-  endTime: yup.string().required("End time is required"),
-});
+const schema = (teacherId) =>
+  yup.object().shape({
+    teacher: teacherId
+      ? yup.object().nullable() // ✅ مش مطلوب لو teacherId موجود
+      : yup.object().required("Please select a teacher"),
+    course: yup.object().required("Please select a course"),
+    startTime: yup.string().required("Start time is required"),
+    endTime: yup.string().required("End time is required"),
+  });
 
 const UpdateLec = ({
   endTime,
@@ -46,6 +49,7 @@ const UpdateLec = ({
   scheduleDayesIdForUpdate,
   courseName,
   teacherName,
+  teacherId,
   id,
 }) => {
   const token = useSelector((state) => state.auth.token);
@@ -80,7 +84,7 @@ const UpdateLec = ({
     watch,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema(teacherId)),
     defaultValues: {
       teacher: null,
       course: null,
@@ -205,11 +209,12 @@ const UpdateLec = ({
     const finalData = {
       id: id || 0,
       scheduleDayesId: scheduleDayesIdForUpdate || 0,
-      teacherId: data.teacher?.id || 0,
+      teacherId: data.teacher?.id || teacherId || 0, // ✅ ياخد من الفورم أو من الـ props
       courseId: data.course?.id || data.course?.courseId || 0,
       startTime: data.startTime,
       endTime: data.endTime,
     };
+
     dispatch(actUpdateLecToSchedule({ data: finalData, token }));
   };
 

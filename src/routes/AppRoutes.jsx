@@ -72,6 +72,7 @@ import AllDetailsCourses from "../pages/courses/MANAGE_ALL_COURSES/AllDetailsCou
 import ManageClass from "../pages/schoolClass/ManageClass";
 import LecVideo from "../pages/courseLec/LecVideo";
 import UpdateLec from "../pages/schedule/CONTROL/UpdateLec";
+import AllAdmains from "../pages/admin/allAdmins/AllAdmains";
 
 const AppRoutes = () => {
   const role = useSelector((state) => state.auth.role);
@@ -94,6 +95,7 @@ const AppRoutes = () => {
           <Route path="create-admin" element={<CreateAdmin />} />
           <Route path="update-admin" element={<UpdateAdmin />} />
           <Route path="delete-admin" element={<DeleteAdmin />} />
+          <Route path="all-admins" element={<AllAdmains />} />
           {/* --------------------Academic Year---------------------- */}
           <Route path="create-academic-year" element={<CreateAY />} />
           <Route path="create-plan" element={<CreatePlan />} />
