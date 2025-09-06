@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { logout } from "../../../store/auth/authSlice";
 import { actDeleteAdmin } from "../../../store/admin/deleteAdmin/actDeleteAdmin";
+import { actLogout } from "../../../store/auth/logout/actLogout";
 
 const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
@@ -47,7 +48,7 @@ const schema = yup.object().shape({
 });
 
 const UpdateAdmin = () => {
-  const { token, id } = useSelector((state) => state.auth);
+  const { token, id, userid } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, success } = useSelector((state) => state.updateAdmin);
@@ -76,7 +77,11 @@ const UpdateAdmin = () => {
   const handelDelete = () => {
     if (window.confirm("Are you sure you want to delete this admin?")) {
       dispatch(actDeleteAdmin({ id, token })).unwrap();
-      dispatch(logout());
+      dispatch(actLogout({ userid, token })).then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          dispatch(logout());
+        }
+      });
     }
   };
 

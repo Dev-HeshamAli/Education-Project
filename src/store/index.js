@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
 // import newAuthReducer from "./newAuth/authSlice";
 import adminReducer from "./admin/createAdmin/createAdminSlice";
+import logoutReducer from "./auth/logout/logoutSlice";
 import adminInfoReducer from "./admin/getAdminInfo/getAdminInfoSlice";
 import allDataAdminsReducer from "./admin/adminInfo/adminSlice";
 import updateAdminReducer from "./admin/updateAdmin/updateAdminSlice";
@@ -99,6 +100,7 @@ export const store = configureStore({
     allAdmins:allAdminsReducer,
     removeAdmin: removeAdminReducer,
     dataAdmin:allDataAdminsReducer,
+    newLogout: logoutReducer,
     //--------------Admin Reducers----------------//
     admin: adminReducer,
     adminInfo: adminInfoReducer,

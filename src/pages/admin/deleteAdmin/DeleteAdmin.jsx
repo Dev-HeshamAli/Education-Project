@@ -16,10 +16,11 @@ import {
 } from "@mui/material";
 import { Trash2, AlertTriangle } from "lucide-react";
 import Profile from "../profile/Profile";
+import { actLogout } from "../../../store/auth/logout/actLogout";
 
 const DeleteAdmin = () => {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.token);
+  const { userid, token } = useSelector((state) => state.auth);
 
   const { loading, success, error } = useSelector((state) => state.deleteAdmin);
   const id = JSON.parse(localStorage.getItem("id"));
@@ -32,7 +33,11 @@ const DeleteAdmin = () => {
   const handleConfirmDelete = async () => {
     try {
       await dispatch(actDeleteAdmin({ id, token })).unwrap();
-      dispatch(logout());
+      dispatch(actLogout({ userid, token })).then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          dispatch(logout());
+        }
+      });
     } catch (err) {
       console.error("Delete failed:", err);
     }

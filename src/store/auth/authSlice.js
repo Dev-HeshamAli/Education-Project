@@ -11,6 +11,7 @@ const initialState = {
   loading: false,
   error: null,
   successMessage: null,
+  userid: null,
 };
 
 const authSlice = createSlice({
@@ -40,27 +41,38 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.role = action.payload.roles;
         state.token = action.payload.token;
         state.id = action.payload.id;
+        state.userid = action.payload.userid;
         state.refreshToken = action.payload.refreshToken;
 
-        // حفظ في الكوكيز
-        CookieService.setCookie("token", action.payload.token, { path: "/" });
-        CookieService.setCookie("refreshToken", action.payload.refreshToken, {
-          path: "/",
-        });
-        CookieService.setCookie("expiresIn", action.payload.expiresIn, {
-          path: "/",
-        });
+        const expiresIn = parseInt(action.payload.expiresIn);
+
+        CookieService.setCookie("token", action.payload.token, {}, expiresIn);
+        CookieService.setCookie(
+          "refreshToken",
+          action.payload.refreshToken,
+          {},
+          expiresIn
+        );
+        CookieService.setCookie(
+          "expiresIn",
+          action.payload.expiresIn,
+          {},
+          expiresIn
+        );
         CookieService.setCookie(
           "refreshTokenExpiretion",
           action.payload.refreshTokenExpiretion,
-          { path: "/" }
+          {},
+          expiresIn
         );
       })
+
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -72,31 +84,41 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+
       .addCase(actRefreshAuth.fulfilled, (state, action) => {
         state.loading = false;
         state.role = action.payload.roles;
         state.token = action.payload.token;
         state.id = action.payload.id;
+                state.userid = action.payload.userid;
         state.refreshToken = action.payload.refreshToken;
 
-        // تحديث الكوكيز
-        CookieService.setCookie("token", action.payload.token, { path: "/" });
-        CookieService.setCookie("refreshToken", action.payload.refreshToken, {
-          path: "/",
-        });
-        CookieService.setCookie("expiresIn", action.payload.expiresIn, {
-          path: "/",
-        });
+        const expiresIn = parseInt(action.payload.expiresIn);
+
+        CookieService.setCookie("token", action.payload.token, {}, expiresIn);
+        CookieService.setCookie(
+          "refreshToken",
+          action.payload.refreshToken,
+          {},
+          expiresIn
+        );
+        CookieService.setCookie(
+          "expiresIn",
+          action.payload.expiresIn,
+          {},
+          expiresIn
+        );
         CookieService.setCookie(
           "refreshTokenExpiretion",
           action.payload.refreshTokenExpiretion,
-          { path: "/" }
+          {},
+          expiresIn
         );
       })
+
       .addCase(actRefreshAuth.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        // console.error("Refresh token failed:", action.payload);
       });
   },
 });

@@ -1,7 +1,7 @@
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { logout } from "../../../store/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { actLogout } from "../../../store/auth/logout/actLogout";
 import {
   Box,
   Avatar,
@@ -11,15 +11,21 @@ import {
   Tooltip,
   ListItemIcon,
   Divider,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import Logout from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../../../store/auth/authSlice";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
+
+  const { userid, token } = useSelector((state) => state.auth);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -30,7 +36,13 @@ export default function Profile() {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    setLoading(true);
+    dispatch(actLogout({ userid, token })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(logout());
+      }
+      setLoading(false);
+    });
     handleClose();
   };
 
@@ -65,7 +77,7 @@ export default function Profile() {
         anchorEl={anchorEl}
         id="account-menu"
         open={open}
-        onClose={handleClose} // ← مهم
+        onClose={handleClose}
         PaperProps={{
           elevation: 3,
           sx: {
@@ -97,6 +109,14 @@ export default function Profile() {
           Logout
         </MenuItem>
       </Menu>
+
+      {/* Loader */}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }

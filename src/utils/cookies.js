@@ -1,3 +1,5 @@
+
+
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies();
@@ -9,13 +11,20 @@ class CookieService {
   }
 
   // Set cookie
-  setCookie(name, value, options) {
-    cookies.set(name, value, options);
+  setCookie(name, value, options = {}, expiresInSeconds) {
+    let finalOptions = { path: "/", ...options };
+
+    if (expiresInSeconds) {
+      const expireDate = new Date(Date.now() + (expiresInSeconds - 30) * 1000);
+      finalOptions.expires = expireDate;
+    }
+
+    cookies.set(name, value, finalOptions);
   }
 
   // Delete cookie
   removeCookie(name, options) {
-    cookies.remove(name, options);
+    cookies.remove(name, { path: "/", ...options });
   }
 }
 

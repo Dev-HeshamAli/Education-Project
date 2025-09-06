@@ -7,7 +7,7 @@ const TeacherSearch = () => {
         <div className="p-2 bg-blue-50 rounded-lg">
           <Users className="w-5 h-5 text-blue-600" />
         </div>
-        <h3 className="text-gray-700 font-semibold">Search for a Student</h3>
+        <h3 className="text-gray-700 font-semibold">Search for a teacher</h3>
       </div>
 
       <div className="relative">
