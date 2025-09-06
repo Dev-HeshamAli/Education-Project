@@ -1,11 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { actGetAdmin } from "./actGetAdmin";
 
-
 const adminSlice = createSlice({
   name: "adminInfo",
   initialState: {
-    list: [],
+    list: null,
     loading: false,
     error: null,
   },
@@ -26,5 +25,4 @@ const adminSlice = createSlice({
   },
 });
 
-export const { resetPlansState } = adminSlice.actions;
 export default adminSlice.reducer;

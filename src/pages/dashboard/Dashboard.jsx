@@ -17,7 +17,7 @@ const Dashboard = () => {
   const token = useSelector((state) => state.auth.token);
   const dashboard = useSelector((state) => state.dashboardInfo.list);
 
-  console.log(dashboard);
+  // console.log(dashboard);
 
   useEffect(() => {
     dispatch(actDashboardInfo(token));

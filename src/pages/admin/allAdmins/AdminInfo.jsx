@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAdminById } from "../../../store/admin/getAdminInfo/fetchAdminById";
+import { actGetAdmin } from "../../../store/admin/adminInfo/actGetAdmin";
 import {
   Table,
   TableBody,
@@ -15,13 +15,13 @@ import {
 const AdminInfo = ({ id: userId }) => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
-  const userData = useSelector((state) => state.adminInfo.userData);
+  const dataAdmin = useSelector((state) => state.dataAdmin.list);
 
   useEffect(() => {
-    dispatch(fetchAdminById({ id: userId, token }));
+    dispatch(actGetAdmin({ id: userId, token }));
   }, [dispatch, token, userId]);
 
-  if (!userData) {
+  if (!dataAdmin) {
     return (
       <Typography variant="h6" align="center" mt={4}>
         Loading...
@@ -52,43 +52,43 @@ const AdminInfo = ({ id: userId }) => {
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 First Name
               </TableCell>
-              <TableCell align="center">{userData.firstName}</TableCell>
+              <TableCell align="center">{dataAdmin.firstName}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 Second Name
               </TableCell>
-              <TableCell align="center">{userData.secondName}</TableCell>
+              <TableCell align="center">{dataAdmin.secondName}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 Third Name
               </TableCell>
-              <TableCell align="center">{userData.thirdName}</TableCell>
+              <TableCell align="center">{dataAdmin.thirdName}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 Job
               </TableCell>
-              <TableCell align="center">{userData.job}</TableCell>
+              <TableCell align="center">{dataAdmin.job}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 Email
               </TableCell>
-              <TableCell align="center">{userData.email}</TableCell>
+              <TableCell align="center">{dataAdmin.email}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 password
               </TableCell>
-              <TableCell align="center">{userData.password}</TableCell>
+              <TableCell align="center">{dataAdmin.password}</TableCell>
             </TableRow>
             <TableRow hover>
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 Phone
               </TableCell>
-              <TableCell align="center">{userData.phone}</TableCell>
+              <TableCell align="center">{dataAdmin.phone}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

@@ -3,6 +3,7 @@ import authReducer from "./auth/authSlice";
 // import newAuthReducer from "./newAuth/authSlice";
 import adminReducer from "./admin/createAdmin/createAdminSlice";
 import adminInfoReducer from "./admin/getAdminInfo/getAdminInfoSlice";
+import allDataAdminsReducer from "./admin/adminInfo/adminSlice";
 import updateAdminReducer from "./admin/updateAdmin/updateAdminSlice";
 import deleteAdminReducer from "./admin/deleteAdmin/deleteAdminSlice";
 import createAcademicYearReducer from "./academicYear/createAcademicYear/createAcademicYearSlice";
@@ -97,6 +98,7 @@ export const store = configureStore({
     dashboardInfo: dashboardInfoReducer,
     allAdmins:allAdminsReducer,
     removeAdmin: removeAdminReducer,
+    dataAdmin:allDataAdminsReducer,
     //--------------Admin Reducers----------------//
     admin: adminReducer,
     adminInfo: adminInfoReducer,
