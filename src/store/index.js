@@ -85,6 +85,7 @@ import allLevelsReducer from "./shared/data/allLevelsAndSemester/allLevelsSlice"
 import anyCourseNameReducer from "./shared/anyCourseName/anyCourseNameSlice";
 import activeYearReducer from "./shared/academicYears/ActiveAcademicYear/activeAcademicYearSlice";
 import allAdminsReducer from "./shared/allAdmins/allAdminsSlice";
+import dashboardInfoReducer from "./shared/dashboard/dashboardSlice";
 import removeAdminReducer from "./shared/allAdmins/deleteAdmin/deleteAdminSlice";
 import deleteLecFromScheduleReducer from "./schedule/deleteLecFromSchedule/deleteLecFromScheduleSlice";
 import schoolClassDetailsReducer from "./shared/schoolClass/getSchoolClassDetails/getSchoolClassDetailsSlice";
@@ -93,6 +94,7 @@ export const store = configureStore({
   reducer: {
     //--------------Auth Reducers----------------//
     auth: authReducer,
+    dashboardInfo: dashboardInfoReducer,
     allAdmins:allAdminsReducer,
     removeAdmin: removeAdminReducer,
     //--------------Admin Reducers----------------//
