@@ -96,7 +96,7 @@ const authSlice = createSlice({
       .addCase(actRefreshAuth.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        console.error("Refresh token failed:", action.payload);
+        // console.error("Refresh token failed:", action.payload);
       });
   },
 });

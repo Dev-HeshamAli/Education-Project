@@ -23,12 +23,12 @@ export const formatPlansData = (plans = []) => {
   }));
 };
 
-// 📊 المدرسين -> Bar Chart (كـ single bar)
-export const formatTeachersDataForBar = (totalTeachers = 0) => {
-  return [
-    {
-      category: "Teachers",
-      count: totalTeachers,
-    },
-  ];
-};
+// // 📊 المدرسين -> Bar Chart (كـ single bar)
+// export const formatTeachersDataForBar = (totalTeachers = 0) => {
+//   return [
+//     {
+//       category: "Teachers",
+//       count: totalTeachers,
+//     },
+//   ];
+// };

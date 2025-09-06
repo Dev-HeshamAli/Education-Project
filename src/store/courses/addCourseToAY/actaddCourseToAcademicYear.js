@@ -20,7 +20,7 @@ export const actAddCourseToAcademicYear = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      console.error("❌ Error Deleting Course from AY:", error.response?.data?.errors || error.message);
+      // console.error("❌ Error Deleting Course from AY:", error.response?.data?.errors || error.message);
       return rejectWithValue(error.response?.data?.errors || "Something went wrong");
     }
   }
