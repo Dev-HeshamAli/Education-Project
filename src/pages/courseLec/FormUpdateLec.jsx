@@ -53,6 +53,8 @@ const schema = yup.object().shape({
 });
 
 const FormUpdateLec = ({ lectureId }) => {
+  const lecId = lectureId.lecture;
+
   const dispatch = useDispatch();
   // const { courseId } = useSelector((state) => state.selectionIds);
   const courseId = localStorage.getItem("1");
@@ -85,7 +87,7 @@ const FormUpdateLec = ({ lectureId }) => {
     }
     const formData = new FormData();
     formData.append("CourseId", Number(courseId));
-    formData.append("Lecture", Number(lectureId));
+    formData.append("Lecture", Number(lecId));
     formData.append("videoFile", data.videoFile[0]);
 
     const allData = {};

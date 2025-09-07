@@ -9,7 +9,7 @@ export const actLogout = createAsyncThunk(
   async ({ userid, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${BASE_URL}/api/Auth/Logout?userId=${userid}`,
+        `${BASE_URL}/api/Auth/Logout/${userid}`,
         null,
         {
           headers: {

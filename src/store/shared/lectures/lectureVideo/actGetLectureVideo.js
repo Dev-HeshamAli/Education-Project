@@ -10,31 +10,34 @@ import { BASE_URL } from "../../../../api/BASE_URL";
 //       const response = await axios.get(
 //         `${BASE_URL}/api/Course/cartoon-video-stream/${courseId}/${lecId}`,
 //         {
-//           headers: { 
-//             Authorization: `Bearer ${token}`,
-//           },
-//           responseType: 'blob', // مهم جداً: تحديد نوع الاستجابة كـ blob
+//           headers: { Authorization: `Bearer ${token}` },
+//           responseType: "blob",
 //         }
 //       );
-      
-//       // إرجاع الـ blob مباشرة
-//       return response.data;
+
+//       const blob = response.data;
+
+//       // ✅ رجّع URL string مش Blob
+//       const videoUrl = URL.createObjectURL(blob);
+
+//       return videoUrl;
 //     } catch (err) {
 //       return rejectWithValue(
-//         err.response?.data?.errors || 
-//         err.response?.data?.message || 
-//         "Something went wrong"
+//         err.response?.data?.errors ||
+//           err.response?.data?.message ||
+//           "Something went wrong"
 //       );
 //     }
 //   }
 // );
 
+
 export const actGetLectureVideo = createAsyncThunk(
   "lecturesVideo/fetchlecturesVideo",
-  async ({ token, courseId, lecId }, { rejectWithValue }) => {
+  async ({ token, videoName }, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/api/Course/cartoon-video-stream/${courseId}/${lecId}`,
+        `${BASE_URL}/GetStaticFiles/videos/${videoName}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
@@ -43,7 +46,6 @@ export const actGetLectureVideo = createAsyncThunk(
 
       const blob = response.data;
 
-      // ✅ رجّع URL string مش Blob
       const videoUrl = URL.createObjectURL(blob);
 
       return videoUrl;

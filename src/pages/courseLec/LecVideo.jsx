@@ -83,6 +83,9 @@ const LecVideo = () => {
   }, [video, videoLoading]);
 
   const handleLectureClick = async (lectureId) => {
+    // const lec = lectureId.lecture;
+    const videoName = lectureId.videoName;
+
     setSelectedLecture(lectureId);
 
     if (videoUrl) {
@@ -90,7 +93,7 @@ const LecVideo = () => {
       setVideoUrl("");
     }
 
-    dispatch(actGetLectureVideo({ token, lecId: lectureId, courseId }));
+    dispatch(actGetLectureVideo({ token, videoName: videoName }));
   };
 
   const handleAddLecture = () => {
@@ -98,9 +101,11 @@ const LecVideo = () => {
   };
 
   const handleDeleteLecture = (lectureId, event) => {
+    const lecId = lectureId.lecture;
+
     event.stopPropagation();
     if (window.confirm("Are you sure you want to delete this lecture?"))
-      dispatch(actDeleteCourseVideo({ token, lecId: lectureId, courseId }));
+      dispatch(actDeleteCourseVideo({ token, lecId: lecId, courseId }));
   };
 
   // إعادة ضبط حالة الحذف بعد 4 ثواني
