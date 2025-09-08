@@ -316,6 +316,7 @@ import {
   InputLabel,
   FormControl,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
@@ -364,7 +365,7 @@ const schema = yup.object().shape({
   ),
 });
 
-const CreateCourse = () => {
+const CreateCourse = ({ onClose }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -449,11 +450,12 @@ const CreateCourse = () => {
     if (courseState.successMessage || courseState.errorMessage) {
       const timer = setTimeout(() => {
         dispatch(clearMessages());
-      }, 3000);
+        onClose();
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [courseState.successMessage, courseState.errorMessage, dispatch]);
+  }, [courseState.successMessage, courseState.errorMessage, dispatch, onClose]);
 
   return (
     <Box p={3}>
@@ -462,15 +464,27 @@ const CreateCourse = () => {
       </Typography>
 
       {courseState.successMessage && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {courseState.successMessage}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            {courseState.successMessage}
+          </Alert>
+        </Snackbar>
       )}
 
       {courseState.errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {courseState.errorMessage}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="error" sx={{ width: "100%" }}>
+            {courseState.errorMessage}
+          </Alert>
+        </Snackbar>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>

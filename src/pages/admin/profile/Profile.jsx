@@ -25,7 +25,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
 
-  const { userid, token } = useSelector((state) => state.auth);
+  const { userid, token, refreshToken } = useSelector((state) => state.auth);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +37,9 @@ export default function Profile() {
 
   const handleLogout = () => {
     setLoading(true);
-    dispatch(actLogout({ userid, token })).then((res) => {
+    dispatch(
+      actLogout({ data: { userId: userid, refToken: refreshToken }, token })
+    ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         dispatch(logout());
       }

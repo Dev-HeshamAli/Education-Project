@@ -22,6 +22,7 @@ import {
   TableRow,
   TableCell,
   Divider,
+  Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
 
@@ -50,6 +51,7 @@ const UpdateLec = ({
   courseName,
   teacherName,
   teacherId,
+  onclose,
   id,
 }) => {
   const token = useSelector((state) => state.auth.token);
@@ -231,23 +233,38 @@ const UpdateLec = ({
     if (success || error) {
       const timer = setTimeout(() => {
         dispatch(clearMessageUpdateLecToSchedule());
+        onclose();
       }, 4000);
       return () => clearTimeout(timer);
     }
-  }, [success, dispatch, error]);
+  }, [success, dispatch, error, onclose]);
 
   return (
     <Box>
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="error" sx={{ width: "100%" }}>
+            {error}
+          </Alert>
+        </Snackbar>
       )}
+
       {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            {success}
+          </Alert>
+        </Snackbar>
       )}
+
       <Card sx={{ borderRadius: 3 }} elevation={0}>
         <CardHeader sx={{ textAlign: "center" }} title="Update Lecture" />
         <Table>

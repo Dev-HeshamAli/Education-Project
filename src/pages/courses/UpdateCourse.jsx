@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Alert,
   Dialog,
+  Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -29,7 +30,7 @@ import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import DeleteCourseFromP from "./DeleteCourseFromP";
 import AddCourseToP from "./AddCourseToP";
 
-const UpdateCourse = ({ courseData }) => {
+const UpdateCourse = ({ courseData, onClose }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -223,28 +224,42 @@ const UpdateCourse = ({ courseData }) => {
         setSelectedCourse("");
         setSelectedPlans([]);
         setSelectedStudyLevel("");
-      }, 3000);
+        onClose(); // Close the UpdateCourse component
+      }, 2000);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [successMessage, errorMessage, dispatch]);
+  }, [successMessage, errorMessage, dispatch, onClose]);
 
   return (
     <Box p={3}>
       {loading && <LinearProgress />}
-      {/* ✅ إصلاح عرض رسائل الخطأ */}
       {errorMessage && (
-        <Alert severity="error">
-          {typeof errorMessage === "string"
-            ? errorMessage
-            : "An error occurred"}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="error" sx={{ width: "100%" }}>
+            {typeof errorMessage === "string"
+              ? errorMessage
+              : "An error occurred"}
+          </Alert>
+        </Snackbar>
       )}
+
       {successMessage && (
-        <Alert severity="success">
-          {typeof successMessage === "string" ? successMessage : "Success"}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            {typeof successMessage === "string" ? successMessage : "Success"}
+          </Alert>
+        </Snackbar>
       )}
+
       {deleteCourseFromP && (
         <Dialog
           onClose={() => setDeleteCourseFromP(false)}

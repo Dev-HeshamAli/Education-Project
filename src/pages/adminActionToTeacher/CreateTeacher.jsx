@@ -13,6 +13,7 @@ import {
   FormHelperText,
   InputAdornment,
   LinearProgress,
+  Snackbar,
 } from "@mui/material";
 import { Eye, EyeClosed } from "lucide-react";
 
@@ -194,15 +195,27 @@ const CreateTeacher = () => {
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {success}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="success" sx={{ width: "100%" }}>
+            {success}
+          </Alert>
+        </Snackbar>
       )}
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {typeof error === "string" ? error : JSON.stringify(error)}
-        </Alert>
+        <Snackbar
+          open={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity="error" sx={{ width: "100%" }}>
+            {typeof error === "string" ? error : JSON.stringify(error)}
+          </Alert>
+        </Snackbar>
       )}
 
       <Paper elevation={3} sx={{ p: 4 }}>

@@ -20,7 +20,7 @@ import { actLogout } from "../../../store/auth/logout/actLogout";
 
 const DeleteAdmin = () => {
   const dispatch = useDispatch();
-  const { userid, token } = useSelector((state) => state.auth);
+  const { userid, token, refreshToken } = useSelector((state) => state.auth);
 
   const { loading, success, error } = useSelector((state) => state.deleteAdmin);
   const id = JSON.parse(localStorage.getItem("id"));
@@ -33,7 +33,9 @@ const DeleteAdmin = () => {
   const handleConfirmDelete = async () => {
     try {
       await dispatch(actDeleteAdmin({ id, token })).unwrap();
-      dispatch(actLogout({ userid, token })).then((res) => {
+      dispatch(
+        actLogout({ data: { userId: userid, refToken: refreshToken }, token })
+      ).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           dispatch(logout());
         }

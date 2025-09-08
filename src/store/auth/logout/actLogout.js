@@ -6,11 +6,11 @@ import { BASE_URL } from "../../../api/BASE_URL";
 
 export const actLogout = createAsyncThunk(
   "actLogout/logout",
-  async ({ userid, token }, { rejectWithValue }) => {
+  async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${BASE_URL}/api/Auth/Logout/${userid}`,
-        null,
+        `${BASE_URL}/api/Auth/Logout`,
+        data,
         {
           headers: {
             Authorization: `Bearer ${token}`,

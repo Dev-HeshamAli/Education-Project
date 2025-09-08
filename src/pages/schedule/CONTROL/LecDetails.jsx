@@ -170,6 +170,7 @@ const LecDetails = ({ lecture, scheduleDayesIdForUpdate, onClose }) => {
             startTime={startTime}
             endTime={endTime}
             teacherId={teacherId}
+            onclose={() => setOpenEditDialog(false)}
           />
         </Dialog>
       )}

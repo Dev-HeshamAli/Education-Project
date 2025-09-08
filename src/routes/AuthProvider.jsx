@@ -10,7 +10,9 @@ import { actLogout } from "../store/auth/logout/actLogout";
 
 export default function AuthProvider({ children }) {
   const dispatch = useDispatch();
-  const { error, userid, token } = useSelector((state) => state.auth);
+  const { error, userid, token, refreshToken } = useSelector(
+    (state) => state.auth
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const refreshTimer = useRef(null);
@@ -42,7 +44,12 @@ export default function AuthProvider({ children }) {
             );
 
             if (actRefreshAuth.rejected.match(result)) {
-              dispatch(actLogout({ userid, token })).then((res) => {
+              dispatch(
+                actLogout({
+                  data: { userId: userid, refToken: refreshToken },
+                  token,
+                })
+              ).then((res) => {
                 if (res.meta.requestStatus === "fulfilled") {
                   dispatch(logout());
                 }
@@ -77,7 +84,12 @@ export default function AuthProvider({ children }) {
             }
           } catch (error) {
             console.error("Error during token refresh:", error);
-            dispatch(actLogout({ userid, token })).then((res) => {
+            dispatch(
+              actLogout({
+                data: { userId: userid, refToken: refreshToken },
+                token,
+              })
+            ).then((res) => {
               if (res.meta.requestStatus === "fulfilled") {
                 dispatch(logout());
               }
@@ -85,7 +97,12 @@ export default function AuthProvider({ children }) {
             navigate("/", { replace: true });
           }
         } else {
-          dispatch(actLogout({ userid, token })).then((res) => {
+          dispatch(
+            actLogout({
+              data: { userId: userid, refToken: refreshToken },
+              token,
+            })
+          ).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
               dispatch(logout());
             }
@@ -101,7 +118,12 @@ export default function AuthProvider({ children }) {
         const storedRefreshToken = CookieService.getCookie("refreshToken");
 
         if (!storedToken || !storedRefreshToken) {
-          dispatch(actLogout({ userid, token })).then((res) => {
+          dispatch(
+            actLogout({
+              data: { userId: userid, refToken: refreshToken },
+              token,
+            })
+          ).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
               dispatch(logout());
             }
@@ -119,7 +141,12 @@ export default function AuthProvider({ children }) {
         );
 
         if (actRefreshAuth.rejected.match(result)) {
-          dispatch(actLogout({ userid, token })).then((res) => {
+          dispatch(
+            actLogout({
+              data: { userId: userid, refToken: refreshToken },
+              token,
+            })
+          ).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
               dispatch(logout());
             }
@@ -130,7 +157,12 @@ export default function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error("Error in initAuth:", error);
-        dispatch(actLogout({ userid, token })).then((res) => {
+        dispatch(
+          actLogout({
+            data: { userId: userid, refToken: refreshToken },
+            token,
+          })
+        ).then((res) => {
           if (res.meta.requestStatus === "fulfilled") {
             dispatch(logout());
           }
@@ -153,7 +185,12 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     if (error && error.includes && error.includes("401")) {
-      dispatch(actLogout({ userid, token })).then((res) => {
+      dispatch(
+        actLogout({
+          data: { userId: userid, refToken: refreshToken },
+          token,
+        })
+      ).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           dispatch(logout());
         }

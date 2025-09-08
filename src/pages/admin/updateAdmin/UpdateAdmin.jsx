@@ -48,7 +48,9 @@ const schema = yup.object().shape({
 });
 
 const UpdateAdmin = () => {
-  const { token, id, userid } = useSelector((state) => state.auth);
+  const { token, id, userid, refreshToken } = useSelector(
+    (state) => state.auth
+  );
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, success } = useSelector((state) => state.updateAdmin);
@@ -77,7 +79,9 @@ const UpdateAdmin = () => {
   const handelDelete = () => {
     if (window.confirm("Are you sure you want to delete this admin?")) {
       dispatch(actDeleteAdmin({ id, token })).unwrap();
-      dispatch(actLogout({ userid, token })).then((res) => {
+      dispatch(
+        actLogout({ data: { userId: userid, refToken: refreshToken }, token })
+      ).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           dispatch(logout());
         }

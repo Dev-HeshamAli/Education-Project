@@ -23,6 +23,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { actStudyLevel } from "../../store/academicYear/studyLevel/actStudyLevel";
@@ -184,6 +185,12 @@ const CreateSL = () => {
     setOpenEditDialog(false);
   };
 
+  const [open, setOpen] = useState(true);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Box
       display="flex"
@@ -201,31 +208,88 @@ const CreateSL = () => {
         gap={4}
       >
         {message && (
-          <Alert severity={messageType} sx={{ mb: 2 }}>
-            {message}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Alert
+              onClose={handleClose}
+              severity={messageType}
+              sx={{ width: "100%" }}
+            >
+              {message}
+            </Alert>
+          </Snackbar>
         )}
 
         {deleteSuccess && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {deleteSuccess}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Alert
+              onClose={handleClose}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
+              {deleteSuccess}
+            </Alert>
+          </Snackbar>
         )}
+
         {deleteError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {deleteError}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Alert
+              onClose={handleClose}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              {deleteError}
+            </Alert>
+          </Snackbar>
         )}
 
         {updateSuccess && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {updateSuccess}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Alert
+              onClose={handleClose}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
+              {updateSuccess}
+            </Alert>
+          </Snackbar>
         )}
+
         {updateError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {updateError}
-          </Alert>
+          <Snackbar
+            open={open}
+            autoHideDuration={3000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Alert
+              onClose={handleClose}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              {updateError}
+            </Alert>
+          </Snackbar>
         )}
 
         {/* FORM (create) */}
