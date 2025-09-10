@@ -1,0 +1,60 @@
+import axios from "axios";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+
+import { BASE_URL } from "../../../../api/BASE_URL";
+
+// export const actGetLectureVideo = createAsyncThunk(
+//   "lecturesVideo/fetchlecturesVideo",
+//   async ({ token, courseId, lecId }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(
+//         `${BASE_URL}/api/Course/cartoon-video-stream/${courseId}/${lecId}`,
+//         {
+//           headers: { Authorization: `Bearer ${token}` },
+//           responseType: "blob",
+//         }
+//       );
+
+//       const blob = response.data;
+
+//       // ✅ رجّع URL string مش Blob
+//       const videoUrl = URL.createObjectURL(blob);
+
+//       return videoUrl;
+//     } catch (err) {
+//       return rejectWithValue(
+//         err.response?.data?.errors ||
+//           err.response?.data?.message ||
+//           "Something went wrong"
+//       );
+//     }
+//   }
+// );
+
+
+export const actGetLectureVideo = createAsyncThunk(
+  "lecturesVideo/fetchlecturesVideo",
+  async ({ token, videoName }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/GetStaticFiles/videos/${videoName}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "blob",
+        }
+      );
+
+      const blob = response.data;
+
+      const videoUrl = URL.createObjectURL(blob);
+
+      return videoUrl;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.errors ||
+          err.response?.data?.message ||
+          "Something went wrong"
+      );
+    }
+  }
+);
