@@ -1,15 +1,15 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import AuthProvider from "./routes/AuthProvider";
-import DirectionProvider from "./routes/DirectionProvider";
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <DirectionProvider>
-          <AppRoutes />
-        </DirectionProvider>
+        <AppRoutes />
+        <Toaster />
+        
       </AuthProvider>
     </BrowserRouter>
   );

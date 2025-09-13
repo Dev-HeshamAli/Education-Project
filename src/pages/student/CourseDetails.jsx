@@ -1,8 +1,7 @@
-// src/pages/student/CourseDetails.jsx
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../../api/BASE_URL";
 
 const ORD = ["الأولى","الثانية","الثالثة","الرابعة","الخامسة","السادسة","السابعة","الثامنة","التاسعة","العاشرة"];
@@ -18,13 +17,14 @@ const saveState = (courseId, s) => {
 
 export default function CourseDetails() {
   const { courseId } = useParams();
-  const token = useSelector((s) => s.auth.token); // لا نضعه في deps
+  const token = useSelector((s) => s.auth.token);
   const navigate = useNavigate();
 
   const [lectures, setLectures] = useState([]); // [{id, lectureNo, teacherName, summaryFile, courseName}]
   const [courseName, setCourseName] = useState("");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  // هنستخدم stateMap بس للتشيك بوكس
   const [stateMap, setStateMap] = useState(() => loadState(courseId));
 
   useEffect(() => {
@@ -35,12 +35,12 @@ export default function CourseDetails() {
         setErr("");
         const { data } = await axios.get(
           `${BASE_URL}/api/Course/course-lectures/${courseId}`,
-          { headers: { Authorization: `Bearer ${token}` } } // نقرأ التوكن هنا فقط
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const arr = (Array.isArray(data) ? data : []).map((lec, idx) => ({
-          id: lec.id ?? `lec-${idx+1}`,
-          lectureNo: Number(lec.lecture) || (idx + 1),
+          id: lec.id ?? `lec-${idx+1}`,                 // CourseDetailId
+          lectureNo: Number(lec.lecture) || (idx + 1),  // رقم الحصة
           teacherName: lec.teacherName ?? "—",
           summaryFile: lec.summaryFile || null,
           courseName: lec.courseName || "",
@@ -63,25 +63,18 @@ export default function CourseDetails() {
     }
     fetchData();
     return () => { alive = false; };
-    // ⚠️ المهم: ما نحطش token في deps علشان ما يعملش "reload إحساسي" على refresh
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   useEffect(() => { saveState(courseId, stateMap); }, [courseId, stateMap]);
 
   const toggleChecked = (lecId) => {
-    setStateMap((s) => ({ ...s, [lecId]: { ...s[lecId], checked: !s[lecId]?.checked }}));
+    setStateMap((s) => ({ ...s, [lecId]: { checked: !s[lecId]?.checked }}));
   };
 
-  const handleJoin = async (lec) => {
-    // لو فيه API لانضمام المحاضرة وصّليه هنا
-    // await axios.post(`${BASE_URL}/api/Student/join-lecture`, { lectureId: lec.id }, { headers: { Authorization: `Bearer ${token}` }});
-    setStateMap((s) => ({ ...s, [lec.id]: { ...s[lec.id], joined: true }}));
-  };
-
+  // بيفتح صفحة التفاعل مباشرة بدون أي شرط
   const handleEngage = (lec) => {
-    // تنقّل فوري — صفحة المشاهدة تتولى الجلب/اللودينج
-    navigate(`/student/watch-lecture/${lec.id}`);
+    navigate(`/student/watch-lecture/${lec.id}?courseId=${courseId}&lecNo=${lec.lectureNo}`);
   };
 
   const anyChecked = useMemo(() => Object.values(stateMap).some(v => v?.checked), [stateMap]);
@@ -145,33 +138,13 @@ export default function CourseDetails() {
                         </div>
                       </label>
 
+                      {/* حافظت على نفس توزيع الأزرار تقريباً لكن شلت "انضم الآن" */}
                       <div className="flex items-center gap-2">
-                        {!st.joined ? (
-                          <button
-                            type="button"
-                            onClick={() => handleJoin(lec)}
-                            className="rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold px-4 py-2"
-                          >
-                            انضم الآن
-                          </button>
-                        ) : (
-                          <span className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-2 text-sm font-semibold">
-                            <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                            منضم
-                          </span>
-                        )}
-
                         <button
                           type="button"
-                          onClick={() => st.joined && handleEngage(lec)}
-                          disabled={!st.joined}
-                          className={[
-                            "rounded-xl font-semibold px-4 py-2",
-                            st.joined
-                              ? "bg-slate-900 hover:opacity-95 text-white"
-                              : "bg-gray-100 text-gray-500 cursor-not-allowed"
-                          ].join(" ")}
-                          title={st.joined ? "تفاعل مع الحصة" : "انضم أولاً لتفعيل التفاعل"}
+                          onClick={() => handleEngage(lec)}
+                          className="rounded-xl bg-slate-900 hover:opacity-95 text-white font-semibold px-4 py-2"
+                          title="تفاعل مع الحصة"
                         >
                           تفاعل مع الحصة
                         </button>
@@ -181,22 +154,6 @@ export default function CourseDetails() {
                 })}
               </ul>
             )}
-
-            {/*lectures.length > 0 && (
-              <div className="mt-5 flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  {anyChecked ? "محاضرات محددة تمّ اختيارها." : "يمكنك اختيار محاضرات للتجهيز."}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    to={`/student/course-lectures/${courseId}`}
-                    className="rounded-xl bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 font-semibold px-4 py-2"
-                  >
-                    عرض صفحة محاضرات الكورس
-                  </Link>
-                </div>
-              </div>
-            )*/}
           </div>
         )}
       </section>

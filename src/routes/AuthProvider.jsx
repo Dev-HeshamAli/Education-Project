@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef } from "react";
 import CookieService from "../utils/cookies";
 import { actRefreshAuth } from "../store/auth/actRefreshAuth";
@@ -10,7 +11,9 @@ import { actLogout } from "../store/auth/logout/actLogout";
 
 export default function AuthProvider({ children }) {
   const dispatch = useDispatch();
-  const { error, userid, token, refreshToken } = useSelector((state) => state.auth);
+  const { error, userid, token, refreshToken } = useSelector(
+    (state) => state.auth
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,10 +21,21 @@ export default function AuthProvider({ children }) {
 
   // ✅ المسارات العامة اللي تشتغل بدون لوجين
   const PUBLIC_PATHS = new Set([
-    "/", "/home", "/login", "/vision",
-    "/kg1", "/kg2", "/prim1", "/prim2", "/prim3", "/prim4",
+    "/",
+    "/home",
+    "/login",
+    "/vision",
+    "/kg1",
+    "/kg2",
+    "/prim1",
+    "/prim2",
+    "/prim3",
+    "/prim4",
     "/teachers",
-    "/register", "/forgot-password", "/confirm-code", "/reset-password",
+    "/register",
+    "/forgot-password",
+    "/confirm-code",
+    "/reset-password",
   ]);
 
   const isPublicPath = PUBLIC_PATHS.has(location.pathname);
@@ -47,7 +61,10 @@ export default function AuthProvider({ children }) {
 
           if (storedToken && storedRefreshToken && !token) {
             const result = await dispatch(
-              actRefreshAuth({ token: storedToken, refrehToken: storedRefreshToken })
+              actRefreshAuth({
+                token: storedToken,
+                refrehToken: storedRefreshToken,
+              })
             );
 
             if (actRefreshAuth.fulfilled.match(result)) {
@@ -67,34 +84,56 @@ export default function AuthProvider({ children }) {
             }
           }
 
-  setLoading(false);
-  return;
-}
-
+          setLoading(false);
+          return;
+        }
 
         if (storedToken && storedRefreshToken) {
           try {
             const result = await dispatch(
-              actRefreshAuth({ token: storedToken, refrehToken: storedRefreshToken })
+              actRefreshAuth({
+                token: storedToken,
+                refrehToken: storedRefreshToken,
+              })
             );
 
             if (actRefreshAuth.rejected.match(result)) {
               await dispatch(
-              actLogout({
-                data: { userId: userid, refToken: refreshToken },
-                token,
-              })
-            ).then((res) => {
-              if (res.meta.requestStatus === "fulfilled") {
-                dispatch(logout());
-              }
-            });
-            navigate("/", { replace: true });
+                actLogout({
+                  data: { userId: userid, refToken: refreshToken },
+                  token,
+                })
+              ).then((res) => {
+                if (res.meta.requestStatus === "fulfilled") {
+                  dispatch(logout());
+                }
+              });
+              navigate("/", { replace: true });
             } else if (actRefreshAuth.fulfilled.match(result)) {
-              CookieService.setCookie("token", result.payload.token, {}, result.payload.expiresIn);
-              CookieService.setCookie("refreshToken", result.payload.refreshToken, {}, result.payload.expiresIn);
-              CookieService.setCookie("expiresIn", result.payload.expiresIn, {}, result.payload.expiresIn);
-              CookieService.setCookie("refreshTokenExpiretion", result.payload.refreshTokenExpiretion, {}, result.payload.expiresIn);
+              CookieService.setCookie(
+                "token",
+                result.payload.token,
+                {},
+                result.payload.expiresIn
+              );
+              CookieService.setCookie(
+                "refreshToken",
+                result.payload.refreshToken,
+                {},
+                result.payload.expiresIn
+              );
+              CookieService.setCookie(
+                "expiresIn",
+                result.payload.expiresIn,
+                {},
+                result.payload.expiresIn
+              );
+              CookieService.setCookie(
+                "refreshTokenExpiretion",
+                result.payload.refreshTokenExpiretion,
+                {},
+                result.payload.expiresIn
+              );
               scheduleRefresh(result.payload.expiresIn);
             }
           } catch (error) {
@@ -114,34 +153,39 @@ export default function AuthProvider({ children }) {
         } else {
           // مش على صفحة عامة ومفيش توكن: وديه للوجين
           await dispatch(
-              actLogout({
-                data: { userId: userid, refToken: refreshToken },
-                token,
-              })
-            ).then((res) => {
-              if (res.meta.requestStatus === "fulfilled") {
-                dispatch(logout());
-              }
-            });
-            navigate("/", { replace: true });
+            actLogout({
+              data: { userId: userid, refToken: refreshToken },
+              token,
+            })
+          ).then((res) => {
+            if (res.meta.requestStatus === "fulfilled") {
+              dispatch(logout());
+            }
+          });
+          navigate("/", { replace: true });
         }
       }, refreshTime);
     };
 
     const initAuth = async () => {
       try {
-        // لو صفحة عامة: متعملش أي تحقق، وسيب المستخدم يكمل
-        if (isPublicPath) {
-          setLoading(false);
-          return;
-        }
-
-        // الصفحات غير العامة:
         const storedToken = CookieService.getCookie("token");
         const storedRefreshToken = CookieService.getCookie("refreshToken");
 
-        if (!storedToken || !storedRefreshToken) {
-          await dispatch(
+        // ✅ لو عندك توكن في الكوكيز ولسه الستور فاضي → اعمل dispatch
+        if (storedToken && storedRefreshToken && !token) {
+          const result = await dispatch(
+            actRefreshAuth({
+              token: storedToken,
+              refrehToken: storedRefreshToken,
+            })
+          );
+
+          if (actRefreshAuth.fulfilled.match(result)) {
+            scheduleRefresh(result.payload.expiresIn);
+          } else {
+            // لو التوكين بايظ → اعمل مسح
+            await dispatch(
               actLogout({
                 data: { userId: userid, refToken: refreshToken },
                 token,
@@ -151,42 +195,23 @@ export default function AuthProvider({ children }) {
                 dispatch(logout());
               }
             });
-            navigate("/", { replace: true });
-          setLoading(false);
-          return;
+          }
         }
 
-        const result = await dispatch(
-          actRefreshAuth({ token: storedToken, refrehToken: storedRefreshToken })
-        );
-
-        if (actRefreshAuth.rejected.match(result)) {
-          await dispatch(
-              actLogout({
-                data: { userId: userid, refToken: refreshToken },
-                token,
-              })
-            ).then((res) => {
-              if (res.meta.requestStatus === "fulfilled") {
-                dispatch(logout());
-              }
-            });
-            navigate("/", { replace: true });
-        } else if (actRefreshAuth.fulfilled.match(result)) {
-          scheduleRefresh(result.payload.expiresIn);
-        }
+        setLoading(false);
       } catch (error) {
+        console.error("Error during token refresh:", error);
         await dispatch(
-              actLogout({
-                data: { userId: userid, refToken: refreshToken },
-                token,
-              })
-            ).then((res) => {
-              if (res.meta.requestStatus === "fulfilled") {
-                dispatch(logout());
-              }
-            });
-            navigate("/", { replace: true });
+          actLogout({
+            data: { userId: userid, refToken: refreshToken },
+            token,
+          })
+        ).then((res) => {
+          if (res.meta.requestStatus === "fulfilled") {
+            dispatch(logout());
+          }
+        });
+        navigate("/", { replace: true });
       } finally {
         setLoading(false);
       }
@@ -205,23 +230,28 @@ export default function AuthProvider({ children }) {
     if (!isPublicPath && error && error.includes && error.includes("401")) {
       (async () => {
         await dispatch(
-              actLogout({
-                data: { userId: userid, refToken: refreshToken },
-                token,
-              })
-            ).then((res) => {
-              if (res.meta.requestStatus === "fulfilled") {
-                dispatch(logout());
-              }
-            });
-            navigate("/", { replace: true });
+          actLogout({
+            data: { userId: userid, refToken: refreshToken },
+            token,
+          })
+        ).then((res) => {
+          if (res.meta.requestStatus === "fulfilled") {
+            dispatch(logout());
+          }
+        });
+        navigate("/", { replace: true });
       })();
     }
   }, [error, isPublicPath, dispatch, navigate, userid, refreshToken, token]);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
         <CircularProgress size={80} />
       </Box>
     );

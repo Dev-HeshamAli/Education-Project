@@ -121,6 +121,10 @@ import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "../pages/ForgotPassword/ResetPassword";
 import RegisterParent from "../pages/main/RegisterParent";
 
+/////////////////////////////////////////////////////
+import DirectionProvider from "./DirectionProvider";
+import OnlineCourses from "../pages/parent/OnlineCourses";
+import OfflineCourses from "../pages/parent/OfflineCourses";
 
 const AppRoutes = () => {
   const role = useSelector((state) => state.auth.role);
@@ -152,11 +156,14 @@ const AppRoutes = () => {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <DashboardLayout />
+              <DirectionProvider>
+                <DashboardLayout />
+              </DirectionProvider>
             </PrivateRoute>
           }
         >
           <Route index element={<Dashboard />} />
+          
           {/* --------------------Admin---------------------- */}
           <Route path="create-admin" element={<CreateAdmin />} />
           <Route path="update-admin" element={<UpdateAdmin />} />
@@ -309,7 +316,9 @@ const AppRoutes = () => {
            <Route path="problems" element={<Problems />} />
           <Route path="contactus" element={<ContactUs />} />
           <Route path="/parent/plans/:studentId" element={<ShowPlans />} />
-          <Route path="online-plan/:planId/:studentId" element={<OnlinePlan/>} />
+          <Route path="online-plan/:planId/:studentId" element={<OnlinePlan />} />
+          <Route path="online-courses/:planId/:studentId" element={<OnlineCourses />} />
+          <Route path="offline-courses/:planId/:studentId" element={<OfflineCourses />} />
 
           <Route path="courses-plan/:planId/:studentId" element={<OfflineOnlineCoursesPlan />} />
 

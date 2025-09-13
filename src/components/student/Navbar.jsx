@@ -1,8 +1,9 @@
 import { ChevronDown, LogOut, UserCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { logout } from "../../store/auth/authSlice";
+import { actLogout } from "../../store/auth/logout/actLogout";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -25,8 +26,19 @@ export default function Navbar() {
     return () => { document.removeEventListener("mousedown", onDocClick); document.removeEventListener("keydown", onKey); };
   }, []);
   useEffect(() => { setOpen(false); setMenuOpen(false); }, [location.pathname]);
-
-  const handleLogout = () => dispatch(logout());
+  
+  const { userid, token, refreshToken } = useSelector((state) => state.auth);
+  const handleLogout = () =>
+    dispatch(
+      actLogout({
+        data: { userId: userid, refToken: refreshToken },
+        token,
+      })
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(logout());
+      }
+    });
 
   return (
     <header dir="rtl" className="sticky top-0 z-50 bg-slate-800 backdrop-blur border-b border-black/10">

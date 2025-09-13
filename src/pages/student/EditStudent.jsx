@@ -25,21 +25,17 @@ function EditStudent() {
 
 
 
-  const validationSchema = Yup.object({
-    firstName: Yup.string().required('الاسم الأول مطلوب'),
-    secondName: Yup.string().required('الاسم الثاني مطلوب'),
-    thirdName: Yup.string().required('الاسم الثالث مطلوب'),
-    country: Yup.string().required('الدولة مطلوبة'),
-    governorate: Yup.string().required('المحافظة مطلوبة'),
-    email: Yup.string().email('البريد الإلكتروني غير صالح').required('البريد الإلكتروني مطلوب'),
-    password: Yup.string()
-      .matches(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل وطولها لا يقل عن 8')
-      .required('كلمة المرور مطلوبة'),
-    phoneNumber: Yup.string()
-      .matches(/^01[0-9]{9}$/, 'رقم الهاتف المصري غير صالح')
-      .required('رقم الهاتف مطلوب'),
-    photoPath: Yup.mixed().required('الصورة الشخصية مطلوبة'),
-  });
+ const validationSchema = Yup.object({
+  firstName: Yup.string().required('الاسم الأول مطلوب'),
+  country: Yup.string().required('الدولة مطلوبة'),
+  governorate: Yup.string().required('المحافظة مطلوبة'),
+  email: Yup.string().email('البريد الإلكتروني غير صالح'),
+  password: Yup.string()
+    .matches(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل وطولها لا يقل عن 8')
+    .nullable(),
+  photoPath: Yup.mixed().nullable(),
+});
+
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -54,36 +50,50 @@ function EditStudent() {
       photoPath: null,
     },
     validationSchema,
-    onSubmit: (values) => editChild(values)
+    onSubmit: (values) =>{ 
+                    console.log("heshhaaaaaaaaaaaaaaaaaaaaaaaaam")
+
+      editChild(values)
+                    console.log("heshhaaaaaaaaaaaaaaaaaaaaaaaaam")
+
+    }
   });
 
-  async function editChild(values) {
-    const loadingToast = toast.loading("جارٍ التحديث...");
 
-    try {
-      const formData = new FormData();
-      formData.append("id", studentId);
-      formData.append("FirstName", values.firstName);
-      formData.append("SecondName", values.secondName);
-      formData.append("ThirdName", values.thirdName);
-      formData.append("Governorate", values.governorate);
-      formData.append("Country", values.country);
-      formData.append("Email", values.email);
-      formData.append("Password", values.password);
-      formData.append("PhotoPath", values.photoPath);
+ async function editChild(values) {
+  console.log(">>> ENTER editChild");
+  const loadingToast = toast.loading("جارٍ التحديث...");
+  try {
+    const formData = new FormData();
+    formData.append("Id", studentId); // ✅ لازم Id
+    formData.append("FirstName", values.firstName);
+    formData.append("Governorate", values.governorate);
+    formData.append("Country", values.country);
 
-      await axios.put(`${BASE_URL}/api/Student/Update-student`, formData);
+    if (values.email) formData.append("Email", values.email);
+    if (values.password) formData.append("Password", values.password);
+    if (values.photoPath) formData.append("PhotoPath", values.photoPath);
 
-      toast.success("تم تحديث بيانات الطالب بنجاح");
-      navigate("/");
-    } catch (err) {
-      console.log(err);
-      console.log("أخطاء التحقق:", err.response?.data?.errors);
-      toast.error(err.response?.data?.message || "حدث خطأ أثناء التحديث");
-    } finally {
-      toast.dismiss(loadingToast);
-    }
+    await axios.put(
+      `${BASE_URL}/api/Student/Update-student`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ مهم لو الـ API محمي
+        }
+      }
+    );
+
+    toast.success("تم تحديث بيانات الطالب بنجاح");
+  } catch (err) {
+    console.log(">>> ERROR in editChild:", err);
+    console.log("أخطاء التحقق:", err?.response?.data?.errors);
+    toast.error(err?.response?.data?.message || "حدث خطأ أثناء التحديث");
+  } finally {
+    toast.dismiss(loadingToast);
   }
+}
+
 
   return (
     <div className="flex flex-col justify-center sm:py-12 mt-10" dir="rtl">
@@ -129,7 +139,8 @@ function EditStudent() {
 
             <button
               type="submit"
-              className="transition duration-200 bg-blue-500 hover:bg-blue-600 text-white w-full py-2.5 rounded-lg text-sm font-semibold"
+              className="transition duration-200 bg-slate-800 hover:bg-slate-900 text-white w-full py-2.5 rounded-lg text-sm font-semibold"
+            
             >
               تحديث
             </button>

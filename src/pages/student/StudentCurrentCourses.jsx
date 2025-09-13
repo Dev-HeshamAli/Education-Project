@@ -17,7 +17,7 @@ export default function StudentCurrentCourses() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
-
+  
   useEffect(() => {
     let alive = true;
 
@@ -122,6 +122,7 @@ export default function StudentCurrentCourses() {
                 key={c.id}
                 className="group flex flex-col justify-between rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-6"
               >
+                <p>{c.id}</p>
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-orange-600 transition-colors">
                     {c.name}

@@ -4,6 +4,8 @@ import { BsWhatsapp, BsTelephone } from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
 import { UserCircle, ChevronDown, LogOut } from "lucide-react";
 import { logout } from "../../store/auth/authSlice";
+import { actLogout } from "../../store/auth/logout/actLogout";
+
 import CookieService from "../../utils/cookies";
 
 export default function Navbar() {
@@ -17,9 +19,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
 
   // 👇 حسب ستورك: عدّل الأسماء لو مختلفة
-  //const token = useSelector((s) => s.auth?.token);
-  const token = CookieService.getCookie("token");
-  console.log("token maram : " ,token)
+  const token = useSelector((s) => s.auth?.token);
   const role  = useSelector((s) => s.auth?.role); // "parent" | "student" | undefined
 
   // RTL + لغة
@@ -61,11 +61,16 @@ export default function Navbar() {
   console.log("role maram : " ,role)    
   const goProfile = () => navigate(profilePath);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    setAcctOpen(false);
-    navigate("/home");
-  };
+  const handleLogout = () => 
+      dispatch(actLogout({
+            data: { userId: userid, refToken: refreshToken },
+            token,
+          })
+        ).then((res) => {
+          if (res.meta.requestStatus === "fulfilled") {
+            dispatch(logout());
+          }
+      });
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50" dir="rtl">

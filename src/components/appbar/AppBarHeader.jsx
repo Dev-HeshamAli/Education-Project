@@ -8,7 +8,7 @@ import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Profile from "../../pages/admin/profile/Profile";
 const drawerWidth = 300;
 const AppBar = styled(MuiAppBar, {
@@ -54,26 +54,38 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
             justifyContent: "space-between",
           }}
         >
-          <Typography
-            onClick={() => navigate("/dashboard")}
-            variant="h6"
-            sx={{
-              color: "#fff",
-              fontWeight: "bold",
-              textAlign: "center",
-              textTransform: "capitalize",
-              cursor: "pointer",
-              "&:hover": {
+          <Box>
+            <Link to="/home" className="flex items-center gap-2">
+              <span className="text-xl font-bold text-[#fff]">
+                Edu-Smart.ai
+              </span>
+            </Link>
+          </Box>
+          <Box>
+            <Typography
+              onClick={() => navigate("/dashboard")}
+              variant="h6"
+              sx={{
                 color: "#fff",
                 fontWeight: "bold",
-                scale: "1.03",
-                transition: "all 0.2s ease-in-out",
-              },
-            }}
-          >
-            DASHBOARD
-          </Typography>
-          <Profile />
+                textAlign: "center",
+                textTransform: "capitalize",
+                cursor: "pointer",
+                "&:hover": {
+                  color: "#fff",
+                  fontWeight: "bold",
+                  scale: "1.03",
+                  transition: "all 0.2s ease-in-out",
+                },
+              }}
+            >
+              DASHBOARD
+            </Typography>
+          </Box>
+
+          <Box>
+            <Profile />
+          </Box>
         </Box>
       </Toolbar>
     </AppBar>

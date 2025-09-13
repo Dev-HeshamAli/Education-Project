@@ -82,7 +82,10 @@ const ShowPlans = () => {
                 to={
                   plan.id === 2
                     ? `/parent/online-plan/${plan.id}/${studentId}`
-                    : `/parent/courses-plan/${plan.id}/${studentId}`
+                    : 
+                      plan.id === 3
+                      ? `/parent/online-courses/${plan.id}/${studentId}`
+                      : `/parent/offline-courses/${plan.id}/${studentId}`
                 }
                 className="block w-full text-center rounded-lg bg-orange-400 hover:bg-[#ea580c] text-white py-2.5 px-4 transition-colors font-semibold shadow-sm"
               >

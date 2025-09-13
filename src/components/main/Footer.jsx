@@ -50,12 +50,14 @@ export default function Footer() {
               <li>
                 <i className="bx bxs-phone ml-2" />
                 <span className="font-medium">الهاتف:</span>{" "}
-                <a href="tel:+201031165004" className="hover:text-orange-500">+20 01031165004</a>
+                <a href="tel:+201031165004" className="hover:text-orange-500">
+                    <bdi dir="ltr">+20 0103 116 5004</bdi>
+                  </a>
               </li>
               <li>
                 <i className="bx bx-envelope ml-2" />
                 <span className="font-medium">البريد الإلكتروني:</span>{" "}
-                <a href="mailto:Edu-smart@gmail.com" className="hover:text-orange-500">Edu-smart@gmail.com</a>
+                <a href="mailto:Edu-smart@gmail.com" className="hover:text-orange-500">Info@edu-smart.ai</a>
               </li>
               <li>
                 <i className="bx bxl-whatsapp ml-2" />
