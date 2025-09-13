@@ -8,16 +8,18 @@ import { BASE_URL } from "../../api/BASE_URL";
 export default function ParentProfile() {
   const token = useSelector((s) => s.auth.token);
   const { id } = useSelector((s) => s.auth);
-  console.log(id);
   const [profile, setProfile] = useState(null);
   const [childrenData, setChildrenData] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/Parent/profile/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data } = await axios.get(
+          `${BASE_URL}/api/Parent/profile/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProfile(data);
         setChildrenData(data?.children || []);
       } catch (err) {

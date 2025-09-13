@@ -68,7 +68,9 @@ export default function StudentCurrentCourses() {
         {/* العنوان والبحث */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">المواد الحالية</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+              المواد الحالية
+            </h1>
           </div>
           <div className="flex items-center gap-3">
             <input
@@ -88,7 +90,10 @@ export default function StudentCurrentCourses() {
         {loading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-gray-200 p-5">
+              <div
+                key={i}
+                className="rounded-2xl bg-white border border-gray-200 p-5"
+              >
                 <div className="h-6 w-2/3 bg-gray-100 animate-pulse rounded mb-4" />
                 <div className="flex gap-2 mb-4">
                   <div className="h-5 w-16 bg-gray-100 animate-pulse rounded" />
@@ -122,6 +127,7 @@ export default function StudentCurrentCourses() {
                 key={c.id}
                 className="group flex flex-col justify-between rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-6"
               >
+                <p>{c.id}</p>
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-orange-600 transition-colors">
                     {c.name}
@@ -130,19 +136,25 @@ export default function StudentCurrentCourses() {
                   <div className="mt-4 space-y-2 text-sm text-gray-600">
                     {c.semsterName && (
                       <p>
-                        <span className="font-semibold text-gray-700">الفصل الدراسي:</span>{" "}
+                        <span className="font-semibold text-gray-700">
+                          الفصل الدراسي:
+                        </span>{" "}
                         {c.semsterName}
                       </p>
                     )}
                     {c.studyLevel && (
                       <p>
-                        <span className="font-semibold text-gray-700">المستوى:</span>{" "}
+                        <span className="font-semibold text-gray-700">
+                          المستوى:
+                        </span>{" "}
                         {c.studyLevel}
                       </p>
                     )}
                     {c.teacherName && (
                       <p>
-                        <span className="font-semibold text-gray-700">المعلم:</span>{" "}
+                        <span className="font-semibold text-gray-700">
+                          المعلم:
+                        </span>{" "}
                         {c.teacherName}
                       </p>
                     )}

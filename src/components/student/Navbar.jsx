@@ -1,9 +1,9 @@
 import { ChevronDown, LogOut, UserCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { logout } from "../../store/auth/authSlice";
 import { actLogout } from "../../store/auth/logout/actLogout";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -37,10 +37,8 @@ export default function Navbar() {
     setOpen(false);
     setMenuOpen(false);
   }, [location.pathname]);
+
   const { userid, token, refreshToken } = useSelector((state) => state.auth);
-
-  // const handleLogout = () => dispatch(logout());
-
   const handleLogout = () =>
     dispatch(
       actLogout({

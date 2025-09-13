@@ -9,6 +9,7 @@ import teacherInfoReducer from "./shared/teacher/teacherInfo/teacherInfoSlice";
 import activeLectureReducer from "./createTeacher/activeLec/activeLec";
 import endLectureReducer from "./createTeacher/endLec/endLec";
 import studentInClassReducer from "./shared/teacher/studentsInClass/studentInClassSlice";
+
 import adminInfoReducer from "./admin/getAdminInfo/getAdminInfoSlice";
 import allDataAdminsReducer from "./admin/adminInfo/adminSlice";
 import updateAdminReducer from "./admin/updateAdmin/updateAdminSlice";
@@ -46,9 +47,6 @@ import deleteTeacherReducer from "./deleteTeacher/deleteTeacherSlice";
 import teacherProblemsReducer from "./shared/problems/teacherProblems/teacherProblemsSlice";
 import sendProblemTeacherReducer from "./shared/problems/sendTeacherProblem/sendProblemSlice";
 import deleteProblemTeacherReducer from "./shared/problems/deleteTeacherProblem/deleteProblemSlice";
-
-
-
 
 
 
@@ -107,10 +105,9 @@ import removeAdminReducer from "./shared/allAdmins/deleteAdmin/deleteAdminSlice"
 import deleteLecFromScheduleReducer from "./schedule/deleteLecFromSchedule/deleteLecFromScheduleSlice";
 import schoolClassDetailsReducer from "./shared/schoolClass/getSchoolClassDetails/getSchoolClassDetailsSlice";
 
-/////////////////////////////////////
 import sharedDataReducer from "./sharedData/sharedDataSlice";
 import studentReducer from "./student/studentSlice";
-import resetPasswordReducer from "./resetPassword/resetPasswordSlice";
+import resetPasswordReducer from "./resetPassword/resetPasswordSlice"; 
 import parentReducer from "./parent/parentSlice";
 
 export const store = configureStore({
@@ -227,7 +224,6 @@ export const store = configureStore({
     shared: sharedDataReducer,
     student: studentReducer,
     resetPassword: resetPasswordReducer,
-
     // --------------Teacher Reducers----------------//
     teacherInfo: teacherInfoReducer,
     updateTeacher: updateTeacherReducer,
@@ -238,7 +234,7 @@ export const store = configureStore({
     teacherProblems: teacherProblemsReducer,
     sendProblem: sendProblemTeacherReducer,
     deleteProblemTeacher: deleteProblemTeacherReducer,
-    
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -324,6 +324,14 @@ export  const useSidebarList = () => {
       icon: <Contact style={{ color: "#1976d2" }} />,
       children: [{ name: "Solve Problem", link: "/dashboard/solve-problem" }],
     },
+     {
+        name: "Children Application",
+        icon: <Contact style={{ color: "#1976d2" }} />,
+        children: [
+          { name: "Applications", link: "/dashboard/all-applications" },
+        
+        ],
+    },
   ];
 
   return listSidebar;
