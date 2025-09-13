@@ -118,7 +118,7 @@ const CreateSL = () => {
         setMessageType("");
         dispatch(clearMessageDeleteStudyLevel());
         dispatch(resetUpdateStudyLevelState());
-      }, 3000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [
@@ -185,7 +185,21 @@ const CreateSL = () => {
     setOpenEditDialog(false);
   };
 
-  const [open, setOpen] = useState(true);
+  // بدل الـ open state
+  const [open, setOpen] = useState(false);
+
+  // كل ما الرسالة أو حالة تتغير شغّل الـ Snackbar
+  useEffect(() => {
+    if (
+      message ||
+      deleteSuccess ||
+      deleteError ||
+      updateSuccess ||
+      updateError
+    ) {
+      setOpen(true);
+    }
+  }, [message, deleteSuccess, deleteError, updateSuccess, updateError]);
 
   const handleClose = () => {
     setOpen(false);
@@ -207,91 +221,30 @@ const CreateSL = () => {
         flexDirection="column"
         gap={4}
       >
-        {message && (
-          <Snackbar
-            open={open}
-            autoHideDuration={3000}
+        <Snackbar
+          open={open}
+          autoHideDuration={1000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
             onClose={handleClose}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            severity={
+              messageType ||
+              (deleteSuccess && "success") ||
+              (deleteError && "error") ||
+              (updateSuccess && "success") ||
+              (updateError && "error")
+            }
+            sx={{ width: "100%" }}
           >
-            <Alert
-              onClose={handleClose}
-              severity={messageType}
-              sx={{ width: "100%" }}
-            >
-              {message}
-            </Alert>
-          </Snackbar>
-        )}
-
-        {deleteSuccess && (
-          <Snackbar
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleClose}
-              severity="success"
-              sx={{ width: "100%" }}
-            >
-              {deleteSuccess}
-            </Alert>
-          </Snackbar>
-        )}
-
-        {deleteError && (
-          <Snackbar
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleClose}
-              severity="error"
-              sx={{ width: "100%" }}
-            >
-              {deleteError}
-            </Alert>
-          </Snackbar>
-        )}
-
-        {updateSuccess && (
-          <Snackbar
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleClose}
-              severity="success"
-              sx={{ width: "100%" }}
-            >
-              {updateSuccess}
-            </Alert>
-          </Snackbar>
-        )}
-
-        {updateError && (
-          <Snackbar
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleClose}
-              severity="error"
-              sx={{ width: "100%" }}
-            >
-              {updateError}
-            </Alert>
-          </Snackbar>
-        )}
-
+            {message ||
+              deleteSuccess ||
+              deleteError ||
+              updateSuccess ||
+              updateError}
+          </Alert>
+        </Snackbar>
         {/* FORM (create) */}
         <Card>
           <CardContent>

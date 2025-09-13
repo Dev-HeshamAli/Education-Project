@@ -24,10 +24,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetUpdateScheduleDayState } from "../../../store/schedule/updateScheduleDay/updateScheduleDaySlice";
 import { actUpdateScheduleDay } from "../../../store/schedule/updateScheduleDay/actUpdateScheduleDay";
 
-const UpdateDay = ({ daysOfWeek = [], availableDays = [] }) => {
+const UpdateDay = ({ daysOfWeek = [], availableDays = [], onClose }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const { success, error } = useSelector((state) => state.updateScheduleDay);
+  const { success, error, loading } = useSelector(
+    (state) => state.updateScheduleDay
+  );
 
   const [selectedDayId, setSelectedDayId] = useState("");
   const [newDayName, setNewDayName] = useState("");
@@ -68,16 +70,27 @@ const UpdateDay = ({ daysOfWeek = [], availableDays = [] }) => {
     if (success || error) {
       const time = setTimeout(() => {
         dispatch(resetUpdateScheduleDayState());
-      }, 3000);
+        onClose();
+      }, 1000);
 
       return () => clearTimeout(time);
     }
-  }, [success, error, dispatch]);
+  }, [success, error, dispatch, onClose]);
 
   const isFormValid = selectedDayId && newDayName;
 
   return (
     <>
+      {loading && (
+        <Alert
+          severity="info"
+          sx={{
+            m: 3,
+          }}
+        >
+          Loading...
+        </Alert>
+      )}
       {success && (
         <Alert
           severity="success"

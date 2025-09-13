@@ -35,6 +35,7 @@ const UpdateSchedule = ({
   scheduleTimeId,
   semesterId,
   name,
+  onClose,
   action = "update", // إضافة قيمة افتراضية
 }) => {
   const dispatch = useDispatch();
@@ -137,7 +138,8 @@ const UpdateSchedule = ({
       const timer = setTimeout(() => {
         dispatch(resetUpdateScheduleState());
         dispatch(resetDeleteScheduleState());
-      }, 3000);
+        onClose();
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
@@ -148,6 +150,7 @@ const UpdateSchedule = ({
     deleteError,
     dispatch,
     reset,
+    onClose,
     studyLevelId,
     semesterId,
     academicYearId,

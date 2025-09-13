@@ -18,6 +18,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Snackbar,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
@@ -44,8 +45,8 @@ const AddLecToSchedule = ({
   scheduleDayesId,
   semesterId,
   studyLevelId,
+  onClose,
 }) => {
-
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const studyLevels = useSelector((state) => state.studyLevelsId?.list || []);
@@ -167,32 +168,54 @@ const AddLecToSchedule = ({
 
   useEffect(() => {
     let timeoutId;
-    if (success || error) {
+    let timeoutId2;
+    if (success) {
       timeoutId = setTimeout(() => {
         dispatch(clearMessageaddLecToSchedule());
-      }, 4000);
+        onClose();
+      }, 800);
+    }
+    if (error) {
+      timeoutId2 = setTimeout(() => {
+        dispatch(clearMessageaddLecToSchedule());
+      }, 9000);
     }
 
-    return () => clearTimeout(timeoutId);
-  }, [success, error, dispatch]);
+    return () => clearTimeout(timeoutId || timeoutId2);
+  }, [success, error, dispatch, onClose]);
 
   return (
     <Box>
-      {error && (
-        <Alert sx={{ m: 2 }} severity="error">
+      <Snackbar
+        open={Boolean(error)}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="error" sx={{ width: "100%" }}>
           {error}
         </Alert>
-      )}
-      {success && (
-        <Alert sx={{ m: 2 }} severity="success">
+      </Snackbar>
+
+      <Snackbar
+        open={Boolean(success)}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="success" sx={{ width: "100%" }}>
           {success}
         </Alert>
-      )}
-      {loading && (
-        <Alert sx={{ m: 2 }} severity="info">
+      </Snackbar>
+
+      <Snackbar
+        open={loading}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="info" sx={{ width: "100%" }}>
           Loading...
         </Alert>
-      )}
+      </Snackbar>
+
       <Card sx={{ boxShadow: 3, borderRadius: 3 }}>
         <CardHeader
           sx={{ textAlign: "center" }}

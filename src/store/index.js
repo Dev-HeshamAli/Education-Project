@@ -3,6 +3,12 @@ import authReducer from "./auth/authSlice";
 // import newAuthReducer from "./newAuth/authSlice";
 import adminReducer from "./admin/createAdmin/createAdminSlice";
 import logoutReducer from "./auth/logout/logoutSlice";
+import updateTeacherReducer from "./createTeacher/updateTeacher/updateTeacherSlice";
+import teacherSchedule from "./shared/teacher/teacherSchedule/teacherSchedule";
+import teacherInfoReducer from "./shared/teacher/teacherInfo/teacherInfoSlice";
+import activeLectureReducer from "./createTeacher/activeLec/activeLec";
+import endLectureReducer from "./createTeacher/endLec/endLec";
+import studentInClassReducer from "./shared/teacher/studentsInClass/studentInClassSlice";
 import adminInfoReducer from "./admin/getAdminInfo/getAdminInfoSlice";
 import allDataAdminsReducer from "./admin/adminInfo/adminSlice";
 import updateAdminReducer from "./admin/updateAdmin/updateAdminSlice";
@@ -37,6 +43,15 @@ import StudentIdByClassReducer from "./shared/studentIdByClass/studentIdByClassS
 import createTeacherReducer from "./createTeacher/createTeacherSlice";
 import teacherByNameReducer from "./shared/teacherByName/teacherBynameSlice";
 import deleteTeacherReducer from "./deleteTeacher/deleteTeacherSlice";
+import teacherProblemsReducer from "./shared/problems/teacherProblems/teacherProblemsSlice";
+import sendProblemTeacherReducer from "./shared/problems/sendTeacherProblem/sendProblemSlice";
+import deleteProblemTeacherReducer from "./shared/problems/deleteTeacherProblem/deleteProblemSlice";
+
+
+
+
+
+
 import addTeacherToStudyLevelReducer from "./addTeacherToStudyLevel/addTeacherToStudyLevelSlice";
 import teacherByStudyLevelReducer from "./shared/teacherByStudyLevel/teacherByStudyLevelSlice";
 import addTeacherToCourseReducer from "./addTeacherToCourse/addTeacherToCourseSlice";
@@ -92,14 +107,20 @@ import removeAdminReducer from "./shared/allAdmins/deleteAdmin/deleteAdminSlice"
 import deleteLecFromScheduleReducer from "./schedule/deleteLecFromSchedule/deleteLecFromScheduleSlice";
 import schoolClassDetailsReducer from "./shared/schoolClass/getSchoolClassDetails/getSchoolClassDetailsSlice";
 
+/////////////////////////////////////
+import sharedDataReducer from "./sharedData/sharedDataSlice";
+import studentReducer from "./student/studentSlice";
+import resetPasswordReducer from "./resetPassword/resetPasswordSlice";
+import parentReducer from "./parent/parentSlice";
+
 export const store = configureStore({
   reducer: {
     //--------------Auth Reducers----------------//
     auth: authReducer,
     dashboardInfo: dashboardInfoReducer,
-    allAdmins:allAdminsReducer,
+    allAdmins: allAdminsReducer,
     removeAdmin: removeAdminReducer,
-    dataAdmin:allDataAdminsReducer,
+    dataAdmin: allDataAdminsReducer,
     newLogout: logoutReducer,
     //--------------Admin Reducers----------------//
     admin: adminReducer,
@@ -200,6 +221,24 @@ export const store = configureStore({
     createLec: createLectureReducer,
     updateLec: updateLectureReducer,
     deleteLec: deleteLectureReducer,
+    /////////////parent///////////////////////
+    // --------------Parent Reducers----------------//
+    parent: parentReducer,
+    shared: sharedDataReducer,
+    student: studentReducer,
+    resetPassword: resetPasswordReducer,
+
+    // --------------Teacher Reducers----------------//
+    teacherInfo: teacherInfoReducer,
+    updateTeacher: updateTeacherReducer,
+    teacherSchedule: teacherSchedule,
+    activeLecture: activeLectureReducer,
+    endLec: endLectureReducer,
+    studentInClass: studentInClassReducer,
+    teacherProblems: teacherProblemsReducer,
+    sendProblem: sendProblemTeacherReducer,
+    deleteProblemTeacher: deleteProblemTeacherReducer,
+    
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

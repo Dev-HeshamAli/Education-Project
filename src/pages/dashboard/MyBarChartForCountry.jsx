@@ -26,7 +26,7 @@ const MyBarChartForCountry = ({
       keys={keys}
       indexBy={indexBy}
       margin={{ top: 30, right: 20, bottom: 50, left: 50 }}
-      padding={0.8}
+      padding={0.6}
       borderRadius={10}
       colors={(bar) => colors[bar.index % colors.length]}
       enableGridX={false}

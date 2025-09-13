@@ -57,20 +57,21 @@ const CreateAY = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (
-      error ||
-      successMessage ||
-      deleteError ||
-      deleteSuccess ||
-      active ||
-      errorActive
-    ) {
+    if (successMessage || deleteSuccess || active) {
       const timeout = setTimeout(() => {
         dispatch(clearMessages());
         dispatch(clearMessageDeleteAcademicYear());
         dispatch(fetchAcademicYears());
-      }, 3000);
+      }, 1000);
       return () => clearTimeout(timeout);
+    }
+    if (error || deleteError || errorActive) {
+      const timeout1 = setTimeout(() => {
+        dispatch(clearMessages());
+        dispatch(clearMessageDeleteAcademicYear());
+        dispatch(fetchAcademicYears());
+      }, 8000);
+      return () => clearTimeout(timeout1);
     }
   }, [
     error,

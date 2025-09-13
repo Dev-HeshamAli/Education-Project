@@ -65,7 +65,7 @@ const UpdatePL = ({ editData }) => {
 
   useEffect(() => {
     if (success || error) {
-      setTimeout(() => dispatch(resetUpdatePlanLevelState()), 3000);
+      setTimeout(() => dispatch(resetUpdatePlanLevelState()), 5000);
       if (success) reset();
     }
   }, [success, error, dispatch, reset]);

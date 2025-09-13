@@ -452,7 +452,7 @@ const translations = {
   },
 };
 
-export default function ScheduleTable({ data = [], academicScheduleId }) {    
+export default function ScheduleTable({ data = [], academicScheduleId }) {
   const dispatch = useDispatch();
   const [lecDetailsOpen, setLecDetailsOpen] = useState(false);
   const [selectedLecture, setSelectedLecture] = useState(null);
@@ -515,6 +515,14 @@ export default function ScheduleTable({ data = [], academicScheduleId }) {
     if (matchedDay) {
       setscheduleDayesId(matchedDay.id);
     }
+  };
+
+  const formatTime = (time) => {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   const handleOpenUpdateLec = (day) => {
@@ -838,7 +846,7 @@ export default function ScheduleTable({ data = [], academicScheduleId }) {
               scheduleDayesId={scheduleDayesId}
               studyLevelId={studyLevelId}
               semesterId={semesterId}
-              onClose={() => setopenCreateDay(false)}
+              onClose={() => setopenAddLec(false)}
             />
           </Dialog>
         )}
@@ -942,12 +950,13 @@ export default function ScheduleTable({ data = [], academicScheduleId }) {
                                   >
                                     {lecture.courseName}
                                   </Typography>
+
                                   <Typography
                                     variant="caption"
                                     sx={{ fontSize: "11px", opacity: 0.8 }}
                                   >
-                                    {lecture.startTime.slice(0, 5)} -{" "}
-                                    {lecture.endTime.slice(0, 5)}
+                                    {formatTime(lecture.startTime)} -{" "}
+                                    {formatTime(lecture.endTime)}
                                   </Typography>
                                 </Box>
                               }

@@ -13,6 +13,7 @@ import {
   Alert,
   Dialog,
   Snackbar,
+  Chip,
 } from "@mui/material";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -31,6 +32,8 @@ import DeleteCourseFromP from "./DeleteCourseFromP";
 import AddCourseToP from "./AddCourseToP";
 
 const UpdateCourse = ({ courseData, onClose }) => {
+  console.log("Course Data:", courseData);
+
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -175,20 +178,20 @@ const UpdateCourse = ({ courseData, onClose }) => {
   };
 
   // ✅ دالة لتحضير بيانات الكورس للإضافة
-  const handleAddCourse = () => {
-    if (courseDetails) {
-      const courseDataForAdd = {
-        courseId: courseDetails.id,
-        courseName: courseDetails.name,
-        plans: courseDetails.plans || [],
-        // إضافة أي بيانات تانية محتاجها
-        ...courseDetails,
-      };
+  // const handleAddCourse = () => {
+  //   if (courseDetails) {
+  //     const courseDataForAdd = {
+  //       courseId: courseDetails.id,
+  //       courseName: courseDetails.name,
+  //       plans: courseDetails.plans || [],
+  //       // إضافة أي بيانات تانية محتاجها
+  //       ...courseDetails,
+  //     };
 
-      setSelectedCourseData(courseDataForAdd);
-      setAddCourseToP(true);
-    }
-  };
+  //     setSelectedCourseData(courseDataForAdd);
+  //     setAddCourseToP(true);
+  //   }
+  // };
 
   const handleSelectCourse = (courseId) => {
     setSelectedCourse(courseId);
@@ -205,7 +208,7 @@ const UpdateCourse = ({ courseData, onClose }) => {
         name: courseDetails.name || "",
         description: courseDetails.description || "",
         price: courseDetails.price ?? "",
-        offlinePrice: courseData?.offlineFinalPrice ?? "",
+        offlinePrice: courseData?.offlineOldPrice ?? "",
         offlineDiscountPercentage: disOffline100 || "",
         discountPercentage: dis100 || "",
         stageId: courseDetails.stageId ?? "",
@@ -225,7 +228,7 @@ const UpdateCourse = ({ courseData, onClose }) => {
         setSelectedPlans([]);
         setSelectedStudyLevel("");
         onClose(); // Close the UpdateCourse component
-      }, 2000);
+      }, 500);
 
       return () => clearTimeout(timeoutId);
     }
@@ -585,7 +588,7 @@ const UpdateCourse = ({ courseData, onClose }) => {
 
           {/* Plan */}
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <FormControl
+            {/* <FormControl
               fullWidth
               margin="normal"
               error={formik.touched.plans && Boolean(formik.errors.plans)}
@@ -613,6 +616,44 @@ const UpdateCourse = ({ courseData, onClose }) => {
               <FormHelperText>
                 {formik.touched.plans && formik.errors.plans}
               </FormHelperText>
+            </FormControl> */}
+
+            <FormControl
+              fullWidth
+              margin="normal"
+              error={formik.touched.plans && Boolean(formik.errors.plans)}
+            >
+              <InputLabel id="plans-label">Plans</InputLabel>
+              <Select
+                labelId="plans-label"
+                multiple
+                name="plans"
+                value={formik.values.plans || []}
+                onChange={formik.handleChange}
+                renderValue={(selected) => (
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    {plans
+                      ?.filter((plan) => selected.includes(plan.id))
+                      .map((plan) => (
+                        <Chip
+                          key={plan.id}
+                          label={plan.name || "Unnamed Plan"}
+                          color="primary"
+                          size="small"
+                        />
+                      ))}
+                  </Box>
+                )}
+              >
+                {plans?.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.name || "Unnamed Plan"}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                {formik.touched.plans && formik.errors.plans}
+              </FormHelperText>
             </FormControl>
 
             <Box
@@ -623,13 +664,13 @@ const UpdateCourse = ({ courseData, onClose }) => {
                 justifyContent: "center",
               }}
             >
-              <Button
+              {/* <Button
                 variant="contained"
                 color="primary"
                 onClick={handleAddCourse}
               >
                 <GridAddIcon />
-              </Button>
+              </Button> */}
               <Button
                 variant="contained"
                 color="error"

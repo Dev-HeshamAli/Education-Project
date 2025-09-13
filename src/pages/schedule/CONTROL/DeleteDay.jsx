@@ -34,11 +34,12 @@ const DeleteDay = ({ daysOfWeek, onClose }) => {
     if (success || error) {
       const time = setTimeout(() => {
         dispatch(resetDeleteScheduleDayState());
-      }, 3000);
+        onClose();
+      }, 1000);
 
       return () => clearTimeout(time);
     }
-  }, [success, error, dispatch]);
+  }, [success, error, dispatch, onClose]);
 
   return (
     <>

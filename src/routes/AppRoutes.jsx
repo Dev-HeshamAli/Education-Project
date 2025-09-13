@@ -61,6 +61,8 @@ import DeleteProblem from "../pages/contactUs/DeleteProblem";
 import CreateJobDiscount from "../pages/jobDiscount/CreateJobDiscount";
 // -----------------------------Discount Code----------------------- */
 import CreateDiscountCode from "../pages/discountCode/CreateDiscountCode";
+import DirectionProvider from "./DirectionProvider";
+
 // -----------------------------Student----------------------- */
 import GetStudentFromExcel from "../pages/adminActionToStudent/GetStudentFromExcel";
 import UploadStudentFile from "../pages/adminActionToStudent/UploadStudentFile";
@@ -74,19 +76,89 @@ import LecVideo from "../pages/courseLec/LecVideo";
 import UpdateLec from "../pages/schedule/CONTROL/UpdateLec";
 import AllAdmains from "../pages/admin/allAdmins/AllAdmains";
 
+//////////////////////////////////////////////////////
+//////////////////main//////////////////////////
+import Vision from "../pages/main/Vision";
+import HomePage from "../pages/main/HomePage";
+import KG1 from "../pages/main/KG1";
+import TeacherCVPage from "../pages/main/TeacherCVPage";
+import KG2 from "../pages/main/KG2";
+import Prim1 from "../pages/main/Prim1";
+import Prim2 from "../pages/main/Prim2";
+import Prim3 from "../pages/main/Prim3";
+import Prim4 from "../pages/main/Prim4";
+////////////////parent/////////////////////////
+import ContactUs from "../pages/parent/ContactUs";
+import CreateChild from "../pages/parent/CreateChild";
+import CreateDisChild from "../pages/parent/CreateDisChild";
+import EditProfile from "../pages/parent/EditProfile";
+import OfflineOnlineCoursesPlan from "../pages/parent/OfflineOnlineCoursesPlan";
+import ParentDiscounts from "../pages/parent/ParentDiscounts";
+import Problems from "../pages/parent/Problems";
+import ParentProfile from "../pages/parent/ParentProfile";
+import Requests from "../pages/parent/Requests";
+import ShowPlans from "../pages/parent/ShowPlans";
+import UpdateRequest from "../pages/parent/UpdateRequest";
+import OnlinePlan from "../pages/parent/OnlinePlan";
+///////////////student////////////////////////////
+
+import EditStudent from "../pages/student/EditStudent";
+import StudentAllCourses from "../pages/student/StudentAllCourses";
+import StudentClassSchedule from "../pages/student/StudentClassSchedule";
+import StudentCurrentCourses from "../pages/student/StudentCurrentCourses";
+import StudentProfile from "../pages/student/StudentProfile";
+//////////////////////////ai////////////////////////
+import ChatWithLecture from "../pages/student/ChatWithlecture";
+import CourseLectures from "../pages/student/CourseLectures";
+import QuizPage from "../pages/student/QuizPage";
+import SummarizePage from "../pages/student/SummarizePage";
+import TranslatePage from "../pages/student/TranslatePage";
+import WatchLecture from "../pages/student/WatchLecture";
+import CourseDetails from "../pages/student/CourseDetails";
+
+///////////////////forget password////////////////////
+import ConfirmCode from "../pages/ForgotPassword/ConfirmCode";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
+import ResetPassword from "../pages/ForgotPassword/ResetPassword";
+import RegisterParent from "../pages/main/RegisterParent";
+import TeacherProfile from "../pages/teacher/TeacherProfile";
+import TeacherSchedule from "../pages/teacher/TeacherSchedule";
+import Students from "../pages/teacher/Students";
+import Reports from "../pages/teacher/Reports";
+
 const AppRoutes = () => {
   const role = useSelector((state) => state.auth.role);
 
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<HomePage />} />
+      {/** main routes */}
+
+      <Route path="/login" element={<Login />} />
+      <Route path="/vision" element={<Vision />} />
+      <Route path="/home" element={<HomePage />} />
+
+      <Route path="/kg1" element={<KG1 />} />
+      <Route path="/kg2" element={<KG2 />} />
+      <Route path="/prim1" element={<Prim1 />} />
+      <Route path="/prim2" element={<Prim2 />} />
+      <Route path="/prim3" element={<Prim3 />} />
+      <Route path="/prim4" element={<Prim4 />} />
+      <Route path="/teachers" element={<TeacherCVPage />} />
+
+      <Route path="/register" element={<RegisterParent />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/confirm-code" element={<ConfirmCode />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {Array.isArray(role) && role.includes("Admin__Role") && (
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <DashboardLayout />
+              <DirectionProvider>
+                <DashboardLayout />
+              </DirectionProvider>
             </PrivateRoute>
           }
         >
@@ -194,28 +266,70 @@ const AppRoutes = () => {
               <StudentPage />
             </PrivateRoute>
           }
-        />
+        >
+          <Route index element={<StudentProfile />} />
+
+          <Route path="student-profile" element={<StudentProfile />} />
+          <Route path="edit-profile" element={<EditStudent />} />
+          <Route path="current-courses" element={<StudentCurrentCourses />} />
+          <Route path="all-courses" element={<StudentAllCourses />} />
+          <Route path="class-Schedule" element={<StudentClassSchedule />} />
+          <Route
+            path="course-lectures/:courseId"
+            element={<CourseLectures />}
+          />
+          <Route path="course-details/:courseId" element={<CourseDetails />} />
+
+          <Route path="watch-lecture/:id" element={<WatchLecture />} />
+          <Route path="quiz-page/:id" element={<QuizPage />} />
+          <Route path="summarize-page/:id" element={<SummarizePage />} />
+          <Route path="translate-page/:id" element={<TranslatePage />} />
+          <Route path="chat-page/:id" element={<ChatWithLecture />} />
+        </Route>
       )}
       {Array.isArray(role) && role.includes("Teacher") && (
         <Route
           path="/teacher"
           element={
             <PrivateRoute>
-              <TeacherPage />
+              <DirectionProvider>
+                <TeacherPage />
+              </DirectionProvider>
             </PrivateRoute>
           }
-        />
+        >
+          <Route index element={<TeacherProfile />} />
+          <Route path="schedule" element={<TeacherSchedule />} />
+          <Route path="students" element={<Students />} />
+          <Route path="report" element={<Reports />} />
+        </Route>
       )}
-      {Array.isArray(role) && role.includes("Parent") && (
+      <Route
+        path="/parent"
+        element={
+          <PrivateRoute>
+            <ParentPage />
+          </PrivateRoute>
+        }
+      >
+        <Route index element={<ParentProfile />} />
+        <Route path="edit-profile" element={<EditProfile />} />
+        <Route path="create-child" element={<CreateChild />} />
+        <Route path="create-dis-child" element={<CreateDisChild />} />
+        <Route path="requests" element={<Requests />} />
+        <Route path="request-info" element={<UpdateRequest />} />
+        <Route path="parent-profile" element={<ParentProfile />} />
+        <Route path="discount" element={<ParentDiscounts />} />
+        <Route path="problems" element={<Problems />} />
+        <Route path="contactus" element={<ContactUs />} />
+        <Route path="/parent/plans/:studentId" element={<ShowPlans />} />
+        <Route path="online-plan/:planId/:studentId" element={<OnlinePlan />} />
+
         <Route
-          path="/parent"
-          element={
-            <PrivateRoute>
-              <ParentPage />
-            </PrivateRoute>
-          }
+          path="courses-plan/:planId/:studentId"
+          element={<OfflineOnlineCoursesPlan />}
         />
-      )}
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

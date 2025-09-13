@@ -88,11 +88,12 @@ const CreateDay = ({
     if (success || error) {
       const time = setTimeout(() => {
         dispatch(resetCreateScheduleDayState());
-      }, 3000);
+        onClose();
+      }, 1000);
 
       return () => clearTimeout(time);
     }
-  }, [success, error, dispatch]);
+  }, [success, error, dispatch, onClose]);
   return (
     <Card
       sx={{

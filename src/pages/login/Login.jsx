@@ -1,32 +1,36 @@
-import { useForm } from "react-hook-form";
+// src/pages/auth/Login.jsx
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Button, CircularProgress } from "@mui/material";
 import { Eye, EyeClosed } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import * as yup from "yup";
+import { fetchAdminById } from "../../store/admin/getAdminInfo/fetchAdminById";
 import { loginUser } from "../../store/auth/PostUserData";
 import { resetLoginMessages } from "../../store/auth/authSlice";
-import { fetchAdminById } from "../../store/admin/getAdminInfo/fetchAdminById";
-import { Button, CircularProgress } from "@mui/material";
-
+import Navbar from "../../components/main/Navbar";
+import Footer from "../../components/main/Footer";
+// ✅ Schema برسائل عربية
 const schema = yup.object().shape({
   email: yup
     .string()
-    .required("Email is required")
+    .required("البريد الإلكتروني مطلوب")
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Invalid email format"
+      "صيغة البريد الإلكتروني غير صحيحة"
     ),
-  password: yup.string().required("Password is required").min(8),
+  password: yup
+    .string()
+    .required("كلمة المرور مطلوبة")
+    .min(8, "يجب ألا تقل كلمة المرور عن 8 أحرف"),
 });
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error, role, id } = useSelector(
-    (state) => state.auth
-  );
+  const { token, loading, error, role, id } = useSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -34,7 +38,7 @@ const Login = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -49,6 +53,7 @@ const Login = () => {
     if (token && Array.isArray(role)) {
       if (role.includes("Admin__Role")) {
         navigate("/dashboard", { replace: true });
+        // ✅ نفس لوجيك الكود الأصلي
         dispatch(fetchAdminById({ id, token }));
       } else if (role.includes("Student")) {
         navigate("/student", { replace: true });
@@ -63,109 +68,115 @@ const Login = () => {
       const timer = setTimeout(() => {
         dispatch(resetLoginMessages());
       }, 4000);
-
       return () => clearTimeout(timer);
     }
   }, [token, navigate, error, dispatch, id, role]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-300 to-stone-100">
-      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-2xl text-center">
-        <h2 className="text-3xl font-bold mb-6 text-blue-500">Login</h2>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
-          {/* Email */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Email
-            </label>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
-          </div>
+    <>
+      <Navbar />
+      <div dir="rtl" className="pt-20 pb-20 flex items-center justify-center bg-[#f9fafb]">
+        <div className="bg-white p-10 rounded-xl shadow-md w-full max-w-2xl text-center border border-gray-200">
+          <h2 className="text-3xl font-bold mb-6 text-[#051441]">تسجيل الدخول</h2>
 
-          {/* Password */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                {...register("password")}
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline"
-              >
-                {showPassword ? <EyeClosed /> : <Eye />}
-              </button>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
+              حدث خطأ أثناء تسجيل الدخول: {error}
             </div>
-            <p className="text-red-500 text-sm mt-1">
-              {errors.password?.message}
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-right">
+            {/* البريد الإلكتروني */}
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">البريد الإلكتروني</label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="ادخل بريدك الإلكتروني"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                autoComplete="email"
+              />
+              <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
+            </div>
+
+            {/* كلمة المرور */}
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700">كلمة المرور</label>
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="ادخل كلمة المرور"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-orange-600 hover:underline"
+                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                >
+                  {showPassword ? <EyeClosed /> : <Eye />}
+                </button>
+              </div>
+              <p className="text-red-500 text-sm mt-1">{errors.password?.message}</p>
+            </div>
+
+            {/* زر الدخول */}
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                mt: 3,
+                bgcolor: "#f97316",
+                "&:hover": { bgcolor: "#ea580c" },
+                fontWeight: "bold",
+                fontSize: "16px",
+              }}
+              fullWidth
+              disabled={!isValid || Boolean(loading)}
+              startIcon={
+                loading && <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
+              }
+            >
+              {loading ? "جاري التحميل..." : "تسجيل الدخول"}
+            </Button>
+          </form>
+
+          {/* روابط */}
+          <p className="mt-6 text-sm text-gray-800">
+            ليس لديك حساب؟
+            <Link to="/register" className="text-orange-600 hover:underline font-semibold ml-1">
+              أنشئ حساب الآن
+            </Link>
+          </p>
+          <p className="mt-3 text-sm text-gray-800">
+            نسيت كلمة المرور؟
+            <Link to="/forgot-password" className="text-orange-600 hover:underline font-semibold ml-1">
+              إعادة تعيين
+            </Link>
+          </p>
+        </div>
+      </div>
+      <Footer/>
+       <div className="bg-gray-900 py-4 text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-sm text-gray-200">
+            <p>
+              حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+              <a
+                href="https://envytheme.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:underline"
+              >
+                EnvyTheme
+              </a>
             </p>
           </div>
-
-          {/* Submit Button */}
-          {/* <button
-            type="submit"
-            disabled={loading === "pending"}
-            className={`w-full font-bold py-2 rounded-lg transition duration-200 ${
-              isValid
-                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            {loading === "pending" ? "Loading..." : "Login"}
-          </button> */}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 3 }}
-            disabled={loading}
-            startIcon={
-              loading && (
-                <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
-              )
-            }
-          >
-            {loading ? "Loading..." : "Login"}
-          </Button>
-        </form>
-
-        <p className="mt-4 text-sm text-gray-700">
-          Don’t have an account?
-          <Link
-            to="/register"
-            className="text-blue-600 hover:underline font-semibold"
-          >
-            Create Account
-          </Link>
-        </p>
-        <p className="mt-4 text-sm text-gray-700">
-          Forgot Password?
-          <Link
-            to="/forgot-password"
-            className="text-blue-600 hover:underline font-semibold"
-          >
-            Reset Password
-          </Link>
-        </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

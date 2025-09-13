@@ -230,11 +230,17 @@ const UpdateLec = ({
   }, [teacherSearchTimeout]);
 
   useEffect(() => {
-    if (success || error) {
+    if (success) {
       const timer = setTimeout(() => {
         dispatch(clearMessageUpdateLecToSchedule());
         onclose();
-      }, 4000);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearMessageUpdateLecToSchedule());
+      }, 8000);
       return () => clearTimeout(timer);
     }
   }, [success, dispatch, error, onclose]);

@@ -28,7 +28,12 @@ const validationSchema = yup.object().shape({
   academicYearId: yup.number().required("Academic year is required"),
 });
 
-const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
+const CreateSchedule = ({
+  studyLevelId,
+  academicYearId,
+  semesterId,
+  onClose,
+}) => {
   const dispatch = useDispatch();
 
   const { control, handleSubmit, reset } = useForm({
@@ -95,12 +100,14 @@ const CreateSchedule = ({ studyLevelId, academicYearId, semesterId }) => {
           semesterId,
           academicYearId,
         });
-      }, 3000);
+        onClose();
+      }, 800);
     }
   }, [
     success,
     error,
     dispatch,
+    onClose,
     reset,
     studyLevelId,
     semesterId,

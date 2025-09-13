@@ -171,6 +171,7 @@ const ControlSchedule = () => {
             studyLevelId={studyLevelId}
             semesterId={semesterId}
             academicYearId={academicYearId}
+            onClose={() => setOpenCreate(false)}
           />
         </Dialog>
       )}
@@ -182,6 +183,7 @@ const ControlSchedule = () => {
             academicYearId={academicYearId}
             name={scheduleInfo.name}
             action="delete"
+            onClose={() => setOpenDelete(false)}
           />
         </Dialog>
       )}
@@ -194,6 +196,7 @@ const ControlSchedule = () => {
             scheduleTimeId={scheduleTime}
             name={scheduleInfo.name}
             action="update"
+            onClose={() => setOpenUpdate(false)}
           />
         </Dialog>
       )}
