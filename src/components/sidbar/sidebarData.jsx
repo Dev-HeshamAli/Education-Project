@@ -219,7 +219,7 @@ import {
   Calendar,
 } from "lucide-react";
 
-export  const useSidebarList = () => {
+export const useSidebarList = () => {
   const { id } = useSelector((state) => state.auth);
 
   const listSidebar = [
@@ -298,6 +298,7 @@ export  const useSidebarList = () => {
       name: "Student",
       icon: <FileUser style={{ color: "#1976d2" }} />,
       children: [
+        { name: "Applications", link: "/dashboard/all-applications" },
         { name: "Get Students From Excel", link: "/dashboard/get-students" },
         { name: "Upload Student File", link: "/dashboard/upload-student" },
       ],
@@ -324,14 +325,11 @@ export  const useSidebarList = () => {
       icon: <Contact style={{ color: "#1976d2" }} />,
       children: [{ name: "Solve Problem", link: "/dashboard/solve-problem" }],
     },
-     {
-        name: "Children Application",
-        icon: <Contact style={{ color: "#1976d2" }} />,
-        children: [
-          { name: "Applications", link: "/dashboard/all-applications" },
-        
-        ],
-    },
+    // {
+    //   name: "Children Application",
+    //   icon: <Contact style={{ color: "#1976d2" }} />,
+    //   children: [],
+    // },
   ];
 
   return listSidebar;

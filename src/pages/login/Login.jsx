@@ -30,7 +30,9 @@ const schema = yup.object().shape({
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error, role, id } = useSelector((state) => state.auth);
+  const { token, loading, error, role, id } = useSelector(
+    (state) => state.auth
+  );
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -53,7 +55,6 @@ const Login = () => {
     if (token && Array.isArray(role)) {
       if (role.includes("Admin__Role")) {
         navigate("/dashboard", { replace: true });
-        // ✅ نفس لوجيك الكود الأصلي
         dispatch(fetchAdminById({ id, token }));
       } else if (role.includes("Student")) {
         navigate("/student", { replace: true });
@@ -75,9 +76,14 @@ const Login = () => {
   return (
     <>
       <Navbar />
-      <div dir="rtl" className="pt-20 pb-20 flex items-center justify-center bg-[#f9fafb]">
+      <div
+        dir="rtl"
+        className="pt-20 pb-20 flex items-center justify-center bg-[#f9fafb]"
+      >
         <div className="bg-white p-10 rounded-xl shadow-md w-full max-w-2xl text-center border border-gray-200">
-          <h2 className="text-3xl font-bold mb-6 text-[#051441]">تسجيل الدخول</h2>
+          <h2 className="text-3xl font-bold mb-6 text-[#051441]">
+            تسجيل الدخول
+          </h2>
 
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
@@ -85,10 +91,15 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-right">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 text-right"
+          >
             {/* البريد الإلكتروني */}
             <div>
-              <label className="block mb-1 font-semibold text-gray-700">البريد الإلكتروني</label>
+              <label className="block mb-1 font-semibold text-gray-700">
+                البريد الإلكتروني
+              </label>
               <input
                 {...register("email")}
                 type="email"
@@ -96,12 +107,16 @@ const Login = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                 autoComplete="email"
               />
-              <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email?.message}
+              </p>
             </div>
 
             {/* كلمة المرور */}
             <div>
-              <label className="block mb-1 font-semibold text-gray-700">كلمة المرور</label>
+              <label className="block mb-1 font-semibold text-gray-700">
+                كلمة المرور
+              </label>
               <div className="relative">
                 <input
                   {...register("password")}
@@ -114,12 +129,16 @@ const Login = () => {
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-orange-600 hover:underline"
-                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                  aria-label={
+                    showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+                  }
                 >
                   {showPassword ? <EyeClosed /> : <Eye />}
                 </button>
               </div>
-              <p className="text-red-500 text-sm mt-1">{errors.password?.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password?.message}
+              </p>
             </div>
 
             {/* زر الدخول */}
@@ -136,7 +155,9 @@ const Login = () => {
               fullWidth
               disabled={!isValid || Boolean(loading)}
               startIcon={
-                loading && <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
+                loading && (
+                  <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
+                )
               }
             >
               {loading ? "جاري التحميل..." : "تسجيل الدخول"}
@@ -146,31 +167,46 @@ const Login = () => {
           {/* روابط */}
           <p className="mt-6 text-sm text-gray-800">
             ليس لديك حساب؟
-            <Link to="/register" className="text-orange-600 hover:underline font-semibold ml-1">
+            <Link
+              to="/register"
+              className="text-orange-600 hover:underline font-semibold ml-1"
+            >
               أنشئ حساب الآن
             </Link>
           </p>
           <p className="mt-3 text-sm text-gray-800">
             نسيت كلمة المرور؟
-            <Link to="/forgot-password" className="text-orange-600 hover:underline font-semibold ml-1">
+            <Link
+              to="/forgot-password"
+              className="text-orange-600 hover:underline font-semibold ml-1"
+            >
               إعادة تعيين
             </Link>
           </p>
         </div>
       </div>
-      <Footer/>
-       <div className="bg-gray-900 py-4 text-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-sm text-gray-200">
-            <p>
+      <Footer />
+      <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 py-6 text-white relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-1/4 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+          <div
+            className="absolute bottom-0 right-1/4 w-1 h-1 bg-orange-400 rounded-full animate-pulse"
+            style={{ animationDelay: "1s" }}
+          ></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative">
+          <div className="text-center">
+            <p className="text-gray-300 text-sm leading-relaxed">
               حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
               <a
-                href="https://envytheme.com/"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-indigo-600 hover:underline"
+                className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"
               >
-                EnvyTheme
+                Edu-Smart.ai
               </a>
             </p>
           </div>

@@ -21,7 +21,7 @@ export const actSchoolClass = createAsyncThunk(
       return response.data;
     } catch (error) {
       const message =
-        error.response?.data?.message || "Failed to create school class";
+        error.response?.data?.message || error.response?.data?.title ||  error.response?.data?.errors ||  "Failed to create school class";
       return rejectWithValue(message);
     }
   }

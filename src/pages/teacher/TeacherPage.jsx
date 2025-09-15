@@ -42,7 +42,8 @@ const TeacherPage = () => {
 
   useEffect(() => {
     dispatch(actGetTeacherInfo({ id: id, token: token }));
-  }, [dispatch, id, token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, id]);
 
   useEffect(() => {
     if (success) {
@@ -70,7 +71,7 @@ const TeacherPage = () => {
                     title="الصفحة الرئيسية"
                   >
                     <img
-                      src="/public/logo.png"
+                      src="/assets/img/Logoo.png"
                       className="h-10 w-auto"
                       alt="logo"
                     />

@@ -77,7 +77,7 @@ function ResetPassword() {
               <p className="text-gray-300 text-sm leading-relaxed">
                 حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
                 <a
-                  href="https://envytheme.com/"
+                  href="#"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"

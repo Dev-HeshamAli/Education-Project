@@ -73,6 +73,7 @@ export default function Navbar() {
         dispatch(logout());
       }
     });
+
     setAcctOpen(false);
     navigate("/home");
   };
@@ -84,7 +85,7 @@ export default function Navbar() {
         <div className="order-1 flex items-center gap-3">
           <Link to="/home" className="flex items-center gap-2">
             <img
-              src="/public/logo.png"
+              src="/assets/img/Logoo.png"
               alt="Edu-Smart Logo"
               className="h-14 w-auto"
             />

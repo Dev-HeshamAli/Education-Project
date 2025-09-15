@@ -5,7 +5,7 @@ import { actDeleteStudyLevel } from "./actDeleteStudyLevel";
 const initialState = {
   loading: false,
   error: null,
-  success: false,
+  success: null,
 };
 
 const deleteStudyLevelSlice = createSlice({
@@ -36,5 +36,5 @@ const deleteStudyLevelSlice = createSlice({
   },
 });
 
-export const { clearMessageDeleteStudyLevel } = deleteStudyLevelSlice.actions; 
+export const { clearMessageDeleteStudyLevel } = deleteStudyLevelSlice.actions;
 export default deleteStudyLevelSlice.reducer;

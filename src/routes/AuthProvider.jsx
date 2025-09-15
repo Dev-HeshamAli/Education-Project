@@ -40,105 +40,61 @@ export default function AuthProvider({ children }) {
 
   const isPublicPath = PUBLIC_PATHS.has(location.pathname);
 
-  useEffect(() => {
-    const scheduleRefresh = (expiresIn) => {
-      const expiresInSeconds = parseInt(expiresIn);
-      if (isNaN(expiresInSeconds) || expiresInSeconds <= 0) return;
+  // دالة جدولة التحديث
+  const scheduleRefresh = (expiresIn) => {
+    const expiresInSeconds = parseInt(expiresIn);
+    if (isNaN(expiresInSeconds) || expiresInSeconds <= 0) return;
 
-      const refreshTime = Math.max((expiresInSeconds - 50) * 1000, 5000);
+    // نعمل refresh قبل انتهاء الصلاحية بدقيقتين
+    const refreshTime = Math.max((expiresInSeconds - 60) * 1000, 5000);
 
-      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
 
-      refreshTimer.current = setTimeout(async () => {
-        const storedToken = CookieService.getCookie("token");
-        const storedRefreshToken = CookieService.getCookie("refreshToken");
+    refreshTimer.current = setTimeout(async () => {
+      const storedToken = CookieService.getCookie("token");
+      const storedRefreshToken = CookieService.getCookie("refreshToken");
 
-        // لو إحنا على صفحة عامة، متعملش أي إجبار أو تنقلات
-        if (isPublicPath) {
-          // ✅ حتى لو صفحة عامة، حاول تعيد تحميل التوكن من الكوكيز لو مش موجود في Redux
-          const storedToken = CookieService.getCookie("token");
-          const storedRefreshToken = CookieService.getCookie("refreshToken");
+      if (isPublicPath) {
+        // لو صفحة عامة → جرب تعيد تحميل التوكين لو مش موجود
+        if (storedToken && storedRefreshToken && !token) {
+          const result = await dispatch(
+            actRefreshAuth({
+              token: storedToken,
+              refrehToken: storedRefreshToken,
+            })
+          );
 
-          if (storedToken && storedRefreshToken && !token) {
-            const result = await dispatch(
-              actRefreshAuth({
-                token: storedToken,
-                refrehToken: storedRefreshToken,
+          if (actRefreshAuth.fulfilled.match(result)) {
+            scheduleRefresh(result.payload.expiresIn);
+          } else {
+            await dispatch(
+              actLogout({
+                data: { userId: userid, refToken: refreshToken },
+                token,
               })
-            );
-
-            if (actRefreshAuth.fulfilled.match(result)) {
-              scheduleRefresh(result.payload.expiresIn);
-            } else {
-              // التوكن مش صالح؟ امسحه لكن متطردش المستخدم من الصفحة العامة
-              await dispatch(
-                actLogout({
-                  data: { userId: userid, refToken: refreshToken },
-                  token,
-                })
-              ).then((res) => {
-                if (res.meta.requestStatus === "fulfilled") {
-                  dispatch(logout());
-                }
-              });
-            }
+            ).then((res) => {
+              if (res.meta.requestStatus === "fulfilled") {
+                dispatch(logout());
+              }
+            });
           }
-
-          setLoading(false);
-          return;
         }
 
-        if (storedToken && storedRefreshToken) {
-          try {
-            const result = await dispatch(
-              actRefreshAuth({
-                token: storedToken,
-                refrehToken: storedRefreshToken,
-              })
-            );
+        setLoading(false);
+        return;
+      }
 
-            if (actRefreshAuth.rejected.match(result)) {
-              await dispatch(
-                actLogout({
-                  data: { userId: userid, refToken: refreshToken },
-                  token,
-                })
-              ).then((res) => {
-                if (res.meta.requestStatus === "fulfilled") {
-                  dispatch(logout());
-                }
-              });
-              navigate("/", { replace: true });
-            } else if (actRefreshAuth.fulfilled.match(result)) {
-              CookieService.setCookie(
-                "token",
-                result.payload.token,
-                {},
-                result.payload.expiresIn
-              );
-              CookieService.setCookie(
-                "refreshToken",
-                result.payload.refreshToken,
-                {},
-                result.payload.expiresIn
-              );
-              CookieService.setCookie(
-                "expiresIn",
-                result.payload.expiresIn,
-                {},
-                result.payload.expiresIn
-              );
-              CookieService.setCookie(
-                "refreshTokenExpiretion",
-                result.payload.refreshTokenExpiretion,
-                {},
-                result.payload.expiresIn
-              );
-              scheduleRefresh(result.payload.expiresIn);
-            }
-          } catch (error) {
-            console.error("Error during token refresh:", error);
-            dispatch(
+      if (storedToken && storedRefreshToken) {
+        try {
+          const result = await dispatch(
+            actRefreshAuth({
+              token: storedToken,
+              refrehToken: storedRefreshToken,
+            })
+          );
+
+          if (actRefreshAuth.rejected.match(result)) {
+            await dispatch(
               actLogout({
                 data: { userId: userid, refToken: refreshToken },
                 token,
@@ -149,10 +105,36 @@ export default function AuthProvider({ children }) {
               }
             });
             navigate("/", { replace: true });
+          } else if (actRefreshAuth.fulfilled.match(result)) {
+            CookieService.setCookie(
+              "token",
+              result.payload.token,
+              {},
+              result.payload.expiresIn
+            );
+            CookieService.setCookie(
+              "refreshToken",
+              result.payload.refreshToken,
+              {},
+              result.payload.expiresIn
+            );
+            CookieService.setCookie(
+              "expiresIn",
+              result.payload.expiresIn,
+              {},
+              result.payload.expiresIn
+            );
+            CookieService.setCookie(
+              "refreshTokenExpiretion",
+              result.payload.refreshTokenExpiretion,
+              {},
+              result.payload.expiresIn
+            );
+            scheduleRefresh(result.payload.expiresIn);
           }
-        } else {
-          // مش على صفحة عامة ومفيش توكن: وديه للوجين
-          await dispatch(
+        } catch (error) {
+          console.error("Error during token refresh:", error);
+          dispatch(
             actLogout({
               data: { userId: userid, refToken: refreshToken },
               token,
@@ -164,16 +146,32 @@ export default function AuthProvider({ children }) {
           });
           navigate("/", { replace: true });
         }
-      }, refreshTime);
-    };
+      } else {
+        // مش على صفحة عامة ومفيش توكن: وديه للوجين
+        await dispatch(
+          actLogout({
+            data: { userId: userid, refToken: refreshToken },
+            token,
+          })
+        ).then((res) => {
+          if (res.meta.requestStatus === "fulfilled") {
+            dispatch(logout());
+          }
+        });
+        navigate("/", { replace: true });
+      }
+    }, refreshTime);
+  };
 
+  // initAuth عند أول تحميل
+  useEffect(() => {
     const initAuth = async () => {
       try {
         const storedToken = CookieService.getCookie("token");
         const storedRefreshToken = CookieService.getCookie("refreshToken");
 
-        // ✅ لو عندك توكن في الكوكيز ولسه الستور فاضي → اعمل dispatch
-        if (storedToken && storedRefreshToken && !token) {
+        // ✅ لو عندك توكن في الكوكيز → اعمل refresh
+        if (storedToken && storedRefreshToken) {
           const result = await dispatch(
             actRefreshAuth({
               token: storedToken,
@@ -222,11 +220,10 @@ export default function AuthProvider({ children }) {
     return () => {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
     };
-    // نخلي الديبيندنسي تشمل المسار عشان يتطبق المنطق لما المسار يتغير
-  }, [dispatch, navigate, location.pathname]); // intentionally no token deps
+  }, [dispatch, navigate, location.pathname]);
 
+  // لو حصل 401 وانت مش في صفحة عامة → logout
   useEffect(() => {
-    // لو في Error 401 وإحنا على صفحة عامة: تجاهليه (علشان ما يطردش المستخدم)
     if (!isPublicPath && error && error.includes && error.includes("401")) {
       (async () => {
         await dispatch(

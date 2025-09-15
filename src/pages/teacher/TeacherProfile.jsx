@@ -10,8 +10,8 @@ const TeacherProfile = () => {
     (state) => state.teacherInfo
   );
 
+  // console.log(teacherData, "teacherData");
 
-  
   const { id } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);

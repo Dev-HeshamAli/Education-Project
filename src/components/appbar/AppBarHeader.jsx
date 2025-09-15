@@ -63,7 +63,11 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
               <span className="text-xl font-extrabold text-white ">
                 EDU-SMART.AI
               </span>
-              <img src="/public/logo.png" className="h-10 w-auto" alt="logo" />
+              <img
+                src="/assets/img/Logoo.png"
+                className="h-10 w-auto"
+                alt="logo"
+              />
             </Link>
           </Box>
           <Box>

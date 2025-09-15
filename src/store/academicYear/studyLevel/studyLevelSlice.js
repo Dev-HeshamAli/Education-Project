@@ -25,7 +25,7 @@ const studyLevelSlice = createSlice({
       })
       .addCase(actStudyLevel.fulfilled, (state) => {
         state.loading = false;
-        state.success = true;
+        state.success = "Study level created successfully.";
       })
       .addCase(actStudyLevel.rejected, (state, action) => {
         state.loading = false;

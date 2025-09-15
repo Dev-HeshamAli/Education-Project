@@ -47,7 +47,10 @@ export default function TeacherCVPage() {
       education: [
         "Bachelor of Science in Geology and Chemistry - Ain Shams University, 2012",
       ],
-      skills: ["Educational Administration & School Accreditation", "Fluent in English and Arabic"],
+      skills: [
+        "Educational Administration & School Accreditation",
+        "Fluent in English and Arabic",
+      ],
     },
     {
       name: "كرم محمد",
@@ -56,7 +59,10 @@ export default function TeacherCVPage() {
       profile:
         "خبرة تمتد لـ 20 عامًا في مجال تدريس اللغة العربية والتربية الإسلامية في كبرى المدارس الدولية.",
       education: ["ليسانس دار العلوم - جامعة القاهرة، ١٩٩٨"],
-      experience: ["مدرسة منارة المعادي الدولية للغات", "مدرسة الملكة للغات بفيصل"],
+      experience: [
+        "مدرسة منارة المعادي الدولية للغات",
+        "مدرسة الملكة للغات بفيصل",
+      ],
       skills: ["إجادة الخط العربي و استخدام الكمبيوتر"],
     },
     {
@@ -65,7 +71,9 @@ export default function TeacherCVPage() {
       image: "/assets/img/salma.png",
       profile:
         "A certified and experienced teacher specializing in Mathematics and Sciences (Chemistry) for middle and high school grades in American and Bilingual curriculum schools.",
-      education: ["B.Sc of Chemical Engineering - Alexandria University, Egypt"],
+      education: [
+        "B.Sc of Chemical Engineering - Alexandria University, Egypt",
+      ],
       certifications: [
         "Advanced International Teaching Diploma from the U.S.A (Silver & Gold Star Certificates)",
       ],
@@ -83,7 +91,10 @@ export default function TeacherCVPage() {
       education: [
         "Finance and Investment - Georgia State University joint program with Cairo University.",
       ],
-      skills: ["Social organizing & Teamwork", "Fluent in English & French (Delf B2)"],
+      skills: [
+        "Social organizing & Teamwork",
+        "Fluent in English & French (Delf B2)",
+      ],
     },
     {
       name: "Reham ElSherbiny",
@@ -135,7 +146,9 @@ export default function TeacherCVPage() {
         />
         <div className="absolute inset-0 bg-[#ff6b6b] opacity-95" />
         <div className="relative container mx-auto text-center">
-          <h2 className="text-white text-4xl md:text-5xl font-bold">اعرف فريق معلميك</h2>
+          <h2 className="text-white text-4xl md:text-5xl font-bold">
+            اعرف فريق معلميك
+          </h2>
         </div>
       </section>
 
@@ -155,8 +168,12 @@ export default function TeacherCVPage() {
                   className="w-24 h-24 rounded-full object-cover border-4 border-[#f0f5ff] ml-5"
                 />
                 <div>
-                  <h3 className="text-2xl font-bold text-[#051441] mb-1">{t.name}</h3>
-                  <span className="text-[#e52e71] font-semibold">{t.title}</span>
+                  <h3 className="text-2xl font-bold text-[#051441] mb-1">
+                    {t.name}
+                  </h3>
+                  <span className="text-[#e52e71] font-semibold">
+                    {t.title}
+                  </span>
                 </div>
               </header>
 
@@ -165,7 +182,9 @@ export default function TeacherCVPage() {
                 {t.profile && (
                   <section>
                     <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) || t.title.includes("معلم") ? "النبذة" : "Profile"}
+                      {/[اأإآ]/.test(t.name[0]) || t.title.includes("معلم")
+                        ? "النبذة"
+                        : "Profile"}
                     </h4>
                     <p className="mt-2">{t.profile}</p>
                   </section>
@@ -187,7 +206,9 @@ export default function TeacherCVPage() {
                 {t.education && (
                   <section>
                     <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "المؤهل الدراسي" : "Education"}
+                      {/[اأإآ]/.test(t.name[0])
+                        ? "المؤهل الدراسي"
+                        : "Education"}
                     </h4>
                     <ul className="mt-3 list-disc pr-5">
                       {t.education.map((x, idx) => (
@@ -213,7 +234,9 @@ export default function TeacherCVPage() {
                 {t.experience && (
                   <section>
                     <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "أماكن العمل السابقة" : "Work Experience"}
+                      {/[اأإآ]/.test(t.name[0])
+                        ? "أماكن العمل السابقة"
+                        : "Work Experience"}
                     </h4>
                     <ul className="mt-3 list-disc pr-5">
                       {t.experience.map((x, idx) => (
@@ -226,7 +249,9 @@ export default function TeacherCVPage() {
                 {t.skills && (
                   <section>
                     <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "المهارات الذاتية" : "Key Skills"}
+                      {/[اأإآ]/.test(t.name[0])
+                        ? "المهارات الذاتية"
+                        : "Key Skills"}
                     </h4>
                     <ul className="mt-3 list-disc pr-5">
                       {t.skills.map((x, idx) => (
@@ -240,22 +265,22 @@ export default function TeacherCVPage() {
           ))}
         </div>
       </section>
-       {/* Footer */}
-            <Footer />
-      
-            {/* End of HomePage */}
-            <div className="bg-gray-900 py-4 text-white">
+      {/* Footer */}
+      <Footer />
+
+      {/* End of HomePage */}
+      <div className="bg-gray-900 py-4 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center text-sm text-gray-200">
             <p>
-              حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+              حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة
               <a
-                href="https://envytheme.com/"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-orange-600 hover:underline"
               >
-               Edu-Smart.ai
+                Edu-Smart.ai
               </a>
             </p>
           </div>

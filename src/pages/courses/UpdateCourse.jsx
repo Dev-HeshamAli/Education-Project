@@ -32,7 +32,7 @@ import DeleteCourseFromP from "./DeleteCourseFromP";
 import AddCourseToP from "./AddCourseToP";
 
 const UpdateCourse = ({ courseData, onClose }) => {
-  console.log("Course Data:", courseData);
+  // console.log("Course Data:", courseData);
 
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
