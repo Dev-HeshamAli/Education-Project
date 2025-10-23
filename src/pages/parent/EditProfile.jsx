@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+// src/pages/parent/EditProfile.jsx
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -6,55 +7,53 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchParentInfo } from "../../store/parent/parentSlice";
 import { BASE_URL } from "../../api/BASE_URL";
+import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+/* helper: حوّل قيمة (string | string[] | undefined) لمصفوفة ستراﭼ */
+const toStringArray = (v) => {
+  if (Array.isArray(v)) return v.filter(Boolean).map(String);
+  if (v == null) return [""];
+  return String(v).trim() ? [String(v)] : [""];
+};
 
 function EditProfile() {
-  const token = useSelector((state) => state.auth.token);
-  const {id} = useSelector((state) => state.auth);
-  const parentInfo = useSelector((state) => state.parent.parentInfo);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const token = useSelector((s) => s.auth.token);
+  const { id } = useSelector((s) => s.auth);
+  const parentInfo = useSelector((s) => s.parent.parentInfo);
+
+  // 👁️‍🗨️ إظهار/إخفاء كلمة المرور
+  const [showPwd, setShowPwd] = useState(false);
 
   useEffect(() => {
-    if (token && !parentInfo) {
-      dispatch(fetchParentInfo(token));
-    }
-  }, [token, parentInfo, dispatch]);
+  if (token) {
+    dispatch(fetchParentInfo(token)); // اسحب دايمًا عند الدخول/تغير التوكن
+  }
+}, [dispatch, token]);
+  // فاليديشن
+  const phoneEg = /^01[0125][0-9]{8}$/;
+  const waEg = /^01[0125][0-9]{8}$/;
 
-  // ريجكس
-  const passReg = /^[A-Z][A-Za-z0-9]{5,}$/;
-  const phoneReg = /^01[0125][0-9]{8}$/;
-
-  // ملاحظات مهمة عن الـ API:
-  // - الـ API عندك بتستخدم phones (مش allPhones)
-  // - في الداتا المرفقة عندك fullName مش first/secondName
-  // هنا هنعرض fullName كما هو، ونخلي password اختيارية للتغيير فقط.
   const validationSchema = Yup.object({
-    fullName: Yup.string()
-      .required("الاسم الكامل مطلوب")
-      .min(5, "الاسم الكامل قصير")
-      .max(60, "الاسم الكامل طويل"),
-    ssn: Yup.string()
-      .required("الرقم القومي مطلوب")
-      .matches(/^\d{14}$/, "الرقم القومي يجب أن يكون 14 رقمًا"),
-    country: Yup.string().required("الدولة مطلوبة"),
-    governorate: Yup.string().required("المحافظة مطلوبة"),
+    firstName: Yup.string().required("الاسم الأول مطلوب"),
+    secondName: Yup.string().required("الاسم الثاني مطلوب"),
+    thirdName: Yup.string().required("الاسم الثالث مطلوب"),
     email: Yup.string().required("البريد الإلكتروني مطلوب").email("صيغة البريد غير صحيحة"),
     password: Yup.string()
       .nullable()
       .transform((v) => (v === "" ? null : v))
-      .test(
-        "pass-format",
-        "إن أدخلت كلمة مرور، يجب أن تبدأ بحرف كبير وطولها 6 على الأقل",
-        (v) => v == null || passReg.test(v)
-      ),
+      .min(6, "كلمة المرور لا تقل عن 6 أحرف"),
     whatsApp_number: Yup.string()
       .nullable()
       .transform((v) => (v === "" ? null : v))
-      .test("wa-format", "رقم واتساب غير صالح", (v) => v == null || phoneReg.test(v)),
-    phones: Yup.array()
+     ,
+    allPhones: Yup.array()
       .of(
         Yup.string()
-          .required("رقم الهاتف مطلوب")
-          .matches(phoneReg, "رقم الهاتف غير صالح")
+          .required("الرقم مطلوب")
+     
       )
       .min(1, "أضف رقم هاتف واحد على الأقل"),
     jobs: Yup.array().of(
@@ -68,55 +67,84 @@ function EditProfile() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      id: id ?? "",
-      fullName: parentInfo?.fullName || "",
-      ssn: parentInfo?.ssn || "",
-      country: parentInfo?.country || "",
-      governorate: parentInfo?.governorate || "",
+      firstName: parentInfo?.firstName || "",
+      secondName: parentInfo?.secondName || "",
+      thirdName: parentInfo?.thirdName || "",
       email: parentInfo?.email || "",
-      password: "", // لا نملأها من السيرفر
+      password: parentInfo?.password || "", 
       whatsApp_number: parentInfo?.whatsApp_number || "",
-      phones: parentInfo?.phones?.length ? parentInfo.phones : [""],
+      allPhones: toStringArray(parentInfo?.allPhones),
       jobs: parentInfo?.jobs?.length ? parentInfo.jobs : [{ job: "", gender: "" }],
     },
     validationSchema,
-    onSubmit: (values) => editProfile(values),
+    onSubmit: handleSubmit,
   });
 
-  async function editProfile(values) {
-    const payload = {
-      // حافظ على نفس مفاتيح الـ API اللي عندك
-      id: values.id,
-      fullName: values.fullName,
-      ssn: values.ssn,
-      country: values.country,
-      governorate: values.governorate,
-      email: values.email,
-      // ابعت الباسورد فقط لو المستخدم غيّرها
-      ...(values.password ? { password: values.password } : {}),
-      whatsApp_number: values.whatsApp_number || null,
-      phones: values.phones,
-      jobs: values.jobs,
-    };
-
-    const loadingToast = toast.loading("جارٍ التحديث...");
+  async function handleSubmit(values, { setFieldError }) {
+    const loading = toast.loading("جارٍ الحفظ…");
     try {
-      const res = await axios.put(
-        `${BASE_URL}/api/Parent/update-parent`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      console.log(res?.data);
-      toast.success("تم التحديث بنجاح!");
+      // قصّ/تنظيف قبل الإرسال
+      const email = (values.email || "").trim();
+      const wa    = (values.whatsApp_number || "").trim();
+      const pwd   = (values.password || "").trim();
+
+      const payload = {
+        id,
+        firstName: values.firstName,
+        secondName: values.secondName,
+        thirdName: values.thirdName,
+        email,
+        whatsApp_number: wa || null,
+        allPhones: values.allPhones.map((p) => String(p || "").trim()).filter(Boolean),
+        jobs: values.jobs.map((j) => ({ job: (j.job || "").trim(), gender: (j.gender || "").trim() })),
+        ...(pwd ? { password: pwd } : {}), // ابعت الباسورد فقط لو فيه قيمة
+      };
+
+      await axios.put(`${BASE_URL}/api/Parent/update-parent`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.success("تم التحديث بنجاح");
+      if (token) dispatch(fetchParentInfo(token));
+      navigate("/parent/parent-profile");
     } catch (err) {
-      console.log(err?.response?.data);
-      toast.error(err?.response?.data?.message || "حدث خطأ ما");
+      const raw = err?.response?.data;
+
+      // نفس منطق RegisterParent: "email must unique" في errors[]
+      const errorsArr = Array.isArray(raw?.errors) ? raw.errors : [];
+      const isEmailTaken = errorsArr.some((e) =>
+        String(e).toLowerCase().includes("email must unique")
+      );
+      if (isEmailTaken) {
+        setFieldError("email", "هذا البريد مسجّل بالفعل. يرجى إدخال بريد آخر.");
+        toast.error("هذا البريد مسجّل بالفعل. يرجى إدخال بريد آخر.");
+      } else {
+        // عرض أخطاء Password القادمة من السيرفر (ModelState) إن وُجدت
+        const pwdErrors =
+          raw?.errors?.Password ||
+          raw?.errors?.password ||
+          (typeof raw?.errors === "object" && raw?.errors?.["Password"]) ||
+          null;
+
+        if (Array.isArray(pwdErrors) && pwdErrors.length) {
+          setFieldError("password", pwdErrors[0]);
+          toast.error(pwdErrors[0]);
+        } else {
+          const msg =
+            raw?.message ||
+            raw?.title ||
+            Object.values(raw?.errors || {})?.flat()?.[0] ||
+            err?.message ||
+            "حدث خطأ أثناء التحديث";
+          toast.error(msg);
+        }
+      }
+
     } finally {
-      toast.dismiss(loadingToast);
+      toast.dismiss(loading);
     }
   }
 
-  // دوال مساعدة للـ UI
   const showErr = (name) =>
     formik.touched[name] && formik.errors[name] ? (
       <p className="text-red-700 bg-red-100 border border-red-200 px-3 py-2 rounded-lg mt-1 text-sm">
@@ -125,45 +153,56 @@ function EditProfile() {
     ) : null;
 
   return (
-    <>
     <div dir="rtl" className="min-h-screen bg-gray-50 py-10 px-4">
-      {/* هيدر كارت */}
       <div className="mx-auto max-w-3xl">
-        {/*<div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 p-6 text-white shadow-xl">
-          <h1 className="text-2xl md:text-3xl font-extrabold">تعديل الملف الشخصي</h1>
-          <p className="mt-1 text-white/90">حدّث بياناتك وتأكد من أرقام التواصل.</p>
-        </div>*/}
-
         <form
           onSubmit={formik.handleSubmit}
           className="bg-white shadow-md rounded-2xl p-6 md:p-8 space-y-6"
         >
-          {/* ID (قراءة فقط) */}
-          {/*<div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">معرّف الأب (ID)</label>
-            <input
-              type="text"
-              value={formik.values.id || ""}
-              readOnly
-              className="w-full rounded-lg border-gray-200 bg-gray-100 px-3 py-2 text-sm"
-            />
-            <p className="text-xs text-gray-500 mt-1">يُستخدم لأغراض داخلية فقط.</p>
-          </div>*/}
+          <h1 className="font-bold text-center text-2xl mb-5">تعديل بيانات</h1>
 
-          {/* الاسم الكامل + البريد */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* الأسماء */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">الاسم الكامل</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">الاسم الأول</label>
               <input
                 type="text"
-                name="fullName"
-                value={formik.values.fullName}
+                name="firstName"
+                value={formik.values.firstName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
               />
-              {showErr("fullName")}
+              {showErr("firstName")}
             </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">الاسم الثاني</label>
+              <input
+                type="text"
+                name="secondName"
+                value={formik.values.secondName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+              {showErr("secondName")}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">الاسم الثالث</label>
+              <input
+                type="text"
+                name="thirdName"
+                value={formik.values.thirdName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+              {showErr("thirdName")}
+            </div>
+          </div>
+
+          {/* بريد + واتساب */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
               <input
@@ -172,57 +211,9 @@ function EditProfile() {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder="example@email.com"
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
               />
               {showErr("email")}
-            </div>
-          </div>
-
-          {/* الدولة + المحافظة */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">الدولة</label>
-              <input
-                type="text"
-                name="country"
-                value={formik.values.country}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                placeholder="مصر"
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-              />
-              {showErr("country")}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">المحافظة</label>
-              <input
-                type="text"
-                name="governorate"
-                value={formik.values.governorate}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                placeholder="الجيزة"
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-              />
-              {showErr("governorate")}
-            </div>
-          </div>
-
-          {/* الرقم القومي + واتساب */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">الرقم القومي</label>
-              <input
-                type="text"
-                name="ssn"
-                value={formik.values.ssn}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                placeholder="14 رقمًا"
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-              />
-              {showErr("ssn")}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">رقم واتساب</label>
@@ -233,70 +224,81 @@ function EditProfile() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="01xxxxxxxxx (اختياري)"
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
               />
               {showErr("whatsApp_number")}
             </div>
           </div>
 
-          {/* كلمة المرور (اختيارية للتغيير) */}
+          {/* كلمة المرور (اختياري) + 👁️ زر العين */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              كلمة المرور (اختياري للتغيير)
+              كلمة المرور
             </label>
-            <input
-              type="password"
-              name="password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="ابدأ بحرف كبير (A...)"
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-            />
+
+            <div className="relative">
+              <input
+                type={showPwd ? "text" : "password"}
+                name="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full rounded-lg border px-3 py-2  text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd((v) => !v)}
+                onMouseDown={(e) => e.preventDefault()}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"
+                aria-label={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                title={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+              >
+                {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
             {showErr("password")}
-            <p className="text-xs text-gray-500 mt-1">اتركها فارغة إن لم ترغب في التغيير.</p>
           </div>
 
-          {/* الهواتف */}
+          {/* أرقام الهاتف */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">أرقام الهاتف</label>
-            {formik.values.phones.map((phone, idx) => (
+            {formik.values.allPhones.map((ph, idx) => (
               <div key={idx} className="flex items-start gap-2 mb-2">
                 <input
                   type="text"
-                  value={phone}
+                  value={ph}
                   onChange={(e) => {
-                    const arr = [...formik.values.phones];
+                    const arr = [...formik.values.allPhones];
                     arr[idx] = e.target.value;
-                    formik.setFieldValue("phones", arr);
+                    formik.setFieldValue("allPhones", arr);
                   }}
-                  onBlur={() => {
-                    formik.setFieldTouched(`phones[${idx}]`, true);
-                  }}
+                  onBlur={() => formik.setFieldTouched(`allPhones[${idx}]`, true)}
                   placeholder="01xxxxxxxxx"
-                  className="flex-1 rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 rounded-lg border px-3 py-2 text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    const arr = formik.values.phones.filter((_, i) => i !== idx);
-                    formik.setFieldValue("phones", arr.length ? arr : [""]);
+                    const arr = formik.values.allPhones.filter((_, i) => i !== idx);
+                    formik.setFieldValue("allPhones", arr.length ? arr : [""]);
                   }}
                   className="px-3 py-2 rounded-lg bg-red-500 text-white text-sm"
-                  aria-label="حذف الرقم"
                 >
                   حذف
                 </button>
               </div>
             ))}
-            {formik.touched.phones && typeof formik.errors.phones === "string" && (
+            {formik.touched.allPhones && typeof formik.errors.allPhones === "string" && (
               <p className="text-red-700 bg-red-100 border border-red-200 px-3 py-2 rounded-lg mt-1 text-sm">
-                {formik.errors.phones}
+                {formik.errors.allPhones}
               </p>
             )}
             <button
               type="button"
-              onClick={() => formik.setFieldValue("phones", [...formik.values.phones, ""])}
+              onClick={() =>
+                formik.setFieldValue("allPhones", [...formik.values.allPhones, ""])
+              }
               className="mt-2 px-4 py-2 rounded-lg bg-green-500 text-white text-sm"
             >
               + إضافة رقم
@@ -306,33 +308,33 @@ function EditProfile() {
           {/* الوظائف */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">الوظائف</label>
-            {formik.values.jobs.map((jobObj, idx) => (
+            {formik.values.jobs.map((j, idx) => (
               <div key={idx} className="rounded-xl border p-4 mb-3 bg-gray-50">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm text-gray-700 mb-1">المسمى الوظيفي</label>
                     <input
                       type="text"
-                      value={jobObj.job}
+                      value={j.job}
                       onChange={(e) => {
                         const arr = [...formik.values.jobs];
                         arr[idx].job = e.target.value;
                         formik.setFieldValue("jobs", arr);
                       }}
-                      className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      placeholder="مثال: دكتور / مهندس"
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                      placeholder="مثال: مُدرّس / مهندس"
                     />
                   </div>
                   <div>
                     <label className="block text-sm text-gray-700 mb-1">النوع</label>
                     <select
-                      value={jobObj.gender}
+                      value={j.gender}
                       onChange={(e) => {
                         const arr = [...formik.values.jobs];
                         arr[idx].gender = e.target.value;
                         formik.setFieldValue("jobs", arr);
                       }}
-                      className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
                     >
                       <option value="">اختر</option>
                       <option value="Male">ذكر</option>
@@ -345,7 +347,10 @@ function EditProfile() {
                     type="button"
                     onClick={() => {
                       const arr = formik.values.jobs.filter((_, i) => i !== idx);
-                      formik.setFieldValue("jobs", arr.length ? arr : [{ job: "", gender: "" }]);
+                      formik.setFieldValue(
+                        "jobs",
+                        arr.length ? arr : [{ job: "", gender: "" }]
+                      );
                     }}
                     className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm"
                   >
@@ -357,7 +362,10 @@ function EditProfile() {
             <button
               type="button"
               onClick={() =>
-                formik.setFieldValue("jobs", [...formik.values.jobs, { job: "", gender: "" }])
+                formik.setFieldValue("jobs", [
+                  ...formik.values.jobs,
+                  { job: "", gender: "" },
+                ])
               }
               className="mt-2 px-4 py-2 rounded-lg bg-green-500 text-white text-sm"
             >
@@ -369,23 +377,14 @@ function EditProfile() {
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
-              className="flex-1 transition bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-semibold shadow-sm"
+              className="flex-1 transition duration-200 bg-slate-800 hover:bg-slate-900 text-white w-full py-2.5 rounded-lg text-sm font-semibold"
             >
-              حفظ التعديلات
-            </button>
-            <button
-              type="button"
-              onClick={() => formik.resetForm()}
-              className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm hover:bg-gray-200"
-            >
-              إلغاء
+            تحديث البيانات
             </button>
           </div>
         </form>
       </div>
     </div>
-    
-    </>
   );
 }
 

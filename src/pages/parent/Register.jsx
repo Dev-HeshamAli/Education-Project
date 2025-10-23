@@ -135,7 +135,6 @@ function Register() {
         values
       );
       const parentId = 7; // عدّلي لو الـ API اسم المفتاح مختلف
-      console.log("id" , res?.data)
       toast.success("Successfully Created!");
 
       // 2) رفع ملفات الإثبات
@@ -164,7 +163,6 @@ function Register() {
 
       // navigate("/"); // فعّليها لو حابة ترجّعيه لصفحة تانية بعد النجاح
     } catch (err) {
-      console.log(err);
       toast.error(err?.response?.data?.message || "Failed");
     } finally {
       toast.dismiss(loadingToast);

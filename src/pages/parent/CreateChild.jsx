@@ -1,24 +1,29 @@
+// src/pages/parent/CreateChild.jsx
 import { useFormik } from "formik";
-import { useEffect, useState } from "react"; // ✅ احتجنا useState
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { getSemesters, getStages, getStudyLevels } from "../../store/SharedData/SharedDataSlice";
+import {
+  getSemesters,
+  getStages,
+  getStudyLevels,
+} from "../../store/SharedData/SharedDataSlice";
 import { createStudent } from "../../store/student/studentSlice";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 function CreateChild() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const token = useSelector((state) => state.auth.token);
-  const { id } = useSelector((state) => state.auth);
+  const { id: parentId } = useSelector((state) => state.auth);
   const stages = useSelector((state) => state.shared.stages) || [];
   const studyLevels = useSelector((state) => state.shared.studyLevels) || [];
   const semesters = useSelector((state) => state.shared.semesters) || [];
-  const [showPwd, setShowPwd] = useState(false);
 
+  const [showPwd, setShowPwd] = useState(false);
 
   useEffect(() => {
     dispatch(getStages());
@@ -26,10 +31,68 @@ function CreateChild() {
     dispatch(getSemesters());
   }, [dispatch]);
 
-  // ✅ دول زي صفحة الأب
-  const [countries, setCountries] = useState([]); // [{code, nameAr, nameEn}]
+  // ================= الدول =================
+  const [countries, setCountries] = useState([]); // [{code, nameAr, nameEn, displayName}]
   const [countriesLoading, setCountriesLoading] = useState(true);
   const [countriesErr, setCountriesErr] = useState("");
+
+  // ريجكسات
+  const intlPhoneReg = /^\+?[0-9]{6,15}$/; // صيغة عامة دولية
+  const passReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+  const validationSchema = Yup.object({
+    firstName: Yup.string()
+      .required("الاسم الأول مطلوب")
+      .min(2, "الاسم الأول يجب أن يكون حرفين على الأقل")
+      .max(30, "بحد أقصى 30 حرفًا"),
+    birthDate: Yup.date().required("تاريخ الميلاد مطلوب"),
+    gender: Yup.string()
+      .oneOf(["Male", "Female"], "اختر ذكر أو أنثى")
+      .required("النوع مطلوب"),
+    country: Yup.string().required("الدولة مطلوبة"),
+    photoPath: Yup.mixed().required("الصورة الشخصية مطلوبة"),
+    lastEducationalQualifications: Yup.mixed().required(
+      "ملف المؤهل الدراسي مطلوب"
+    ),
+    email: Yup.string()
+      .required("البريد الإلكتروني مطلوب")
+      .email("صيغة البريد الإلكتروني غير صحيحة"),
+    password: Yup.string()
+      .required("كلمة المرور مطلوبة")
+      .matches(passReg, "كلمة المرور 8+ وتحتوي على حرف كبير وصغير ورقم"),
+    phoneNumber: Yup.string()
+      .required("رقم الهاتف مطلوب")
+      ,
+    stageId: Yup.number()
+      .typeError("اختر المرحلة الدراسية")
+      .required("المرحلة الدراسية مطلوبة"),
+    studyLevelId: Yup.number()
+      .typeError("اختر الصف الدراسي")
+      .required("الصف الدراسي مطلوب"),
+    semesterId: Yup.number()
+      .typeError("اختر الترم الدراسي")
+      .required("الترم الدراسي مطلوب"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      firstName: "",
+      birthDate: "",
+      gender: "",
+      country: "", // سنضبطها افتراضيًا إلى مصر لو متاحة
+      photoPath: null,
+      lastEducationalQualifications: null,
+      email: "",
+      password: "",
+      phoneNumber: "",
+      stageId: "",
+      studyLevelId: "",
+      semesterId: "",
+      parentId: parentId ?? "",
+    },
+    onSubmit: (vals) => addStudent(vals),
+    validationSchema,
+  });
 
   useEffect(() => {
     let alive = true;
@@ -37,32 +100,40 @@ function CreateChild() {
       try {
         setCountriesLoading(true);
         setCountriesErr("");
-        const res = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,cca3,translations");
+        const res = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name,cca2,cca3,translations"
+        );
         const raw = await res.json();
 
         const mapped = (Array.isArray(raw) ? raw : [])
           .map((c) => {
             const nameAr = c?.translations?.ara?.common || c?.name?.common || "";
             const nameEn = c?.name?.official || c?.name?.common || "";
+            const displayName = nameAr || nameEn;
             return {
               code: c?.cca2 || c?.cca3 || nameEn,
               nameAr,
               nameEn,
+              displayName,
             };
           })
-          .sort((a, b) => (a.nameAr || a.nameEn).localeCompare(b.nameAr || b.nameEn, "ar"));
+          .sort((a, b) =>
+            (a.displayName || "").localeCompare(b.displayName || "", "ar")
+          );
 
         if (!alive) return;
         setCountries(mapped);
 
-        // اضبطي مصر كافتراضي لو مفيش قيمة
+        // افتراضي: مصر أو أول عنصر
         const egypt =
-          mapped.find((x) => x.code === "EG" || /Egypt/i.test(x.nameEn) || x.nameAr === "مصر") || mapped[0];
+          mapped.find(
+            (x) => x.code === "EG" || /Egypt/i.test(x.nameEn) || x.nameAr === "مصر"
+          ) || mapped[0];
 
         if (!formik.values.country && egypt) {
-          formik.setFieldValue("country", egypt.nameEn); // نرسل EN رسمي للباك
+          formik.setFieldValue("country", egypt.displayName);
         }
-      } catch (e) {
+      } catch {
         if (!alive) return;
         setCountriesErr("تعذّر تحميل قائمة الدول. يمكنك إدخال الدولة يدويًا.");
       } finally {
@@ -77,81 +148,60 @@ function CreateChild() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ريجكس مصري زي صفحة البيرنت
-  const phoneReg = /^01[0125][0-9]{8}$/;
-
-  const validationSchema = Yup.object({
-    firstName: Yup.string()
-      .required("الاسم الأول مطلوب")
-      .min(3, "الاسم الأول يجب أن يكون 3 أحرف على الأقل")
-      .max(20, "الاسم الأول يجب أن يكون 20 حرفًا بحد أقصى"),
-    birthDate: Yup.date().required("تاريخ الميلاد مطلوب"),
-    gender: Yup.string()
-      .oneOf(["Male", "Female"], "النوع يجب أن يكون ذكر أو أنثى")
-      .required("النوع مطلوب"),
-    country: Yup.string().required("الدولة مطلوبة"),
-    governorate: Yup.string().required("المحافظة مطلوبة"),
-    photoPath: Yup.mixed().required("الصورة الشخصية مطلوبة"),
-    lastEducationalQualifications: Yup.mixed().required("ملف المؤهل الدراسي مطلوب"),
-    ssn: Yup.string().required("الرقم القومي مطلوب").matches(/^\d{14}$/, "الرقم القومي يجب أن يتكون من 14 رقم"),
-    email: Yup.string().required("البريد الإلكتروني مطلوب").email("صيغة البريد الإلكتروني غير صحيحة"),
-    password: Yup.string()
-      .required("كلمة المرور مطلوبة")
-      .matches(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, "كلمة المرور يجب أن تحتوي على حرف كبير ورقم وأن تكون 8 أحرف على الأقل"),
-    phoneNumber: Yup.string().required("رقم الهاتف مطلوب").matches(phoneReg, "رقم الهاتف يجب أن يكون رقم مصري صحيح"),
-    stageId: Yup.string().required("المرحلة الدراسية مطلوبة"),
-    studyLevelId: Yup.string().required("الصف الدراسي مطلوب"),
-    semesterId: Yup.string().required("الترم الدراسي مطلوب"),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      birthDate: "",
-      gender: "",
-      country: "", // ✅ هيمتلي تلقائيًا بمصر لو متاحة
-      governorate: "",
-      photoPath: null,
-      lastEducationalQualifications: null,
-      ssn: "",
-      email: "",
-      password: "",
-      phoneNumber: "",
-      stageId: "",
-      studyLevelId: "",
-      semesterId: "",
-      parentId: id ?? "",
-    },
-    onSubmit: (x) => addStudent(x),
-    validationSchema,
-  });
+  function normalizeDate(d) {
+    // نضمن صيغة YYYY-MM-DD
+    return d ? String(d).slice(0, 10) : "";
+  }
 
   async function addStudent(values) {
-    const loadingToast = toast.loading("جارٍ إنشاء الحساب...");
+    const loadingToast = toast.loading("جارٍ إنشاء حساب الطالب...");
     try {
       const formData = new FormData();
-      formData.append("FirstName", values.firstName);
-      formData.append("BirthDate", values.birthDate);
-      formData.append("Governorate", values.governorate);
+      // مطابقة أسماء Swagger حرفيًا:
+      formData.append("FirstName", values.firstName.trim());
+      formData.append("BirthDate", normalizeDate(values.birthDate));
       formData.append("Gender", values.gender);
-      formData.append("Country", values.country); // ✅ من الـselect
-      formData.append("SSN", values.ssn);
-      formData.append("Email", values.email);
+      formData.append("Country", values.country);
+      formData.append("Email", values.email.trim());
       formData.append("Password", values.password);
-      formData.append("Phone_Number", values.phoneNumber);
-      formData.append("StageId", values.stageId);
-      formData.append("StudyLevelId", values.studyLevelId);
-      formData.append("semesterId", values.semesterId);
-      formData.append("ParentId", values.parentId);
-      formData.append("PhotoPath", values.photoPath);
-      formData.append("Last_educational_qualifications", values.lastEducationalQualifications);
+      formData.append("Phone_Number", values.phoneNumber.trim());
+      formData.append("StageId", String(values.stageId));
+      formData.append("StudyLevelId", String(values.studyLevelId));
+      formData.append("semesterId", String(values.semesterId));
+      formData.append("ParentId", String(values.parentId));
 
-      await dispatch(createStudent({ formData, token }));
+      if (values.photoPath) {
+        formData.append("PhotoPath", values.photoPath); // required
+      }
+      if (values.lastEducationalQualifications) {
+        formData.append(
+          "Last_educational_qualifications",
+          values.lastEducationalQualifications
+        );
+      }
+
+      await dispatch(createStudent({ formData, token })).unwrap();
+
       toast.success("تم إنشاء حساب الطالب بنجاح!");
-      navigate("/parent"); // اختياري
+      navigate("/parent/requests");
     } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.message || "حدث خطأ غير متوقع");
+      // ✅ نفس أسلوب RegisterParent.jsx بالظبط
+      const raw = err?.response?.data;
+      const errorsArr = Array.isArray(raw?.errors) ? raw.errors : [];
+
+      const isEmailTaken = errorsArr.some((e) =>
+        String(e).toLowerCase().includes("email must unique")
+      );
+
+      if (1) {
+        const msg = "هذا البريد مسجّل بالفعل. يرجى إدخال بريد آخر.";
+        formik.setFieldError("email", msg);
+        toast.error(msg);
+      } else {
+        toast.error(
+          raw?.message || raw?.title || err?.message || "حدث خطأ غير متوقع"
+        );
+      }
     } finally {
       toast.dismiss(loadingToast);
     }
@@ -179,12 +229,17 @@ function CreateChild() {
               <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
                 إنشاء حساب الطالب
               </h1>
-              <p className="mt-2 text-slate-500">من فضلك أدخل البيانات التالية بدقة لإتمام عملية التسجيل</p>
+              <p className="mt-2 text-slate-500">
+                من فضلك أدخل البيانات التالية بدقة لإتمام عملية التسجيل
+              </p>
             </div>
 
             {/* Form */}
             <div className="px-6 md:px-10 pb-10">
-              <form onSubmit={formik.handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <form
+                onSubmit={formik.handleSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-5"
+              >
                 {/* الاسم الأول */}
                 <div className="flex flex-col">
                   <label className="mb-1 text-sm font-semibold text-slate-700">
@@ -202,24 +257,7 @@ function CreateChild() {
                   <FieldError name="firstName" />
                 </div>
 
-                {/* الرقم القومي */}
-                <div className="flex flex-col">
-                  <label className="mb-1 text-sm font-semibold text-slate-700">
-                    الرقم القومي <Star />
-                  </label>
-                  <input
-                    type="text"
-                    name="ssn"
-                    value={formik.values.ssn}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
-                    placeholder="أدخل الرقم القومي (14 رقمًا)"
-                  />
-                  <FieldError name="ssn" />
-                </div>
-
-                {/* الدولة ✅ Dropdown زي الأب */}
+                {/* الدولة */}
                 <div className="flex flex-col">
                   <label className="mb-1 text-sm font-semibold text-slate-700">
                     الدولة <Star />
@@ -248,31 +286,15 @@ function CreateChild() {
                       onBlur={formik.handleBlur}
                       className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
                     >
+                      <option value="">اختر الدولة</option>
                       {countries.map((c) => (
-                        <option key={c.code} value={c.nameEn}>
-                          {c.nameAr || c.nameEn}
+                        <option key={c.code} value={c.displayName}>
+                          {c.displayName}
                         </option>
                       ))}
                     </select>
                   )}
                   <FieldError name="country" />
-                </div>
-
-                {/* المحافظة */}
-                <div className="flex flex-col">
-                  <label className="mb-1 text-sm font-semibold text-slate-700">
-                    المحافظة <Star />
-                  </label>
-                  <input
-                    type="text"
-                    name="governorate"
-                    value={formik.values.governorate}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
-                    placeholder="ادخل المحافظة"
-                  />
-                  <FieldError name="governorate" />
                 </div>
 
                 {/* البريد */}
@@ -293,45 +315,36 @@ function CreateChild() {
                   <FieldError name="email" />
                 </div>
 
-               {/* كلمة المرور */}
-<div className="flex flex-col">
-  <label className="mb-1 text-sm font-semibold text-slate-700">
-    كلمة المرور <span className="text-red-500">*</span>
-  </label>
+                {/* كلمة المرور + زر العين */}
+                <div className="flex flex-col">
+                  <label className="mb-1 text-sm font-semibold text-slate-700">
+                    كلمة المرور <Star />
+                  </label>
 
-  <div className="relative">
-    <input
-      type={showPwd ? "text" : "password"}
-      name="password"
-      value={formik.values.password}
-      onChange={formik.handleChange}
-      onBlur={formik.handleBlur}
-      dir="ltr"
-      // padding يسار أكبر عشان الأيقونة داخل الحقل (RTL)
-      className="w-full rounded-xl border border-slate-200 bg-white/90 py-3 pr-4 pl-10 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm text-right"
-      
-      autoComplete="new-password"
-    />
+                  <div className="relative">
+                    <input
+                      type={showPwd ? "text" : "password"}
+                      name="password"
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      dir="ltr"
+                      className="w-full rounded-xl border border-slate-200 bg-white/90 py-3 pr-4 pl-10 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm text-right"
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwd((v) => !v)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"
+                      aria-label={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                      title={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                    >
+                      {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
 
-    {/* placeholder="ابدأ بحرف كبير وتضم رقمًا" زر العين داخل الحقل - يسار عشان RTL */}
-    <button
-      type="button"
-      onClick={() => setShowPwd((v) => !v)}
-      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"
-      aria-label={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-      title={showPwd ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-    >
-      {showPwd ? <EyeClosed size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
-
-  {formik.errors.password && formik.touched.password && (
-    <p className="text-xs mt-1 px-3 py-2 rounded-xl bg-red-50 text-red-600 border border-red-200">
-      {formik.errors.password}
-    </p>
-  )}
-</div>
-
+                  <FieldError name="password" />
+                </div>
 
                 {/* تاريخ الميلاد */}
                 <div className="flex flex-col">
@@ -380,7 +393,7 @@ function CreateChild() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
-                    placeholder="01#########"
+                   
                   />
                   <FieldError name="phoneNumber" />
                 </div>
@@ -393,7 +406,9 @@ function CreateChild() {
                   <select
                     name="stageId"
                     value={formik.values.stageId}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.setFieldValue("stageId", Number(e.target.value) || "");
+                    }}
                     onBlur={formik.handleBlur}
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
                   >
@@ -415,7 +430,9 @@ function CreateChild() {
                   <select
                     name="studyLevelId"
                     value={formik.values.studyLevelId}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.setFieldValue("studyLevelId", Number(e.target.value) || "");
+                    }}
                     onBlur={formik.handleBlur}
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
                   >
@@ -437,7 +454,9 @@ function CreateChild() {
                   <select
                     name="semesterId"
                     value={formik.values.semesterId}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      formik.setFieldValue("semesterId", Number(e.target.value) || "");
+                    }}
                     onBlur={formik.handleBlur}
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
                   >
@@ -459,10 +478,24 @@ function CreateChild() {
                   <input
                     type="file"
                     name="photoPath"
-                    onChange={(e) => formik.setFieldValue("photoPath", e.currentTarget.files?.[0] || null)}
+                    accept=".jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.currentTarget.files?.[0] || null;
+                      if (file) {
+                        const allowed = ["image/jpeg", "image/png"];
+                        if (!allowed.includes(file.type)) {
+                          toast.error("الرجاء اختيار صورة بامتداد JPG أو PNG فقط");
+                          formik.setFieldValue("photoPath", null);
+                          return;
+                        }
+                      }
+                      formik.setFieldValue("photoPath", file);
+                    }}
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
                   />
-                  <p className="text-xs text-slate-400 mt-1">الامتدادات المسموحة: jpg, png</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    الامتدادات المسموحة: jpg, png
+                  </p>
                   <FieldError name="photoPath" />
                 </div>
 
@@ -475,11 +508,16 @@ function CreateChild() {
                     type="file"
                     name="lastEducationalQualifications"
                     onChange={(e) =>
-                      formik.setFieldValue("lastEducationalQualifications", e.currentTarget.files?.[0] || null)
+                      formik.setFieldValue(
+                        "lastEducationalQualifications",
+                        e.currentTarget.files?.[0] || null
+                      )
                     }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none shadow-sm"
                   />
-                  <p className="text-xs text-slate-400 mt-1">PDF أو صورة واضحة للمؤهل</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    PDF أو صورة واضحة للمؤهل
+                  </p>
                   <FieldError name="lastEducationalQualifications" />
                 </div>
 
@@ -496,8 +534,6 @@ function CreateChild() {
             </div>
           </div>
 
-          {/* رسالة عدم وجود أبناء (اختياري) */}
-          {/* <div className="mt-6 text-center text-slate-500">لا يوجد أبناء</div> */}
         </div>
       </div>
     </>

@@ -84,9 +84,9 @@ export default function Navbar() {
         <div className="order-1 flex items-center gap-3">
           <Link to="/home" className="flex items-center gap-2">
             <img
-              src="/public/logo.png"
+              src="/logo.png"
               alt="Edu-Smart Logo"
-              className="h-14 w-auto"
+              className="h-[100px] w-[85px]"
             />
             <span className="text-xl font-bold text-[#051441]">
               Edu-Smart.ai
@@ -304,7 +304,7 @@ export default function Navbar() {
           <div className="mt-2 border-t pt-2">
             {!token ? (
               <Link
-                to="/register"
+                to="/login"
                 className="bg-orange-600 text-white py-2 px-4 rounded-lg text-center hover:opacity-90"
               >
                 سجل الآن

@@ -1,10 +1,13 @@
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { setEmail } from "../../store/resetPassword/resetPasswordSlice";
-import Navbar from "../../components/main/Navbar";
+// 📁 components/ForgotPassword.jsx
+import axios from 'axios';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Footer from "../../components/main/Footer";
-import { useState } from "react";
+import Navbar from '../../components/main/Navbar';
+import { setEmail } from '../../store/resetPassword/resetPasswordSlice';
+// ✅ استيراد الـ BASE_URL من ملف مشترك
+import { BASE_URL } from "../../api/BASE_URL";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -12,26 +15,24 @@ function ForgotPassword() {
   const email = useSelector((state) => state.resetPassword.email);
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "https://edu-smart.runasp.net/api/Auth";
-
   const validateEmail = (val) =>
     !!val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
 
   const handleForgetPassword = async () => {
     if (!validateEmail(email)) {
-      window.alert("من فضلك أدخل بريدًا إلكترونيًا صالحًا.");
+      window.alert('من فضلك أدخل بريدًا إلكترونيًا صالحًا.');
       return;
     }
     try {
       setLoading(true);
       await axios.post(
-        `${BASE_URL}/Forget-Password?Email=${encodeURIComponent(email)}`
+        `${BASE_URL}/api/Auth/Forget-Password?Email=${encodeURIComponent(email)}`
       );
-      window.alert("تم إرسال رمز التأكيد إلى بريدك الإلكتروني.");
-      navigate("/confirm-code");
+      //toast('تم إرسال رمز التأكيد إلى بريدك الإلكتروني.');
+      navigate('/confirm-code');
     } catch (err) {
       console.error(err);
-      window.alert("حدث خطأ أثناء إرسال الرمز. حاول مرة أخرى.");
+      //window.alert('حدث خطأ أثناء إرسال الرمز. حاول مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -42,7 +43,7 @@ function ForgotPassword() {
       <Navbar />
       <main
         dir="rtl"
-        className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-gray-50"
+        className="min-h-[50vh] flex items-center justify-center px-4 py-12 bg-gray-50"
       >
         <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-6 sm:p-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-[#051441] mb-2">
@@ -75,12 +76,12 @@ function ForgotPassword() {
             onClick={handleForgetPassword}
             disabled={loading}
           >
-            {loading ? "جاري الإرسال..." : "إرسال رمز التأكيد"}
+            {loading ? 'جاري الإرسال...' : 'إرسال رمز التأكيد'}
           </button>
 
           <button
             type="button"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate('/login')}
             className="mt-3 w-full text-orange-600 hover:text-orange-700 font-semibold"
           >
             الرجوع لتسجيل الدخول
@@ -97,18 +98,16 @@ function ForgotPassword() {
             <div className="absolute top-0 left-1/4 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
             <div
               className="absolute bottom-0 right-1/4 w-1 h-1 bg-orange-400 rounded-full animate-pulse"
-              style={{ animationDelay: "1s" }}
+              style={{ animationDelay: '1s' }}
             ></div>
           </div>
 
           <div className="container mx-auto px-4 relative">
             <div className="text-center">
               <p className="text-gray-300 text-sm leading-relaxed">
-                حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+                حقوق النشر © 2025 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
                 <a
-                  href="https://envytheme.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://edu-smart.ai"
                   className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"
                 >
                   Edu-Smart.ai

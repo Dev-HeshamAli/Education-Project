@@ -42,6 +42,12 @@ import { resetUpdateStudyLevelState } from "../../store/academicYear/studyLevel/
 const schema = yup.object().shape({
   stage: yup.string().required("Stage is required"),
   name: yup.string().required("Level name is required"),
+  maxStudents: yup
+    .number()
+    .required("Max students is required")
+    .positive("Max students must be positive")
+    .integer("Max students must be an integer")
+    .min(1),
 });
 
 const CreateSL = () => {

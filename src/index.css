@@ -10,3 +10,54 @@
 body {
   font-family: "Poppins", sans-serif;
 }
+@media print {
+  body {
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+  }
+
+  /* إخفاء كل العناصر الغير مطلوبة */
+  .no-print,
+  header,
+  footer,
+  button,
+  .MuiDialog-root {
+    display: none !important;
+  }
+
+  /* إظهار الجدول فقط */
+  #print-table {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* إزالة الألوان وخلي الخط واضح */
+  #print-table * {
+    color: black !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-color: black !important;
+  }
+
+  /* تصغير وتوضيح الجدول */
+  #print-table table {
+    font-size: 14px !important;
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  #print-table th,
+  #print-table td {
+    border: 1px solid black !important;
+    padding: 6px !important;
+    text-align: center !important;
+  }
+
+  /* عناوين الأعمدة */
+  #print-table th {
+    font-size: 15px !important;
+    font-weight: bold !important;
+  }
+}

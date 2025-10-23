@@ -1,8 +1,18 @@
 // src/pages/TeacherCVPage.jsx
 import { useEffect } from "react";
 
-import Navbar from "../../components/main/Navbar";
 import Footer from "../../components/main/Footer";
+import Navbar from "../../components/main/Navbar";
+
+// helper: يرجّع dir / align / padding للقوائم بناءً على اللغة
+function dirPropsByLang(lang = "en") {
+  const ar = lang === "ar";
+  return {
+    dir: ar ? "rtl" : "ltr",
+    alignClass: ar ? "text-right" : "text-left",
+    listPadClass: ar ? "pr-5" : "pl-5",
+  };
+}
 
 export default function TeacherCVPage() {
   useEffect(() => {
@@ -12,9 +22,9 @@ export default function TeacherCVPage() {
     html.classList.add("theme-light");
   }, []);
 
-  // نفس الأسماء/الأقسام اللي في الـ HTML المرسل
   const teachers = [
     {
+      lang: "en",
       name: "Samar Maher",
       title: "Academic Coordinator / English Teacher",
       image: "/assets/img/samar.png",
@@ -36,6 +46,7 @@ export default function TeacherCVPage() {
       ],
     },
     {
+      lang: "en",
       name: "Farida Hussein Abd El-Hamed",
       title: "Principal Assistant & Coordinator",
       image: "/assets/img/farida.jpg",
@@ -50,6 +61,7 @@ export default function TeacherCVPage() {
       skills: ["Educational Administration & School Accreditation", "Fluent in English and Arabic"],
     },
     {
+      lang: "ar",
       name: "كرم محمد",
       title: "معلم لغة عربية وتربية إسلامية",
       image: "/assets/img/karam.png",
@@ -60,6 +72,7 @@ export default function TeacherCVPage() {
       skills: ["إجادة الخط العربي و استخدام الكمبيوتر"],
     },
     {
+      lang: "en",
       name: "Salwa Abd El Hamid",
       title: "Math & Science Teacher",
       image: "/assets/img/salma.png",
@@ -75,6 +88,7 @@ export default function TeacherCVPage() {
       ],
     },
     {
+      lang: "en",
       name: "Shahd Abd El Khalek",
       title: "MIS Officer / Teacher",
       image: "/assets/img/shahd.jpeg",
@@ -86,6 +100,7 @@ export default function TeacherCVPage() {
       skills: ["Social organizing & Teamwork", "Fluent in English & French (Delf B2)"],
     },
     {
+      lang: "en",
       name: "Reham ElSherbiny",
       title: "English Language Teacher",
       image: "/assets/img/reham.png",
@@ -101,6 +116,7 @@ export default function TeacherCVPage() {
       ],
     },
     {
+      lang: "en",
       name: "Basma Adel Ezzat",
       title: "Reading English Teacher",
       image: "/assets/img/basma.png",
@@ -120,11 +136,8 @@ export default function TeacherCVPage() {
     <>
       <Navbar />
 
-      {/* Page Title with overlay same as template */}
-      <section
-        className="relative py-12"
-        style={{ fontFamily: "Calibri, sans-serif" }}
-      >
+      {/* Page Title */}
+      <section className="relative py-12" style={{ fontFamily: "Calibri, sans-serif" }}>
         <div
           className="absolute inset-0"
           style={{
@@ -142,120 +155,203 @@ export default function TeacherCVPage() {
       {/* Teachers grid */}
       <section className="py-10" style={{ fontFamily: "Calibri, sans-serif" }}>
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {teachers.map((t, i) => (
-            <article
-              key={i}
-              className="bg-white rounded-2xl shadow-[0_5px_25px_rgba(0,0,0,0.08)] p-6 md:p-7 hover:-translate-y-2 hover:shadow-[0_10px_35px_rgba(0,0,0,0.12)] transition"
-            >
-              {/* Header */}
-              <header className="flex items-center border-b pb-5 mb-5">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-[#f0f5ff] ml-5"
-                />
-                <div>
-                  <h3 className="text-2xl font-bold text-[#051441] mb-1">{t.name}</h3>
-                  <span className="text-[#e52e71] font-semibold">{t.title}</span>
+          {teachers.map((t, i) => {
+            const lang = t.lang;
+            const isAr = lang === "ar";
+            const nameDir = dirPropsByLang(lang);
+            const bodyDir = dirPropsByLang(lang);
+
+            const headings =
+              lang === "ar"
+                ? {
+                    profile: "النبذة",
+                    education: "المؤهل الدراسي",
+                    experience: "أماكن العمل السابقة",
+                    skills: "المهارات الذاتية",
+                    certifications: "الشهادات",
+                    currentRole: "المنصب الحالي",
+                  }
+                : {
+                    profile: "Profile",
+                    education: "Education",
+                    experience: "Work Experience",
+                    skills: "Key Skills",
+                    certifications: "Certifications",
+                    currentRole: "Current Role",
+                  };
+
+            return (
+              <article
+                key={i}
+                className="bg-white rounded-2xl shadow-[0_5px_25px_rgba(0,0,0,0.08)] p-6 md:p-7 hover:-translate-y-2 hover:shadow-[0_10px_35px_rgba(0,0,0,0.12)] transition"
+              >
+                {/* Header: نتحكم في مكان الصورة عبر dir فقط */}
+                <header
+                  dir={isAr ? "rtl" : "ltr"}
+                  className="flex items-center border-b pb-5 mb-5"
+                >
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className={`w-24 h-24 rounded-full object-cover border-4 border-[#f0f5ff] ${
+                      isAr ? "ml-5" : "mr-5"
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <h3
+                      className={`text-2xl font-bold text-[#051441] mb-1 break-words ${nameDir.alignClass}`}
+                      dir={nameDir.dir}
+                    >
+                      {t.name}
+                    </h3>
+                    <span
+                      className={`text-[#e52e71] font-semibold block ${nameDir.alignClass}`}
+                      dir={nameDir.dir}
+                    >
+                      {t.title}
+                    </span>
+                  </div>
+                </header>
+
+                {/* Body */}
+                <div className="space-y-5 text-[15px] leading-7">
+                  {t.profile && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.profile}
+                      </h4>
+                      <p className={`mt-2 ${bodyDir.alignClass}`} dir={bodyDir.dir}>
+                        {t.profile}
+                      </p>
+                    </section>
+                  )}
+
+                  {t.currentRole && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.currentRole}
+                      </h4>
+                      <ul
+                        className={`mt-3 list-disc ${dirPropsByLang(lang).listPadClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {t.currentRole.map((x, idx) => (
+                          <li key={idx} className={bodyDir.alignClass}>
+                            {x}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {t.education && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.education}
+                      </h4>
+                      <ul
+                        className={`mt-3 list-disc ${dirPropsByLang(lang).listPadClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {t.education.map((x, idx) => (
+                          <li key={idx} className={bodyDir.alignClass}>
+                            {x}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {t.certifications && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6ب6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.certifications}
+                      </h4>
+                      <ul
+                        className={`mt-3 list-disc ${dirPropsByLang(lang).listPadClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {t.certifications.map((x, idx) => (
+                          <li key={idx} className={bodyDir.alignClass}>
+                            {x}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {t.experience && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.experience}
+                      </h4>
+                      <ul
+                        className={`mt-3 list-disc ${dirPropsByLang(lang).listPadClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {t.experience.map((x, idx) => (
+                          <li key={idx} className={bodyDir.alignClass}>
+                            {x}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {t.skills && (
+                    <section>
+                      <h4
+                        className={`block w-full text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 ${bodyDir.alignClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {headings.skills}
+                      </h4>
+                      <ul
+                        className={`mt-3 list-disc ${dirPropsByLang(lang).listPadClass}`}
+                        dir={bodyDir.dir}
+                      >
+                        {t.skills.map((x, idx) => (
+                          <li key={idx} className={bodyDir.alignClass}>
+                            {x}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
                 </div>
-              </header>
-
-              {/* Body */}
-              <div className="space-y-5 text-[15px] leading-7">
-                {t.profile && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) || t.title.includes("معلم") ? "النبذة" : "Profile"}
-                    </h4>
-                    <p className="mt-2">{t.profile}</p>
-                  </section>
-                )}
-
-                {t.currentRole && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      Current Role
-                    </h4>
-                    <ul className="mt-3 list-disc pr-5">
-                      {t.currentRole.map((x, idx) => (
-                        <li key={idx}>{x}</li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {t.education && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "المؤهل الدراسي" : "Education"}
-                    </h4>
-                    <ul className="mt-3 list-disc pr-5">
-                      {t.education.map((x, idx) => (
-                        <li key={idx}>{x}</li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {t.certifications && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      Certifications
-                    </h4>
-                    <ul className="mt-3 list-disc pr-5">
-                      {t.certifications.map((x, idx) => (
-                        <li key={idx}>{x}</li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {t.experience && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "أماكن العمل السابقة" : "Work Experience"}
-                    </h4>
-                    <ul className="mt-3 list-disc pr-5">
-                      {t.experience.map((x, idx) => (
-                        <li key={idx}>{x}</li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {t.skills && (
-                  <section>
-                    <h4 className="text-[#051441] font-bold border-b-2 border-[#ff6b6b] pb-2 inline-block">
-                      {/[اأإآ]/.test(t.name[0]) ? "المهارات الذاتية" : "Key Skills"}
-                    </h4>
-                    <ul className="mt-3 list-disc pr-5">
-                      {t.skills.map((x, idx) => (
-                        <li key={idx}>{x}</li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
-       {/* Footer */}
-            <Footer />
-      
-            {/* End of HomePage */}
-            <div className="bg-gray-900 py-4 text-white">
+
+      <Footer />
+
+      <div className="bg-gray-900 py-4 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center text-sm text-gray-200">
             <p>
-              حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+              حقوق النشر © 2025 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
               <a
-                href="https://envytheme.com/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="https://edu-smart.ai"
                 className="text-orange-600 hover:underline"
               >
-               Edu-Smart.ai
+                Edu-Smart.ai
               </a>
             </p>
           </div>

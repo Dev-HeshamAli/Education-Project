@@ -9,7 +9,6 @@ function Requests() {
      const token = useSelector((state) => state.auth.token);
      const {id} = useSelector((state) => state.auth);
      const [requests, setRequests] = useState(null);
- 
      useEffect(() => {
       getApplications();
      }, []);
@@ -26,7 +25,7 @@ function Requests() {
             setRequests(data)
         }
         catch(err){
-            console.log(err)
+         
         }
         
     }
@@ -39,13 +38,11 @@ function Requests() {
                       },
                   }
                 )
-                console.log(data)
+              
                 setRequests((prev) => prev.filter((p) => p.id !== id));
                 toast.success("تم حذف الطلب");
             }
             catch(err){
-                console.log(err)
-                console.log("ID:", id);
                 toast.error("Delete failed"); 
             }
             

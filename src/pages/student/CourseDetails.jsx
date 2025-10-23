@@ -1,8 +1,14 @@
+// src/pages/student/CourseDetails.jsx
 import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/BASE_URL";
+import {
+  selectCourseID,
+  setLectureContext,
+  setActiveCourseDetailId,
+} from "../../store/dataIDs/dataIDsSlice";
 
 const ORD = [
   "الأولى",
@@ -15,56 +21,55 @@ const ORD = [
   "الثامنة",
   "التاسعة",
   "العاشرة",
+  "الحادية عشرة",
+  "الثانية عشرة",
+  "الثالثة عشرة",
+  "الرابعة عشرة",
+  "الخامسة عشرة"
 ];
-const ordLabel = (n) => ORD[n - 1] || n;
-
-const loadState = (courseId) => {
-  try {
-    return (
-      JSON.parse(localStorage.getItem(`course-join-state:${courseId}`)) || {}
-    );
-  } catch {
-    return {};
-  }
-};
-const saveState = (courseId, s) => {
-  try {
-    localStorage.setItem(`course-join-state:${courseId}`, JSON.stringify(s));
-  } catch {}
-};
+const ordLabel = (n) => ORD[n-1] || n;
 
 export default function CourseDetails() {
-  const { courseId } = useParams();
+  const dispatch = useDispatch();
   const token = useSelector((s) => s.auth.token);
+  const courseId = useSelector(selectCourseID); // من Redux
   const navigate = useNavigate();
 
-  const [lectures, setLectures] = useState([]); // [{id, lectureNo, teacherName, summaryFile, courseName}]
+  const [lectures, setLectures] = useState([]);
   const [courseName, setCourseName] = useState("");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  // هنستخدم stateMap بس للتشيك بوكس
-  const [stateMap, setStateMap] = useState(() => loadState(courseId));
 
   useEffect(() => {
     let alive = true;
-    async function fetchData() {
+    if (!courseId) {
+      setLoading(false);
+      setErr("لا يمكن فتح تفاصيل المادة مباشرة. من فضلك ادخل من قائمة المواد الحالية.");
+      return;
+    }
+
+    (async () => {
       try {
         setLoading(true);
         setErr("");
+
         const { data } = await axios.get(
           `${BASE_URL}/api/Course/course-lectures/${courseId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const arr = (Array.isArray(data) ? data : []).map((lec, idx) => ({
-          id: lec.id ?? `lec-${idx + 1}`, // CourseDetailId
-          lectureNo: Number(lec.lecture) || idx + 1, // رقم الحصة
+          id: lec.id ?? `lec-${idx+1}`,
+          lectureNo: Number(lec.lecture ?? lec.lec ?? lec.no) || (idx + 1),
           teacherName: lec.teacherName ?? "—",
           summaryFile: lec.summaryFile || null,
           courseName: lec.courseName || "",
+          lectureVideo: lec.lectureVideo || lec.LectureVideo || "",
+          lectureCartoonVideo: lec.lectureCartoonVideo || lec.lectureCartonVideo || "",
+          cartonVideoSummaryFile: lec.cartonVideoSummaryFile || "",
         }));
 
-        if (!arr.length) throw new Error("لا توجد حصص متاحة لهذا الكورس.");
+        if (!arr.length) throw new Error("لا توجد حصص متاحة لهذه المادة.");
 
         if (alive) {
           setLectures(arr);
@@ -72,52 +77,41 @@ export default function CourseDetails() {
         }
       } catch (e) {
         if (alive) {
-          setErr(
-            e?.response?.data?.message ||
-              e?.message ||
-              "حدث خطأ أثناء تحميل الحصص."
-          );
+          setErr(e?.response?.data?.message || e?.message || "حدث خطأ أثناء تحميل الحصص.");
           setLectures([]);
         }
       } finally {
         if (alive) setLoading(false);
       }
-    }
-    fetchData();
-    return () => {
-      alive = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId]);
+    })();
 
-  useEffect(() => {
-    saveState(courseId, stateMap);
-  }, [courseId, stateMap]);
+    return () => { alive = false; };
+  }, [courseId, token]);
 
-  const toggleChecked = (lecId) => {
-    setStateMap((s) => ({ ...s, [lecId]: { checked: !s[lecId]?.checked } }));
+  // فتح صفحة المشاهدة بدون URL params
+  const openWatch = (lec, kind = "lecture", version = 1) => {
+    dispatch(setLectureContext({
+      courseDetailId: lec.id,
+      courseId,
+      lecNo: lec.lectureNo,
+      kind,       // "lecture" | "cartoon" | "auto"
+      version,    // 1
+    }));
+    navigate("/student/watch-lecture");
   };
 
-  // بيفتح صفحة التفاعل مباشرة بدون أي شرط
-  const handleEngage = (lec) => {
-    navigate(
-      `/student/watch-lecture/${lec.id}?courseId=${courseId}&lecNo=${lec.lectureNo}`
-    );
-  };
-
-  const anyChecked = useMemo(
-    () => Object.values(stateMap).some((v) => v?.checked),
-    [stateMap]
-  );
+  // (اختياري) أنشطة من هنا بدون URL
+  const goSummary   = (courseDetailId) => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/summarize-page"); };
+  const goChat      = (courseDetailId) => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/chat-page"); };
+  const goTranslate = (courseDetailId) => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/translate-page"); };
+  const goQuiz      = (courseDetailId) => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/quiz-page"); };
 
   return (
     <main dir="rtl" className="bg-gray-50 min-h-screen py-10">
       <section className="mx-auto w-full max-w-6xl px-4 md:px-6 space-y-8">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-              تفاصيل المادة
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">تفاصيل المادة</h1>
             {courseName && (
               <p className="text-gray-600 mt-1">
                 المادة: <span className="font-semibold">{courseName}</span>
@@ -129,7 +123,7 @@ export default function CourseDetails() {
         {loading && (
           <div className="rounded-2xl border border-gray-300 bg-white p-5 space-y-3">
             <div className="h-6 w-1/3 bg-gray-100 animate-pulse rounded" />
-            {[...Array(5)].map((_, i) => (
+            {[...Array(5)].map((_,i) => (
               <div key={i} className="h-12 bg-gray-100 animate-pulse rounded" />
             ))}
           </div>
@@ -138,6 +132,14 @@ export default function CourseDetails() {
         {!loading && err && (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 text-rose-700 p-4">
             {err}
+            <div className="mt-3">
+              <button
+                onClick={() => navigate("/student/current-courses", { replace: true })}
+                className="rounded-lg bg-gray-800 text-white px-4 py-2"
+              >
+                الرجوع لقائمة المواد
+              </button>
+            </div>
           </div>
         )}
 
@@ -145,62 +147,55 @@ export default function CourseDetails() {
           <div className="rounded-2xl border border-gray-300 bg-white p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-extrabold text-gray-900">الحصص</h2>
-              <span className="text-sm text-gray-600">
-                {lectures.length} حصة
-              </span>
+              <span className="text-sm text-gray-600">{lectures.length} حصة</span>
             </div>
 
             {lectures.length === 0 ? (
               <div className="text-gray-600">لا توجد حصص متاحة حالياً.</div>
             ) : (
               <ul className="space-y-3">
-                {lectures.map((lec) => {
-                  const st = stateMap[lec.id] || {};
-                  return (
-                    <li
-                      key={lec.id}
-                      className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-300 rounded-xl p-3"
-                    >
-                      <label className="flex items-start gap-3 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          className="mt-1 h-5 w-5 accent-orange-500"
-                          checked={!!st.checked}
-                          onChange={() => toggleChecked(lec.id)}
-                          aria-label={`اختيار ${lec.lectureNo}`}
-                        />
-                        <div>
-                          <div className="text-lg font-bold text-gray-900">
-                            الحصة {ordLabel(Number(lec.lectureNo))}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            المدرّس:{" "}
-                            <span className="font-medium text-gray-800">
-                              {lec.teacherName}
-                            </span>
-                          </div>
-                          {lec.summaryFile && (
-                            <div className="text-xs text-gray-500 mt-1 break-all">
-                              ملف الملخص متاح.
-                            </div>
-                          )}
-                        </div>
-                      </label>
+                {lectures.map((lec) => (
+                  <li
+                    key={lec.id}
+                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-300 rounded-xl p-3"
+                  >
+                    <div>
+                      <div className="text-lg font-bold text-gray-900">
+                        الحصة {ordLabel(Number(lec.lectureNo))}
+                      </div>
+                    </div>
 
-                      {/* حافظت على نفس توزيع الأزرار تقريباً لكن شلت "انضم الآن" */}
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      {/* النسخة العادية */}
+                      <button
+                        type="button"
+                        onClick={() => openWatch(lec, "lecture", 1)}
+                        className="rounded-xl bg-slate-900 hover:opacity-95 text-white font-semibold px-4 py-2"
+                        title="مشاهدة النسخة العادية"
+                      >
+                        مشاهدة الدرس
+                      </button>
+
+                      {/* النسخة الكرتونية (لو متاحة) */}
+                      {/*{lec.lectureCartoonVideo && (
                         <button
                           type="button"
-                          onClick={() => handleEngage(lec)}
-                          className="rounded-xl bg-slate-900 hover:opacity-95 text-white font-semibold px-4 py-2"
-                          title="تفاعل مع الحصة"
+                          onClick={() => openWatch(lec, "cartoon", 1)}
+                          className="rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2"
+                          title="مشاهدة النسخة الكرتونية"
                         >
-                          تفاعل مع الحصة
+                          النسخة الكرتونية
                         </button>
-                      </div>
-                    </li>
-                  );
-                })}
+                      )}*/}
+
+                      {/* (اختياري) الأنشطة من هنا */}
+                      {/*<button onClick={() => goSummary(lec.id)}   className="rounded-lg border px-3 py-2">📚 ملخص</button>
+                      <button onClick={() => goChat(lec.id)}      className="rounded-lg border px-3 py-2">💬 دردشة</button>
+                      <button onClick={() => goTranslate(lec.id)} className="rounded-lg border px-3 py-2">🌍 ترجمة</button>
+                      <button onClick={() => goQuiz(lec.id)}      className="rounded-lg border px-3 py-2">🏆 اختبار</button>
+                    */}</div>
+                  </li>
+                ))}
               </ul>
             )}
           </div>

@@ -1,16 +1,13 @@
-// AppBarHeader.jsx
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
-import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-
 import { Link, useNavigate } from "react-router-dom";
 import Profile from "../../pages/admin/profile/Profile";
-const drawerWidth = 300;
+import Logo from "../sidbar/Logo";
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -19,8 +16,6 @@ const AppBar = styled(MuiAppBar, {
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -33,7 +28,8 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
 
   return (
     <AppBar sx={{ bgcolor: "#2972b1" }} position="fixed" open={open}>
-      <Toolbar>
+      <Toolbar className="px-2 sm:px-4">
+        {/* زرار فتح القائمة */}
         <IconButton
           color="inherit"
           aria-label="open drawer"
@@ -44,51 +40,38 @@ export default function AppBarHeader({ open, handleDrawerOpen }) {
             ...(open && { display: "none" }),
           }}
         >
-          <MenuIcon />
+          <MenuIcon sx={{ color: "#fff", fontSize: "1.8rem" }} />
         </IconButton>
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
+
+        {/* Grid Layout */}
+        <Box className="grid grid-cols-3 w-full items-center gap-2 sm:gap-4">
+          {/* Logo */}
+          <Box className="flex items-center justify-start gap-2">
             <Link
               to="/home"
-              className="flex items-center gap-3"
+              className="flex items-center"
               title="الصفحة الرئيسية"
             >
-              <span className="text-xl font-extrabold text-white ">
+              {/* نص يظهر من md فقط */}
+              <span className="hidden md:block text-xl font-extrabold text-white">
                 EDU-SMART.AI
               </span>
-              <img src="/public/logo.png" className="h-10 w-auto" alt="logo" />
+              <Logo />
             </Link>
           </Box>
-          <Box>
-            <Typography
+
+          {/* Dashboard Link */}
+          <Box className="flex justify-center">
+            <span
               onClick={() => navigate("/dashboard")}
-              variant="h6"
-              sx={{
-                color: "#fff",
-                fontWeight: "bold",
-                textAlign: "center",
-                textTransform: "capitalize",
-                cursor: "pointer",
-                "&:hover": {
-                  color: "#fff",
-                  fontWeight: "bold",
-                  scale: "1.03",
-                  transition: "all 0.2s ease-in-out",
-                },
-              }}
+              className="text-white font-bold text-sm sm:text-base md:text-lg cursor-pointer transition-transform duration-200 hover:scale-105"
             >
               DASHBOARD
-            </Typography>
+            </span>
           </Box>
 
-          <Box>
+          {/* Profile */}
+          <Box className="flex justify-end">
             <Profile />
           </Box>
         </Box>

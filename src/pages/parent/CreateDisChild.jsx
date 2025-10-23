@@ -129,7 +129,7 @@ function CreateDisChild() {
 
       dispatch(createDisStudent({ formData, token }));
     } catch (err) {
-      console.log(err);
+     
     } finally {
       toast.dismiss(loadingToast);
     }

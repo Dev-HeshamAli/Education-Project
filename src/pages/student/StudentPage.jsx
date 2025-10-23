@@ -6,9 +6,11 @@ import { Footer } from '../../components/student/Footer'
 const StudentPage = () => {
   return (
     <div>
-       <Navbar />
-      <Outlet />
-      <Footer/>
+      <Navbar />
+        <main className="flex-1">
+            <Outlet />
+        </main>
+     <Footer />
     </div>
   )
 }

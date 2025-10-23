@@ -126,6 +126,11 @@ import TeacherSchedule from "../pages/teacher/TeacherSchedule";
 import Students from "../pages/teacher/Students";
 import Reports from "../pages/teacher/Reports";
 
+
+import OnlineCourses from "../pages/parent/OnlineCourses";
+import OfflineCourses from "../pages/parent/OfflineCourses";
+import RegistrationRequests from "../pages/adminActionToStudent/RegistrationRequests";
+import AllStudents from "../pages/adminActionToStudent/AllStudents";
 const AppRoutes = () => {
   const role = useSelector((state) => state.auth.role);
 
@@ -163,6 +168,11 @@ const AppRoutes = () => {
           }
         >
           <Route index element={<Dashboard />} />
+          <Route
+            path="registration-requests"
+            element={<RegistrationRequests />}
+          />
+          <Route path="all-students" element={<AllStudents />} />
           {/* --------------------Admin---------------------- */}
           <Route path="create-admin" element={<CreateAdmin />} />
           <Route path="update-admin" element={<UpdateAdmin />} />
@@ -245,17 +255,17 @@ const AppRoutes = () => {
           {/* -----------------------------Discount Code----------------------- */}
           <Route path="create-discount-code" element={<CreateDiscountCode />} />
           {/* -----------------------------Student----------------------- */}
-          <Route path="get-students" element={<GetStudentFromExcel />} />
-          <Route path="upload-student" element={<UploadStudentFile />} />
+          {/*<Route path="get-students" element={<GetStudentFromExcel />} />*/}
+          {/*<Route path="upload-student" element={<UploadStudentFile />} />*/}
           <Route path="all-applications" element={<AllApplications />} />
-          <Route
+          {/*<Route
             path="acceptance-application"
             element={<AcceptanceApplication />}
           />
           <Route
             path="rejection-application"
             element={<RejectionApplication />}
-          />
+          />*/}
         </Route>
       )}
       {Array.isArray(role) && role.includes("Student") && (
@@ -268,7 +278,7 @@ const AppRoutes = () => {
           }
         >
           <Route index element={<StudentProfile />} />
-
+          
           <Route path="student-profile" element={<StudentProfile />} />
           <Route path="edit-profile" element={<EditStudent />} />
           <Route path="current-courses" element={<StudentCurrentCourses />} />
@@ -278,13 +288,13 @@ const AppRoutes = () => {
             path="course-lectures/:courseId"
             element={<CourseLectures />}
           />
-          <Route path="course-details/:courseId" element={<CourseDetails />} />
+          <Route path="course-details" element={<CourseDetails />} />
 
-          <Route path="watch-lecture/:id" element={<WatchLecture />} />
-          <Route path="quiz-page/:id" element={<QuizPage />} />
-          <Route path="summarize-page/:id" element={<SummarizePage />} />
-          <Route path="translate-page/:id" element={<TranslatePage />} />
-          <Route path="chat-page/:id" element={<ChatWithLecture />} />
+          <Route path="/student/watch-lecture" element={<WatchLecture/>} />
+          <Route path="quiz-page" element={<QuizPage />} />
+          <Route path="summarize-page" element={<SummarizePage />} />
+          <Route path="translate-page" element={<TranslatePage />} />
+          <Route path="chat-page" element={<ChatWithLecture />} />
         </Route>
       )}
       {Array.isArray(role) && role.includes("Teacher") && (
@@ -322,8 +332,16 @@ const AppRoutes = () => {
         <Route path="discount" element={<ParentDiscounts />} />
         <Route path="problems" element={<Problems />} />
         <Route path="contactus" element={<ContactUs />} />
-        <Route path="/parent/plans/:studentId" element={<ShowPlans />} />
-        <Route path="online-plan/:planId/:studentId" element={<OnlinePlan />} />
+        {/*<Route path="/parent/plans/:studentId" element={<ShowPlans />} />*/}
+        <Route path="/parent/plans" element={<ShowPlans />} />
+
+        {/*<Route path="online-plan/:planId/:studentId" element={<OnlinePlan />} />
+        <Route path="online-courses/:planId/:studentId" element={<OnlineCourses />} />
+        <Route path="offline-courses/:planId/:studentId" element={<OfflineCourses />} />*/}
+       
+        <Route path="online-plan" element={<OnlinePlan />} />
+        <Route path="online-courses" element={<OnlineCourses />} />
+        <Route path="offline-courses" element={<OfflineCourses />} />
 
         <Route
           path="courses-plan/:planId/:studentId"

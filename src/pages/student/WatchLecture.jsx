@@ -1,344 +1,299 @@
-// src/pages/student/WatchLecture.jsx
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../api/BASE_URL";
+import {
+  selectLectureContext,
+  setLectureContext,
+  setActiveCourseDetailId,
+} from "../../store/dataIDs/dataIDsSlice";
+
+/* --------- utils --------- */
+const extractDriveId = (url) => {
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("drive.google.com")) return null;
+    return u.pathname.match(/\/file\/d\/([^/]+)/)?.[1] || u.searchParams.get("id") || null;
+  } catch {}
+  return null;
+};
+const toDrivePreview = (url) => {
+  const id = extractDriveId(url);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+};
+const pick = (o, keys) => {
+  if (!o) return "";
+  for (const k of keys) {
+    const v = o[k];
+    if (v !== undefined && v !== null && String(v).trim() !== "") return String(v);
+  }
+  return "";
+};
+const prefer = (a, b) => (String(a || "").trim() || String(b || "").trim() || "");
+
+/* ------------------------- */
 
 export default function WatchLecture() {
-  // /student/watch-lecture/:id => :id = CourseDetailId
-  const { id: courseDetailId } = useParams();
-  const location = useLocation();
-  const q = new URLSearchParams(location.search);
-  const courseId = q.get("courseId");
-  const lecNo = Number(q.get("lecNo") || 0);
-  const kind = (q.get("kind") || "auto").toLowerCase(); // "auto" | "lecture" | "cartoon"
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const token = useSelector((s) => s.auth.token);
-  const navigate = useNavigate();
+  const ctx = useSelector(selectLectureContext) || {};
+  const { courseDetailId, courseId, lecNo } = ctx;
 
-  const [videoUrl, setVideoUrl] = useState(null); // object URL أو direct mp4
-  const [ytEmbedUrl, setYtEmbedUrl] = useState(null); // رابط يوتيوب embeddable
+  // ✅ افتراضي: الأصلي
+  const [kind, setKind] = useState(ctx.kind || "lecture");
+
   const [loading, setLoading] = useState(true);
-  const [errMsg, setErrMsg] = useState("");
-  const [debugTried, setDebugTried] = useState([]);
+  const [err, setErr] = useState("");
+  const [player, setPlayer] = useState({ drivePreview: "", file: "" });
 
-  // لزر "مشاهدة الفيديو الكرتوني"
-  const [hasCartoon, setHasCartoon] = useState(false);
-  const [firstCartoonNo, setFirstCartoonNo] = useState(null);
+  const [links, setLinks] = useState({
+    lectureVideo: "",
+    lectureCartoonVideo: "",
+    summaryFile: "",
+    cartonVideoSummaryFile: "",
+  });
 
-  const objectUrlRef = useRef(null);
-  const videoRef = useRef(null);
-
-  // منع جزء من التحميل/النسخ (لا يمنع 100%)
+  // (اختياري) خزّن نوع العرض الحالي في Redux
   useEffect(() => {
-    const blockCtx = (e) => e.preventDefault();
-    const blockKeys = (e) => {
-      const k = e.key.toLowerCase();
-      const combo = e.ctrlKey || e.metaKey;
-      const devtools = e.shiftKey && (k === "i" || k === "j" || k === "c");
-      const bad = combo && (k === "s" || k === "p" || k === "u");
-      if (bad || devtools) e.preventDefault();
-    };
-    document.addEventListener("contextmenu", blockCtx);
-    window.addEventListener("keydown", blockKeys);
-    return () => {
-      document.removeEventListener("contextmenu", blockCtx);
-      window.removeEventListener("keydown", blockKeys);
-    };
-  }, []);
+    if (!courseDetailId || !courseId) return;
+    dispatch(setLectureContext({ ...ctx, kind }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind]);
 
-  const toObjectUrl = (blob, contentType = "video/mp4") => {
-    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-    const url = URL.createObjectURL(new Blob([blob], { type: contentType }));
-    objectUrlRef.current = url;
-    return url;
-  };
-
-  const fetchBlobWithAuth = async (url) => {
-    const res = await axios.get(url, {
-      responseType: "blob",
-      headers: { Authorization: `Bearer ${token}` },
-      validateStatus: () => true,
-    });
-    return res;
-  };
-
-  const isHttpUrl = (s) => /^https?:\/\//i.test(String(s || ""));
-  const parseYouTubeId = (raw) => {
-    try {
-      const u = new URL(raw);
-      const host = u.hostname.replace(/^www\./, "");
-      if (host === "youtu.be")
-        return u.pathname.split("/").filter(Boolean)[0] || null;
-      if (host.endsWith("youtube.com")) {
-        if (u.searchParams.get("v")) return u.searchParams.get("v");
-        const parts = u.pathname.split("/").filter(Boolean);
-        if (parts[0] === "embed" || parts[0] === "shorts")
-          return parts[1] || null;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
+  // أنشطة جانبية — Redux بلا URL
+  const goSummary   = () => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/summarize-page"); };
+  const goChat      = () => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/chat-page"); };
+  const goTranslate = () => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/translate-page"); };
+  const goQuiz      = () => { dispatch(setActiveCourseDetailId(courseDetailId)); navigate("/student/quiz-page"); };
 
   useEffect(() => {
-    if (!token) return;
-    if (!courseId) {
-      setErrMsg("المعرف courseId غير موجود في الرابط.");
-      return;
-    }
-    if (!courseDetailId) {
-      setErrMsg("المعرف الخاص بالمحاضرة غير صحيح.");
-      return;
-    }
-
     let alive = true;
     (async () => {
+      if (!token || !courseDetailId || !courseId) {
+        setErr(". من فضلك ارجع واختر الدرس مرة أخرى.");
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setErr("");
+
+      const auth = { headers: { Authorization: `Bearer ${token}` } };
+      let initData = null;
+      let listData = null;
       try {
-        setLoading(true);
-        setErrMsg("");
-        setDebugTried([]);
-        setVideoUrl(null);
-        setYtEmbedUrl(null);
-        setHasCartoon(false);
-        setFirstCartoonNo(null);
+        const r1 = await axios.post(`${BASE_URL}/api/Ai/Get-fileCoures/${courseDetailId}`, {}, auth);
+        initData = r1?.data;
+      } catch {}
+      try {
+        const r2 = await axios.get(`${BASE_URL}/api/Course/course-lectures/${courseId}`, auth);
+        listData = r2?.data;
+      } catch {}
 
-        // اختياري
-        try {
-          await axios.post(
-            `${BASE_URL}/api/Ai/Get-fileCoures/${courseDetailId}`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        } catch {}
-
-        // 1) هات بيانات الفيديوهات
-        const { data } = await axios.get(
-          `${BASE_URL}/api/Course/course-lectures-and-cartoon-videos/${courseId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const lectures = Array.isArray(data?.lectures) ? data.lectures : [];
-        const cartoons = Array.isArray(data?.cartoonVideos)
-          ? data.cartoonVideos
-          : [];
-
-        setHasCartoon(cartoons.length > 0);
-        setFirstCartoonNo(cartoons[0]?.lecture ?? null);
-
-        // 2) اختاري الفيديو حسب kind
-        let chosen = null;
-        if (kind === "cartoon") {
-          chosen =
-            cartoons.find((x) => Number(x?.lecture) === lecNo) || cartoons[0];
-        } else if (kind === "lecture") {
-          chosen =
-            lectures.find((x) => Number(x?.lecture) === lecNo) || lectures[0];
-        } else {
-          // auto: الأفضلية للمحاضرات العادية ثم الكرتون
-          chosen =
-            lectures.find((x) => Number(x?.lecture) === lecNo) ||
-            cartoons.find((x) => Number(x?.lecture) === lecNo) ||
-            lectures[0] ||
-            cartoons[0];
+      const extractDetailLinks = (payload, wanted) => {
+        const fromObj = (obj) => ({
+          lectureVideo: pick(obj, ["lectureVideo", "LectureVideo"]),
+          lectureCartoonVideo: pick(obj, ["lectureCartoonVideo", "lectureCartonVideo"]),
+          summaryFile: pick(obj, ["summaryFile"]),
+          cartonVideoSummaryFile: pick(obj, ["cartonVideoSummaryFile"]),
+        });
+        if (!payload) return {};
+        if (Array.isArray(payload)) {
+          const byNo =
+            payload.find((x) => Number(x?.lecture ?? x?.lec ?? x?.no) === Number(wanted)) ||
+            payload[0] || {};
+          return fromObj(byNo);
         }
+        return fromObj(payload);
+      };
 
-        if (!chosen) throw new Error("لا توجد محاضرات/فيديوهات في هذا الكورس.");
+      const L1 = extractDetailLinks(initData, lecNo);
+      const L2 = extractDetailLinks(listData, lecNo);
+      const merged = {
+        lectureVideo: prefer(L1.lectureVideo, L2.lectureVideo),
+        lectureCartoonVideo: prefer(L1.lectureCartoonVideo, L2.lectureCartoonVideo),
+        summaryFile: prefer(L1.summaryFile, L2.summaryFile),
+        cartonVideoSummaryFile: prefer(L1.cartonVideoSummaryFile, L2.cartonVideoSummaryFile),
+      };
+      if (alive) setLinks(merged);
 
-        const fileName =
-          chosen.videoName || chosen.cartoonVideoName || chosen.fileName;
-        if (!fileName) throw new Error("لا يوجد videoName في بيانات المحاضرة.");
+      // اختيار الفيديو حسب kind
+      const allLectures = Array.isArray(listData) ? listData : [];
+      const chooseFrom = (arr, key) => {
+        const byNo = arr.find((x) => Number(x?.lecture ?? x?.lec ?? x?.no) === Number(lecNo));
+        const v = pick(byNo || {}, [key, "fileName", "videoName"]);
+        return v || pick(arr[0] || {}, [key, "fileName", "videoName"]);
+      };
 
-        // 3) لو رابط http(s)
-        if (isHttpUrl(fileName)) {
-          const ytId = parseYouTubeId(fileName);
-          if (ytId) {
-            const embed = `https://www.youtube.com/embed/${ytId}?controls=0&disablekb=1&modestbranding=1&rel=0&fs=0&iv_load_policy=3&playsinline=1`;
-            if (alive) setYtEmbedUrl(embed);
-            return;
-          }
-          if (alive) setVideoUrl(fileName);
-          return;
-        }
+      let playUrl =
+        (kind === "cartoon"
+          ? (chooseFrom(allLectures, "lectureCartoonVideo") || merged.lectureCartoonVideo)
+          : (chooseFrom(allLectures, "lectureVideo") || merged.lectureVideo)) || "";
 
-        // 4) اسم ملف داخلي → جرّبي مسارات GetStaticFiles
-        const enc = encodeURIComponent(fileName);
-        const candidates = [
-          `${BASE_URL}/GetStaticFiles/videos/${enc}`,
-          `${BASE_URL}/GetStaticFiles/files/${enc}`,
-          `${BASE_URL}/GetStaticFiles/${enc}`,
-          `${BASE_URL}/api/GetStaticFiles/videos/${enc}`,
-          `${BASE_URL}/api/GetStaticFiles/files/${enc}`,
-        ];
-
-        for (const url of candidates) {
-          const res = await fetchBlobWithAuth(url);
-          setDebugTried((prev) => [...prev, { url, status: res.status }]);
-          if (res.status === 200) {
-            const type = res.headers?.["content-type"] || "video/mp4";
-            const objUrl = toObjectUrl(res.data, type);
-            if (alive) setVideoUrl(objUrl);
-            return;
-          } else if (res.status === 401) {
-            localStorage.removeItem("token");
-            navigate("/login");
-            return;
-          }
-        }
-
-        throw new Error(
-          "تعذّر تحميل/تشغيل الفيديو من الخادم (ملف غير موجود أو مسار غير صحيح)."
-        );
-      } catch (e) {
-        console.error("WatchLecture load error:", e);
-        if (alive) setErrMsg(e?.message || "تعذّر تحميل الفيديو.");
-      } finally {
-        if (alive) setLoading(false);
+      // fallback لو النوع الحالي مفيهوش رابط
+      if (!playUrl) {
+        playUrl =
+          (chooseFrom(allLectures, "lectureVideo") || merged.lectureVideo ||
+           chooseFrom(allLectures, "lectureCartoonVideo") || merged.lectureCartoonVideo) || "";
       }
+
+      if (!playUrl) {
+        setErr("لا يوجد فيديو متاح لهذا الدرس.");
+        setLoading(false);
+        return;
+      }
+
+      const preview = toDrivePreview(playUrl);
+      if (preview) {
+        if (alive) setPlayer({ drivePreview: preview, file: "" });
+      } else {
+        if (alive) setPlayer({ drivePreview: "", file: playUrl });
+      }
+
+      if (alive) setLoading(false);
     })();
+    return () => { alive = false; };
+  }, [token, courseDetailId, courseId, lecNo, kind]);
 
-    return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-      alive = false;
-    };
-  }, [token, courseId, lecNo, courseDetailId, kind, navigate]);
+  const cartoonAvailable = useMemo(() => Boolean(links.lectureCartoonVideo), [links.lectureCartoonVideo]);
+  const normalAvailable  = useMemo(() => Boolean(links.lectureVideo),        [links.lectureVideo]);
 
-  // ووتـرمارك بسيطة
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setTick((x) => x + 1), 5000);
-    return () => clearInterval(t);
-  }, []);
+  if (loading) {
+    return (
+      <main dir="rtl" className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="rounded-xl bg-white shadow p-6 text-slate-700">جارٍ التحميل…</div>
+      </main>
+    );
+  }
+  if (err) {
+    return (
+      <main dir="rtl" className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="rounded-xl bg-white shadow p-6 text-red-600">
+          {err}
+          <div className="mt-3 text-center">
+            <button
+              onClick={() => navigate("/student/course-details", { replace: true })}
+              className="rounded-lg bg-gray-800 text-white px-4 py-2"
+            >
+              الرجوع لتفاصيل المادة
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main dir="rtl" className="bg-gray-50 min-h-screen py-10">
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-            مشاهدة المحاضرة
-          </h1>
+    <main dir="rtl" className="min-h-screen bg-slate-50 py-8">
+      <section className="mx-auto max-w-6xl px-4">
+        <div className="mb-5">
+          <h1 className="text-2xl font-extrabold text-slate-900">مشاهدة الدرس</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <section className="md:col-span-2">
-            <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-4 md:p-5 select-none">
-              {/* ووتـرمارك */}
-              <div
-                className="pointer-events-none absolute z-20 text-white/70 text-xs md:text-sm font-semibold select-none"
-                style={{
-                  top: `${10 + (tick % 5) * 8}%`,
-                  left: `${15 + (tick % 7) * 6}%`,
-                  textShadow: "0 1px 2px rgba(0,0,0,.6)",
-                  userSelect: "none",
-                }}
-              >
-                EduSmart • {new Date().toLocaleString()}
-              </div>
-
-              {loading ? (
-                <div className="h-72 md:h-[430px] bg-gray-100 animate-pulse rounded-2xl" />
-              ) : errMsg ? (
-                <>
-                  <div className="rounded-xl border border-rose-200 bg-rose-50 text-rose-700 p-4">
-                    {errMsg}
-                  </div>
-                  {debugTried.length > 0 && (
-                    <div className="mt-4 text-xs text-gray-600">
-                      <div className="font-bold mb-1">تقرير المحاولات:</div>
-                      <ul className="space-y-1">
-                        {debugTried.map((t, i) => (
-                          <li key={i} className="break-all">
-                            {t.status} — {t.url}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              ) : ytEmbedUrl ? (
-                <div className="aspect-video w-full rounded-2xl overflow-hidden">
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Player */}
+          <div className="md:col-span-2">
+            <div className="rounded-2xl bg-white border shadow overflow-hidden">
+              {player.drivePreview ? (
+                <div className="aspect-video">
                   <iframe
-                    key={ytEmbedUrl}
-                    src={ytEmbedUrl}
-                    title="YouTube player"
+                    src={player.drivePreview}
+                    title="Drive Preview"
                     className="w-full h-full"
-                    allow="autoplay; encrypted-media"
-                    sandbox="allow-scripts allow-same-origin"
-                    referrerPolicy="strict-origin-when-cross-origin"
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                    referrerPolicy="no-referrer"
                   />
                 </div>
-              ) : videoUrl ? (
+              ) : (
                 <video
-                  key={videoUrl}
-                  ref={videoRef}
-                  src={videoUrl}
+                  src={player.file}
+                  className="w-full"
                   controls
                   playsInline
                   preload="metadata"
-                  className="w-full rounded-2xl shadow"
-                  controlsList="nodownload noplaybackrate noremoteplayback"
+                  controlsList="nodownload noremoteplayback"
                   disablePictureInPicture
                   // @ts-ignore
                   disableRemotePlayback
                   onContextMenu={(e) => e.preventDefault()}
                 />
-              ) : (
-                <p className="text-gray-600">لا يوجد فيديو متاح.</p>
               )}
             </div>
-          </section>
+          </div>
 
-          <aside className="md:col-span-1">
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4 md:p-5 sticky top-6">
-              <h2 className="text-lg font-extrabold text-gray-900 mb-3">
-                إجراءات الحصة
-              </h2>
-              <div className="flex flex-col gap-3">
-                <Link
-                  to={`/student/summarize-page/${courseDetailId}`}
-                  className="rounded-xl bg-slate-900 hover:opacity-95 text-white font-semibold px-4 py-3 text-center"
-                >
-                  ملخص الحصة
-                </Link>
-                <Link
-                  to={`/student/chat-page/${courseDetailId}`}
-                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-3 text-center"
-                >
-                  تحاور مع الحصة 💬
-                </Link>
-                <Link
-                  to={`/student/translate-page/${courseDetailId}`}
-                  className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-3 text-center"
-                >
-                  ترجمة الحصة 🌐
-                </Link>
-                <Link
-                  to={`/student/quiz-page/${courseDetailId}`}
-                  className="rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-3 text-center"
-                >
-                  اختبار الحصة 📝
-                </Link>
-
-                {/* ✅ الزر الجديد: مشاهدة الفيديو الكرتوني */}
-
-                <Link
-                  to={`/student/watch-lecture/${courseDetailId}?courseId=${courseId}&lecNo=${
-                    lecNo || firstCartoonNo || 1
-                  }&kind=cartoon`}
-                  className="rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-semibold px-4 py-3 text-center"
-                >
-                  مشاهدة الفيديو الكرتوني 🎬
-                </Link>
+          {/* Sidebar */}
+          <aside className="md:col-span-1 space-y-4">
+            {/* أنشطة التعلم */}
+            <div className="rounded-2xl bg-white border shadow p-4">
+              <h3 className="font-bold text-slate-900 mb-3">أنشطة التعلم</h3>
+              <div className="grid gap-2">
+                <button onClick={goSummary}   className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 text-center">📚 ملخص الدرس</button>
+                <button onClick={goChat}      className="rounded-lg bg-slate-900 hover:bg-black text-white font-bold px-4 py-2 text-center">💬 دردشة ذكية</button>
+                <button onClick={goTranslate} className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 text-center">🌍 ترجمة</button>
+                <button onClick={goQuiz}      className="rounded-lg bg-slate-900 hover:bg-black text-white font-bold px-4 py-2 text-center">🏆 اختبار</button>
               </div>
             </div>
+
+            {/* روابط الدرس (أزرار تبديل داخل نفس الـ player) */}
+            {(normalAvailable || cartoonAvailable || links.summaryFile || links.cartonVideoSummaryFile) && (
+              <div className="rounded-2xl bg-white border shadow p-4">
+                <h3 className="font-bold text-slate-900 mb-3">روابط الدرس</h3>
+                <div className="grid gap-2">
+                  {/* ✅ الأصلي داخل نفس المشغّل */}
+                  <button
+                    disabled={!normalAvailable}
+                    onClick={() => setKind("lecture")}
+                    className={`rounded-lg px-3 py-2 font-semibold ${
+                      kind === "lecture"
+                        ? "bg-slate-900 text-white"
+                        : "bg-white border text-slate-800"
+                    } ${!normalAvailable ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    ▶️ الفيديو الأصلي
+                  </button>
+
+                  {/* ✅ الكرتوني داخل نفس المشغّل */}
+                  <button
+                    disabled={!cartoonAvailable}
+                    onClick={() => setKind("cartoon")}
+                    className={`rounded-lg px-3 py-2 font-semibold ${
+                      kind === "cartoon"
+                        ? "bg-orange-500 text-white"
+                        : "bg-white border text-slate-800"
+                    } ${!cartoonAvailable ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    🎬 النسخة الكرتونية
+                  </button>
+
+                  {links.summaryFile && (
+                    <a
+                      href={links.summaryFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 font-bold px-4 py-2 text-center"
+                    >
+                      📄 ملخص الدرس (PDF)
+                    </a>
+                  )}
+                  {links.cartonVideoSummaryFile && (
+                    <a
+                      href={links.cartonVideoSummaryFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-bold px-4 py-2 text-center"
+                    >
+                      📄 ملخص النسخة الكرتونية
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </aside>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

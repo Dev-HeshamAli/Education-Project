@@ -1,9 +1,11 @@
+// src/pages/ContactUs.jsx
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { BASE_URL } from "../../api/BASE_URL";
+import { FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
 
 function ContactUs() {
   const token = useSelector((state) => state.auth.token);
@@ -44,9 +46,41 @@ function ContactUs() {
             تواصل معنا
           </h1>
           <p className="text-gray-600 mb-6 text-center">
-            إذا كانت لديك أي مشكلة، من فضلك صفها في الأسفل وسنقوم بالرد عليك في أقرب وقت.
+            إذا كانت لديك أي مشكلة، من فضلك ضفها في الأسفل وسنقوم بالرد عليك في
+            أقرب وقت.
           </p>
 
+          {/* ✅ أرقام التواصل */}
+          <div className="mb-6 space-y-3 text-lg text-gray-800">
+            <p className="flex items-center gap-2">
+              <FaWhatsapp className="text-green-500 text-xl" />
+              <span>
+                واتساب:{" "}
+                <a
+                  href="https://wa.me/201021355543"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  01021355543
+                </a>
+              </span>
+            </p>
+            <p className="flex items-center gap-2">
+              <FaPhoneAlt className="text-blue-500 text-xl" />
+              <span>
+                اتصال:{" "}
+                <a
+                  href="tel:01031165004"
+                  className="text-blue-600 hover:underline"
+                >
+                  01031165004
+                </a>
+              </span>
+            </p>
+          </div>
+
+          {/* ✅ نموذج إرسال المشكلة */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block font-semibold text-gray-700 mb-2">
@@ -64,7 +98,7 @@ function ContactUs() {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="bg-[#0b1a2a] text-white font-semibold px-6 py-2 rounded-lg  transition"
+                className="bg-[#0b1a2a] text-white font-semibold px-6 py-2 rounded-lg transition"
               >
                 إرسال
               </button>
@@ -76,12 +110,11 @@ function ContactUs() {
       <div className="flex justify-center mb-5">
         <Link
           to="/parent/problems"
-          className="mt-20 bg-[#0b1a2a] text-white font-semibold px-6 py-2 rounded-lg  transition"
+          className="mt-20 bg-[#0b1a2a] text-white font-semibold px-6 py-2 rounded-lg transition"
         >
           عرض المشكلات
         </Link>
       </div>
-
     </>
   );
 }

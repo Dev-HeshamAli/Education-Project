@@ -3,7 +3,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { BASE_URL } from "../../api/BASE_URL";
-
 /* =====================================
  * ✅ Create Student
  * ===================================== */
@@ -67,7 +66,6 @@ export const fetchStudentInfo = createAsyncThunk(
   async ({ studentId, token }, { rejectWithValue }) => {
     try {
       // debug log (اختياري)
-      console.log("Fetching student info for:", studentId);
       const res = await axios.get(
         `${BASE_URL}/api/Student/student-info/${studentId}`,
         {

@@ -1,12 +1,14 @@
 // 📁 components/ForgotPassword.jsx
-import axios from "axios";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { useSelector, useDispatch } from "react-redux";
-import { setCode } from "../../store/resetPassword/resetPasswordSlice";
-import Navbar from "../../components/main/Navbar";
+import axios from 'axios';
+import { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Footer from "../../components/main/Footer";
+import Navbar from '../../components/main/Navbar';
+import { setCode } from '../../store/resetPassword/resetPasswordSlice';
+
+// ✅ استدعاء الـ BASE_URL من ملف مشترك
+import { BASE_URL } from "../../api/BASE_URL";
 
 function ConfirmCode() {
   const [codeDigits, setCodeDigits] = useState(["", "", "", "", "", ""]);
@@ -14,8 +16,6 @@ function ConfirmCode() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const email = useSelector((state) => state.resetPassword.email);
-
-  const BASE_URL = "https://edu-smart.runasp.net/api/Auth";
 
   const handleCodeChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // مسموح أرقام فقط
@@ -28,9 +28,9 @@ function ConfirmCode() {
   };
 
   const handleConfirmCode = async () => {
-    const code = codeDigits.join("");
+    const code = codeDigits.join('');
     if (code.length < 6) {
-      alert("⚠️ من فضلك أدخل كل الأرقام الستة.");
+      alert("⚠️ Please enter all 6 digits.");
       return;
     }
 
@@ -38,12 +38,11 @@ function ConfirmCode() {
 
     try {
       await axios.post(
-        `${BASE_URL}/Get-Code-For-Reset-Password?Email=${email}&code=${code}`
+        `${BASE_URL}/api/Auth/Get-Code-For-Reset-Password?Email=${email}&code=${code}`
       );
-      alert("✅ الكود صحيح.");
-      navigate("/reset-password");
+      navigate('/reset-password');
     } catch (err) {
-      alert("❌ الكود غير صحيح.");
+      alert('❌ Invalid code.');
       console.error(err);
     }
   };
@@ -51,8 +50,8 @@ function ConfirmCode() {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col max-w-md mx-auto mt-24 p-6 bg-white shadow-lg rounded-xl gap-4">
-        <h1 className="text-2xl font-bold text-center">تأكيد الكود</h1>
+      <div dir="ltr" className="flex flex-col max-w-md mx-auto min-h-[50vh] p-6 bg-white shadow-lg rounded-xl gap-4">
+        <h1 className="text-2xl font-bold text-center">رمز التأكيد</h1>
 
         <div className="flex justify-between gap-2">
           {codeDigits.map((digit, idx) => (
@@ -72,15 +71,12 @@ function ConfirmCode() {
           className="bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 mt-4"
           onClick={handleConfirmCode}
         >
-          تأكيد الكود
+          ارسال الكود
         </button>
       </div>
-      <div className="relative">
+      <div className="relative" dir="ltr">
         <Footer />
-
-        {/* Enhanced Copyright Section */}
         <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 py-6 text-white relative overflow-hidden">
-          {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-1/4 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
             <div
@@ -88,15 +84,12 @@ function ConfirmCode() {
               style={{ animationDelay: "1s" }}
             ></div>
           </div>
-
           <div className="container mx-auto px-4 relative">
             <div className="text-center">
               <p className="text-gray-300 text-sm leading-relaxed">
-                حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+                © 2025 Edu-Smart. All rights reserved by{" "}
                 <a
-                  href="https://envytheme.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://edu-smart.ai"
                   className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"
                 >
                   Edu-Smart.ai

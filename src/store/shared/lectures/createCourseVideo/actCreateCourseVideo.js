@@ -9,7 +9,7 @@ export const actCreateCourseVideo = createAsyncThunk(
   async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${BASE_URL}/api/Course/add-cartoon-video`,
+        `${BASE_URL}/api/Course/create-course-detail`,
         data,
         {
           headers: {

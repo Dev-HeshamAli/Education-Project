@@ -1,133 +1,146 @@
 // src/pages/parent/RegisterParent.jsx
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useFormik } from "formik";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { BASE_URL } from "../../api/BASE_URL";
 import Navbar from "../../components/main/Navbar";
 
 function RegisterParent() {
   const navigate = useNavigate();
 
-  // ريجكس
-  const passReg = /^[A-Z][A-Za-z0-9]{5,}$/;
-  const phoneReg = /^01[0125][0-9]{8}$/;
+  // Regex
+  const passReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/; // 8+ ويحتوي Lowercase + Uppercase + Digit
+  const phoneReg = /^01[0125][0-9]{8}$/; // رقم مصري كمثال
 
-  // لود/داتا الدول
-  const [countries, setCountries] = useState([]); // [{code, nameAr, nameEn}]
-  const [countriesLoading, setCountriesLoading] = useState(true);
-  const [countriesErr, setCountriesErr] = useState("");
+  // show/hide password
+  const [showPass, setShowPass] = useState(false);
 
-  useEffect(() => {
-    let alive = true;
-    async function loadCountries() {
-      try {
-        setCountriesLoading(true);
-        setCountriesErr("");
-        // بنجيب الاسم العربي إن وُجد + الاسم الرسمي الإنجليزي
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,cca2,cca3,translations"
-        );
-        const raw = await res.json();
-
-        const mapped = (Array.isArray(raw) ? raw : [])
-          .map((c) => {
-            const nameAr = c?.translations?.ara?.common || c?.name?.common || "";
-            const nameEn = c?.name?.official || c?.name?.common || "";
-            return {
-              code: c?.cca2 || c?.cca3 || nameEn,
-              nameAr,
-              nameEn,
-            };
+  const formik = useFormik({
+    initialValues: {
+      firstName: "",
+      secondName: "",
+      thirdName: "",
+      email: "",
+      password: "",
+      whatsApp_number: "",
+      allPhones: [""],
+      jobs: [{ job: "", gender: "" }],
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string()
+        .required("الاسم الأول مطلوب")
+        .min(2, "يجب أن لا يقل الاسم الأول عن 2 حرف")
+        .max(30, "يجب أن لا يزيد الاسم الأول عن 30 حرف"),
+      secondName: Yup.string()
+        .required("الاسم الثاني مطلوب")
+        .min(2, "يجب أن لا يقل الاسم الثاني عن 2 حرف")
+        .max(30, "يجب أن لا يزيد الاسم الثاني عن 30 حرف"),
+      thirdName: Yup.string().nullable(),
+      email: Yup.string()
+        .required("البريد الإلكتروني مطلوب")
+        .email("صيغة البريد الإلكتروني غير صحيحة"),
+      password: Yup.string()
+        .required("كلمة المرور مطلوبة")
+        .matches(
+          passReg,
+          "يجب أن تتكون كلمة المرور من 8 رموز على الأقل وتحتوي على حرف كبير وحرف صغير ورقم"
+        ),
+      whatsApp_number: Yup.string()
+        .required("رقم واتساب مطلوب")
+      ,
+      allPhones: Yup.array()
+        .of(
+          Yup.string()
+            .trim()
+            .required("رقم الهاتف مطلوب")
+        )
+        .min(1, "يجب إضافة رقم هاتف واحد على الأقل"),
+      jobs: Yup.array()
+        .of(
+          Yup.object({
+            job: Yup.string().required("المسمى الوظيفي مطلوب"),
+            gender: Yup.string()
+              .oneOf(["Male", "Female"], "اختر النوع")
+              .required("النوع مطلوب"),
           })
-          // ترتيب أبجدي عربي ثم إنجليزي كاحتياطي
-          .sort((a, b) =>
-            (a.nameAr || a.nameEn).localeCompare(b.nameAr || b.nameEn, "ar")
-          );
-
-        if (!alive) return;
-        setCountries(mapped);
-
-        // لو المستخدم ما اختارش دولة لسه، نعيّن مصر بشكل افتراضي إن وُجدت
-        const egypt =
-          mapped.find((x) => x.code === "EG" || /Egypt/i.test(x.nameEn) || x.nameAr === "مصر") ||
-          mapped[0];
-
-        if (!formik.values.country && egypt) {
-          formik.setFieldValue("country", egypt.nameEn); // نرسل official EN للباك-إند
-        }
-      } catch (e) {
-        if (!alive) return;
-        setCountriesErr("تعذّر تحميل قائمة الدول. يمكنك إدخال الدولة يدويًا.");
-      } finally {
-        if (!alive) return;
-        setCountriesLoading(false);
-      }
-    }
-    loadCountries();
-    return () => {
-      alive = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Yup
-  const validationSchema = Yup.object({
-    firstName: Yup.string()
-      .required("الاسم الأول مطلوب")
-      .min(3, "يجب أن لا يقل الاسم الأول عن 3 أحرف")
-      .max(20, "يجب أن لا يزيد الاسم الأول عن 20 حرفًا"),
-    secondName: Yup.string()
-      .required("الاسم الثاني مطلوب")
-      .min(3, "يجب أن لا يقل الاسم الثاني عن 3 أحرف")
-      .max(20, "يجب أن لا يزيد الاسم الثاني عن 20 حرفًا"),
-    thirdName: Yup.string().nullable(),
-    ssn: Yup.string()
-      .required("الرقم القومي مطلوب")
-      .matches(/^\d{14}$/, "الرقم القومي يجب أن يكون 14 رقمًا"),
-    country: Yup.string().required("الدولة مطلوبة"),
-    governorate: Yup.string().required("المحافظة مطلوبة"),
-    email: Yup.string()
-      .required("البريد الإلكتروني مطلوب")
-      .email("صيغة البريد الإلكتروني غير صحيحة"),
-    password: Yup.string()
-      .required("كلمة المرور مطلوبة")
-      .matches(
-        passReg,
-        "يجب أن تبدأ بحرف كبير وتكون 6 أحرف/أرقام على الأقل"
-      ),
-    whatsApp_number: Yup.string()
-      .required("رقم واتساب مطلوب")
-      .matches(phoneReg, "رقم واتساب غير صالح"),
-    allPhones: Yup.array()
-      .of(
-        Yup.string()
-          .matches(phoneReg, "رقم الهاتف غير صالح")
-          .required("رقم الهاتف مطلوب")
-      )
-      .min(1, "يجب إضافة رقم هاتف واحد على الأقل"),
-    jobs: Yup.array().of(
-      Yup.object({
-        job: Yup.string().required("المسمى الوظيفي مطلوب"),
-        gender: Yup.string()
-          .oneOf(["Male", "Female"], "اختر النوع")
-          .required("النوع مطلوب"),
-      })
-    ),
+        )
+        .min(1, "يجب إضافة وظيفة واحدة على الأقل"),
+    }),
+    onSubmit: (values) => {
+      sendDataToSignUp(values);
+    },
   });
 
-  // الحقول المطلوبة لإظهار النجمة
+  function preparePayload(v) {
+    // تنظيف قبل الإرسال: إزالة العناصر الفارغة/المسافات
+    const phones = (v.allPhones || [])
+      .map((p) => String(p || "").trim())
+      .filter(Boolean);
+
+    const jobs = (v.jobs || [])
+      .map((j) => ({
+        job: String(j?.job || "").trim(),
+        gender: String(j?.gender || "").trim(),
+      }))
+      .filter((j) => j.job && j.gender);
+
+    return {
+      firstName: v.firstName.trim(),
+      secondName: v.secondName.trim(),
+      thirdName: (v.thirdName || "").trim(),
+      email: v.email.trim(),
+      password: v.password,
+      whatsApp_number: v.whatsApp_number.trim(),
+      allPhones: phones.length ? phones : [""], // يطابق النوع المتوقع
+      jobs: jobs.length ? jobs : [{ job: "", gender: "" }],
+    };
+  }
+
+  async function sendDataToSignUp(values) {
+    const payload = preparePayload(values);
+    const loadingToast = toast.loading("جارٍ التحميل...");
+    try {
+      await axios.post(`${BASE_URL}/api/Parent/create-parent`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      toast.success("تم إنشاء الحساب بنجاح!");
+      navigate("/login");
+    } catch (err) {
+      const raw = err?.response?.data;
+      const errorsArr = Array.isArray(raw?.errors) ? raw.errors : [];
+
+      // رسالة تكرار الإيميل (حسب رسائل الباك الحالية)
+      const isEmailTaken = errorsArr.some((e) =>
+        String(e).toLowerCase().includes("email must unique")
+      );
+
+      if (isEmailTaken) {
+        formik.setFieldError(
+          "email",
+          "هذا البريد مسجّل بالفعل. يرجى إدخال بريد آخر."
+        );
+        toast.error("هذا البريد مسجّل بالفعل. يرجى إدخال بريد آخر.");
+      } else {
+        toast.error(
+          raw?.message || raw?.title || err?.message || "حدث خطأ غير متوقع"
+        );
+      }
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  }
+
   const requiredFields = new Set([
     "firstName",
     "secondName",
-    "ssn",
-    "country",
-    "governorate",
     "email",
     "password",
     "whatsApp_number",
-    "allPhones", // المجموعة كلها مطلوبة
+    "allPhones",
     "jobs.job",
     "jobs.gender",
   ]);
@@ -137,45 +150,6 @@ function RegisterParent() {
       {children} {required && <span className="text-rose-500">*</span>}
     </label>
   );
-
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      secondName: "",
-      thirdName: "",
-      ssn: "",
-      country: "",
-      governorate: "",
-      email: "",
-      password: "",
-      whatsApp_number: "",
-      allPhones: [""],
-      jobs: [{ job: "", gender: "" }],
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      sendDataToSignUp(values);
-    },
-  });
-
-  async function sendDataToSignUp(values) {
-    const loadingToast = toast.loading("جارٍ التحميل...");
-    try {
-      const res = await axios.post(
-        `https://edu-smart.runasp.net/api/Parent/create-parent`,
-        values,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log(res);
-      toast.success("تم إنشاء الحساب بنجاح!");
-      navigate("/parent");
-    } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.message || "حدث خطأ غير متوقع");
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  }
 
   const FieldError = ({ name }) =>
     formik.errors[name] && formik.touched[name] ? (
@@ -255,75 +229,6 @@ function RegisterParent() {
                   />
                 </div>
 
-                {/* الرقم القومي */}
-                <div className="flex flex-col">
-                  <Label required={requiredFields.has("ssn")}>الرقم القومي</Label>
-                  <input
-                    type="text"
-                    name="ssn"
-                    value={formik.values.ssn}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="أدخل الرقم القومي (14 رقمًا)"
-                  />
-                  <FieldError name="ssn" />
-                </div>
-
-                {/* الدولة (قائمة من API) */}
-                <div className="flex flex-col">
-                  <Label required={requiredFields.has("country")}>الدولة</Label>
-
-                  {countriesLoading ? (
-                    <div className="h-11 rounded-xl bg-gray-100 animate-pulse" />
-                  ) : countriesErr ? (
-                    <>
-                      <input
-                        type="text"
-                        name="country"
-                        value={formik.values.country}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"
-                        placeholder="ادخل الدولة يدويًا"
-                      />
-                      <p className="text-xs mt-1 text-amber-600">{countriesErr}</p>
-                    </>
-                  ) : (
-                    <select
-                      name="country"
-                      value={formik.values.country}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm bg-white"
-                    >
-                      {countries.map((c) => (
-                        <option key={c.code} value={c.nameEn}>
-                          {c.nameAr || c.nameEn}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  <FieldError name="country" />
-                </div>
-
-                {/* المحافظة */}
-                <div className="flex flex-col">
-                  <Label required={requiredFields.has("governorate")}>
-                    المحافظة
-                  </Label>
-                  <input
-                    type="text"
-                    name="governorate"
-                    value={formik.values.governorate}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="ادخل المحافظة"
-                  />
-                  <FieldError name="governorate" />
-                </div>
-
                 {/* البريد */}
                 <div className="flex flex-col">
                   <Label required={requiredFields.has("email")}>
@@ -341,20 +246,31 @@ function RegisterParent() {
                   <FieldError name="email" />
                 </div>
 
-                {/* كلمة المرور */}
+                {/* كلمة المرور + زر إظهار/إخفاء */}
                 <div className="flex flex-col">
                   <Label required={requiredFields.has("password")}>
                     كلمة المرور
                   </Label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="ابدأ بحرف كبير (A...)"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPass ? "text" : "password"}
+                      name="password"
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="w-full rounded-xl border border-slate-200 pr-4 pl-10 py-3 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass((s) => !s)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      aria-label={showPass ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                      title={showPass ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                    >
+                      {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   <FieldError name="password" />
                 </div>
 
@@ -370,7 +286,7 @@ function RegisterParent() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"
-                    placeholder="01XXXXXXXXX"
+                   
                   />
                   <FieldError name="whatsApp_number" />
                 </div>
@@ -513,19 +429,17 @@ function RegisterParent() {
           </div>
         </div>
       </div>
-      
-       <div className="bg-gray-900 py-4 text-white">
+
+      <div className="bg-gray-900 py-4 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center text-sm text-gray-200">
             <p>
-              حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+              حقوق النشر © 2025 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
               <a
-                href="https://envytheme.com/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="https://edu-smart.ai"
                 className="text-orange-600 hover:underline"
               >
-               Edu-Smart.ai
+                Edu-Smart.ai
               </a>
             </p>
           </div>

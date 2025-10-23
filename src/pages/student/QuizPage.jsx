@@ -1,36 +1,37 @@
 // src/pages/QuizPage.jsx
 import axios from "axios";
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../api/BASE_URL";
+import { selectActiveCourseDetailId } from "../../store/dataIDs/dataIDsSlice";
 
-const API_BASE = "https://edu-smart.runasp.net/api/Ai";
+const API_BASE = `${BASE_URL}/api/Ai`;
+const ACCENT = "#e76f2e";
+const ACCENT_HOVER = "#cf5f1f";
+const NAVY = "#1c2431";
 
 export default function QuizPage() {
-  const { id } = useParams();
+  const navigate = useNavigate();
   const { token } = useSelector((s) => s.auth || {});
+  // ✅ بدل useParams: ID من الريدكس
+  const courseDetailId = useSelector(selectActiveCourseDetailId);
 
   const [status, setStatus] = useState("idle"); // idle | preparing | ready | submitting | done
   const [error, setError] = useState("");
 
-  // بيانات موحّدة داخليًا
   const [mcq, setMcq] = useState([]); // { Question, Options[], CorrectAnswer(string) }
   const [tfq, setTfq] = useState([]); // { Question, CorrectAnswer(boolean) }
   const [quizSid, setQuizSid] = useState(null);
 
-  // إجابات المستخدم
   const [answersMcq, setAnswersMcq] = useState({});
   const [answersTfq, setAnswersTfq] = useState({});
 
-  // النتيجة المحلية
   const [result, setResult] = useState(null);
 
   const authCfg = useMemo(
     () => ({
-      headers: {
-        Accept: "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     }),
     [token]
   );
@@ -45,29 +46,27 @@ export default function QuizPage() {
     [token]
   );
 
-  // --- تطبيع رد New-Quiz ---
   const normMcq = (q) => {
-    const Options = Array.isArray(q?.Options ?? q?.options)
-      ? (q?.Options ?? q?.options)
-      : [];
+    const Options = Array.isArray(q?.Options ?? q?.options) ? (q?.Options ?? q?.options) : [];
     const ca = q?.CorrectAnswer ?? q?.correctAnswer ?? q?.correct_answer ?? "";
-    return {
-      Question: q?.Question ?? q?.question ?? "",
-      Options,
-      CorrectAnswer: String(ca),
-    };
+    return { Question: q?.Question ?? q?.question ?? "", Options, CorrectAnswer: String(ca) };
   };
   const normTf = (q) => ({
     Question: q?.Question ?? q?.question ?? "",
     CorrectAnswer:
-      typeof (q?.CorrectAnswer ?? q?.correctAnswer ?? q?.correct_answer) ===
-      "boolean"
+      typeof (q?.CorrectAnswer ?? q?.correctAnswer ?? q?.correct_answer) === "boolean"
         ? (q?.CorrectAnswer ?? q?.correctAnswer ?? q?.correct_answer)
         : false,
   });
 
-  // --- تحميل الكويز ---
   const loadQuiz = async () => {
+    // 🛡️ لو مفيش ID من الريدكس
+    if (!courseDetailId) {
+      setError("لا يمكن فتح الكويز مباشرة. ارجع لتفاصيل المادة واختر الحصة ثم ادخل هنا.");
+      setStatus("idle");
+      return;
+    }
+
     try {
       setError("");
       setStatus("preparing");
@@ -79,28 +78,24 @@ export default function QuizPage() {
       }
 
       try {
-        await axios.post(`${API_BASE}/Get-fileCoures/${id}`, {}, jsonCfg);
+        await axios.post(`${API_BASE}/Get-fileCoures/${courseDetailId}`, {}, jsonCfg);
       } catch {}
 
-      const res = await axios.get(`${API_BASE}/New-Quiz/${id}`, authCfg);
+      const res = await axios.get(`${API_BASE}/New-Quiz/${courseDetailId}`, authCfg);
       const data = res.data || {};
 
       const sid = data.sourceId ?? data.SourceId ?? null;
       const rawMcq = data.mcqQuestions ?? data.McqQuestions ?? [];
       const rawTf = data.trueFalseQuestions ?? data.TrueFalseQuestions ?? [];
 
-      const m = rawMcq.map(normMcq);
-      const t = rawTf.map(normTf);
-
       setQuizSid(sid);
-      setMcq(m);
-      setTfq(t);
+      setMcq(rawMcq.map(normMcq));
+      setTfq(rawTf.map(normTf));
       setAnswersMcq({});
       setAnswersTfq({});
       setResult(null);
       setStatus("ready");
 
-      // سكرول لأول سؤال
       setTimeout(() => {
         document.getElementById("quiz-start")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 50);
@@ -115,7 +110,6 @@ export default function QuizPage() {
     }
   };
 
-  // --- تصحيح محلي ---
   const gradeLocally = () => {
     let score = 0;
 
@@ -123,37 +117,20 @@ export default function QuizPage() {
       const ua = answersMcq[i];
       const isCorrect = String(ua) === String(q.CorrectAnswer);
       if (isCorrect) score++;
-      return {
-        question: q.Question,
-        options: q.Options,
-        userAnswer: ua,
-        correct_answer: q.CorrectAnswer,
-        isCorrect,
-      };
+      return { question: q.Question, options: q.Options, userAnswer: ua, correct_answer: q.CorrectAnswer, isCorrect };
     });
 
     const tfResult = tfq.map((q, i) => {
       const ua = answersTfq[i];
       const isCorrect = typeof ua === "boolean" && ua === q.CorrectAnswer;
       if (isCorrect) score++;
-      return {
-        question: q.Question,
-        userAnswer: ua,
-        correct_answer: q.CorrectAnswer,
-        isCorrect,
-      };
+      return { question: q.Question, userAnswer: ua, correct_answer: q.CorrectAnswer, isCorrect };
     });
 
-    return {
-      score,
-      totalQuestions: mcq.length + tfq.length,
-      mcqQuestions: mcqResult,
-      trueFalseQuestions: tfResult,
-    };
+    return { score, totalQuestions: mcq.length + tfq.length, mcqQuestions: mcqResult, trueFalseQuestions: tfResult };
   };
 
-  // --- إرسال (محلي فقط) ---
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
       setStatus("submitting");
       setError("");
@@ -164,13 +141,8 @@ export default function QuizPage() {
         return;
       }
 
-      // تأكد إن الكل مُجاب
-      const missingMcq = mcq.findIndex(
-        (_, i) => !Object.prototype.hasOwnProperty.call(answersMcq, i)
-      );
-      const missingTf = tfq.findIndex(
-        (_, i) => !Object.prototype.hasOwnProperty.call(answersTfq, i)
-      );
+      const missingMcq = mcq.findIndex((_, i) => !Object.prototype.hasOwnProperty.call(answersMcq, i));
+      const missingTf = tfq.findIndex((_, i) => !Object.prototype.hasOwnProperty.call(answersTfq, i));
       if (missingMcq !== -1 || missingTf !== -1) {
         setStatus("ready");
         setError("يرجى الإجابة على جميع الأسئلة قبل الإرسال.");
@@ -191,11 +163,8 @@ export default function QuizPage() {
     }
   };
 
-  // --- حسابات واجهة ---
   const totalQuestions = mcq.length + tfq.length;
-  const answeredCount =
-    Object.keys(answersMcq).length + Object.keys(answersTfq).length;
-  const allAnswered = answeredCount === totalQuestions && totalQuestions > 0;
+  const answeredCount = Object.keys(answersMcq).length + Object.keys(answersTfq).length;
   const submitted = !!result;
   const quizVisible = (status === "ready" || status === "done") && totalQuestions > 0;
 
@@ -203,137 +172,132 @@ export default function QuizPage() {
     ? Math.round((result.score / result.totalQuestions) * 100)
     : Math.round((answeredCount / Math.max(totalQuestions, 1)) * 100);
 
-  const verdictColor =
-    submitted && percent >= 80
-      ? "from-emerald-500 to-teal-500"
-      : submitted && percent >= 50
-      ? "from-sky-500 to-indigo-500"
-      : "from-rose-500 to-pink-500";
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
-      <div className="max-w-3xl mx-auto p-4 sm:p-6">
-        {/* كارت تمهيدي */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 text-[16px] sm:text-[17px]">
-          <h1 className="text-[20px] sm:text-[22px] font-bold text-slate-800 mb-1.5">اختبار تفاعلي</h1>
-          <p className="text-[14px] sm:text-[15px] text-gray-600">
-            جاوب على جميع الأسئلة.   
+    <div className="min-h-screen p-4 sm:p-6 bg-white" dir="rtl">
+      <div className="max-w-3xl mx-auto">
+        {/* 🛡️ حراسة في أعلى الصفحة لو مفيش ID */}
+        {!courseDetailId && (
+          <div className="rounded-3xl border-2 p-4 mb-4 text-center font-semibold"
+               style={{ color: ACCENT, background: "#fff4ef", borderColor: ACCENT }}>
+            لا يمكن فتح الكويز مباشرة. ارجع لتفاصيل المادة واختر الحصة ثم ادخل هنا.
+            <div className="mt-2">
+              <button
+                onClick={() => navigate("/student/course-details", { replace: true })}
+                className="rounded-lg bg-gray-800 text-white px-4 py-2"
+              >
+                الرجوع لتفاصيل المادة
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="rounded-3xl border-4 p-6 mb-6 shadow-xl" style={{ borderColor: ACCENT, background: "#fff" }}>
+          <h1 className="text-[28px] sm:text-[32px] font-bold mb-2" style={{ color: NAVY }}>
+🧠 امتحان لقياس فهمك        
+  </h1>
+          <p className="text-[16px] sm:text-[17px] font-semibold" style={{ color: NAVY }}>
+            🌟 جاوب على كل الأسئلة وشوف نتيجتك!
           </p>
 
-          {/* زر بدء الكويز يظهر فقط قبل ما الامتحان يبان */}
           {!quizVisible && (
-            <div className="flex flex-wrap gap-2.5 mt-3">
+            <div className="flex flex-wrap gap-3 mt-4">
               <button
-                className="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 text-[14px] sm:text-[15px]"
-                disabled={status === "preparing"}
+                className="px-8 py-4 rounded-3xl text-white font-bold shadow-md disabled:opacity-50"
+                style={{ background: ACCENT, border: `2px solid ${ACCENT}` }}
+                onMouseOver={(e) => (e.currentTarget.style.background = ACCENT_HOVER)}
+                onMouseOut={(e) => (e.currentTarget.style.background = ACCENT)}
+                disabled={status === "preparing" || !courseDetailId}
                 onClick={loadQuiz}
               >
-                {status === "preparing" ? "جارٍ التحضير..." : "ابدأ الكويز"}
+                {status === "preparing" ? "🔄 أحضر امتحان..." : "🚀 يلا نبدأ!"}
               </button>
               {error && (
-                <span className="text-[13px] text-rose-700 bg-rose-50 border border-rose-200 rounded-md px-2 py-1">
-                  {error}
+                <span className="text-[14px] font-semibold rounded-2xl px-4 py-2"
+                      style={{ color: ACCENT, background: "#fff4ef", border: `2px solid ${ACCENT}` }}>
+                  ❌ {error}
                 </span>
               )}
             </div>
           )}
         </div>
 
-        {/* Banner النتيجة */}
         {submitted && (
-          <div
-            id="quiz-result"
-            className={`rounded-2xl p-4 sm:p-5 mb-6 text-white shadow-sm bg-gradient-to-r ${verdictColor} text-[16px] sm:text-[17px]`}
-          >
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="font-semibold">
-                {percent >= 80 ? "نتيجة ممتازة" : percent >= 50 ? "نتيجة جيدة" : "محاولة جيدة"}
-              </div>
-              <div className="text-[20px] sm:text-[22px] font-extrabold">
+          <div id="quiz-result" className="rounded-3xl p-6 sm:p-8 mb-6 text-white shadow-xl"
+               style={{ background: NAVY, border: "4px solid #fff" }}>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="font-bold text-[24px]">نتيجتك</div>
+              <div className="text-[32px] sm:text-[36px] font-extrabold bg-white text-center px-4 py-2 rounded-2xl"
+                   style={{ color: NAVY }}>
                 {result.score} / {result.totalQuestions}
               </div>
             </div>
-            <div className="text-[13px] mt-0.5 opacity-95">
-              {percent >= 80
-                ? "استمرار رائع — أحسنت!"
-                : percent >= 50
-                ? "مستوى جيّد — تقدر ترفع نتيجتك بالمراجعة."
-                : "لا بأس — جرّب مرة تانية وهتتحسن بإذن الله."}
+            <div className="text-[16px] mt-2 font-semibold">
+              {percent >= 80 ? "🌟 ممتاز جداً!" : percent >= 50 ? "🎯 حلو — كمل!" : "💪 جرب تاني وهتبقى أفضل!"}
             </div>
           </div>
         )}
 
-        {/* نقطة بداية الأسئلة */}
         <div id="quiz-start" />
 
-        {/* MCQ */}
         {mcq.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-[15px] sm:text-[16px] font-semibold text-slate-700">أسئلة اختيار من متعدد</h2>
+          <section className="space-y-6">
+            <h2 className="text-[20px] sm:text-[22px] font-bold p-4 rounded-2xl border"
+                style={{ color: NAVY, background: "#f8fafc", borderColor: "#e5e7eb" }}>
+              🤔 أسئلة اختيار من متعدد
+            </h2>
             {mcq.map((q, i) => {
               const ua = answersMcq[i];
               const isCorrect = submitted && String(ua) === String(q.CorrectAnswer);
 
               return (
-                <div
-                  key={`mcq-${i}`}
-                  className={`rounded-2xl border bg-white shadow-sm p-4 sm:p-5 ${
-                    submitted ? "border-gray-200" : "border-slate-200"
-                  }`}
-                >
-                  <div className="font-medium mb-2 text-gray-900 text-[16px]">
-                    {i + 1}. {q.Question}
+                <div key={`mcq-${i}`} className="rounded-3xl shadow-md p-5 sm:p-6 border"
+                     style={{ background: "#fff", borderColor: "#e5e7eb" }}>
+                  <div className="font-bold mb-4 text-[18px] sm:text-[20px]" style={{ color: NAVY }}>
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full text-white mr-2"
+                          style={{ background: NAVY }}>
+                      {i + 1}
+                    </span>
+                    {q.Question}
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {(q.Options ?? []).map((opt, j) => {
                       const idOpt = `mcq-${i}-${j}`;
                       const isSelected = ua === opt;
 
-                      const afterSubmitClass = submitted
+                      const submittedNow = !!result;
+                      const afterSubmitStyle = submittedNow
                         ? opt === q.CorrectAnswer
-                          ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                          ? { borderColor: "#22c55e", background: "#ecfdf5", color: "#065f46" }
                           : isSelected
-                          ? "border-rose-500 bg-rose-50 text-rose-900"
-                          : "opacity-90"
-                        : "";
+                          ? { borderColor: "#ef4444", background: "#fef2f2", color: "#7f1d1d" }
+                          : { opacity: 0.7 }
+                        : { borderColor: "#e5e7eb", background: "#fff" };
 
                       return (
-                        <label
-                          key={idOpt}
+                        <label key={idOpt}
                           htmlFor={idOpt}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl border transition hover:bg-gray-50 cursor-pointer text-[15px] ${afterSubmitClass}`}
+                          className="flex items-center gap-3 p-4 rounded-2xl border cursor-pointer text-[16px] font-semibold shadow-sm hover:shadow"
+                          style={afterSubmitStyle}
                         >
                           <input
                             id={idOpt}
                             type="radio"
                             name={`mcq-${i}`}
-                            className="accent-slate-800"
-                            disabled={submitted}
+                            className="w-5 h-5 accent-[#e76f2e]"
+                            disabled={submittedNow}
                             checked={isSelected}
-                            onChange={() =>
-                              setAnswersMcq((prev) => ({ ...prev, [i]: opt }))
-                            }
+                            onChange={() => setAnswersMcq((prev) => ({ ...prev, [i]: opt }))}
                           />
-                          <span className="text-gray-800">{opt}</span>
-
-                          {submitted && opt === q.CorrectAnswer && (
-                            <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200">
-                              صحيح
-                            </span>
-                          )}
-                          {submitted && isSelected && opt !== q.CorrectAnswer && (
-                            <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-rose-100 text-rose-700 border border-rose-200">
-                              خطأ
-                            </span>
-                          )}
+                          <span style={{ color: NAVY }}>{opt}</span>
                         </label>
                       );
                     })}
                   </div>
 
                   {submitted && !isCorrect && (
-                    <div className="mt-2.5 text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-2">
-                      <span className="font-medium">الإجابة الصحيحة: </span>
+                    <div className="mt-4 text-[14px] rounded-2xl p-4 font-semibold"
+                         style={{ background: "#ecfdf5", color: "#065f46", border: "1px solid #a7f3d0" }}>
+                      <span className="font-bold">🎯 الإجابة الصحيحة: </span>
                       {q.CorrectAnswer}
                     </div>
                   )}
@@ -343,91 +307,75 @@ export default function QuizPage() {
           </section>
         )}
 
-        {/* True / False */}
         {tfq.length > 0 && (
-          <section className="space-y-4 mt-6">
-            <h2 className="text-[15px] sm:text-[16px] font-semibold text-slate-700">صح أم خطأ</h2>
+          <section className="space-y-6 mt-8">
+            <h2 className="text-[20px] sm:text-[22px] font-bold p-4 rounded-2xl border"
+                style={{ color: NAVY, background: "#f8fafc", borderColor: "#e5e7eb" }}>
+              ✅❌ صح أم خطأ
+            </h2>
             {tfq.map((q, i) => {
               const ua = answersTfq[i];
               const isCorrect = submitted && ua === q.CorrectAnswer;
 
-              const yesClass =
-                submitted && q.CorrectAnswer === true
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                  : submitted && ua === true && q.CorrectAnswer !== true
-                  ? "border-rose-500 bg-rose-50 text-rose-900"
-                  : "";
+              const yesStyle = submitted
+                ? q.CorrectAnswer === true
+                  ? { borderColor: "#22c55e", background: "#ecfdf5", color: "#065f46" }
+                  : ua === true
+                  ? { borderColor: "#ef4444", background: "#fef2f2", color: "#7f1d1d" }
+                  : { borderColor: "#e5e7eb", background: "#fff" }
+                : { borderColor: "#e5e7eb", background: "#fff" };
 
-              const noClass =
-                submitted && q.CorrectAnswer === false
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                  : submitted && ua === false && q.CorrectAnswer !== false
-                  ? "border-rose-500 bg-rose-50 text-rose-900"
-                  : "";
+              const noStyle = submitted
+                ? q.CorrectAnswer === false
+                  ? { borderColor: "#22c55e", background: "#ecfdf5", color: "#065f46" }
+                  : ua === false
+                  ? { borderColor: "#ef4444", background: "#fef2f2", color: "#7f1d1d" }
+                  : { borderColor: "#e5e7eb", background: "#fff" }
+                : { borderColor: "#e5e7eb", background: "#fff" };
 
               return (
-                <div key={`tf-${i}`} className="rounded-2xl border bg-white shadow-sm p-4 sm:p-5 border-gray-200">
-                  <div className="font-medium mb-2 text-gray-900 text-[16px]">
-                    {mcq.length + i + 1}. {q.Question}
+                <div key={`tf-${i}`} className="rounded-3xl shadow-md p-5 sm:p-6 border"
+                     style={{ background: "#fff", borderColor: "#e5e7eb" }}>
+                  <div className="font-bold mb-4 text-[18px] sm:text-[20px]" style={{ color: NAVY }}>
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full text-white mr-2"
+                          style={{ background: NAVY }}>
+                      {mcq.length + i + 1}
+                    </span>
+                    {q.Question}
                   </div>
-                  <div className="flex gap-3 flex-row-reverse">
-                    <label
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border transition hover:bg-gray-50 cursor-pointer text-[15px] ${yesClass}`}
-                    >
+                  <div className="flex gap-4 flex-row-reverse justify-center">
+                    <label className="flex items-center gap-3 p-4 rounded-2xl border cursor-pointer text-[18px] font-bold shadow-sm hover:shadow min-w-[120px] justify-center"
+                           style={yesStyle}>
                       <input
                         type="radio"
                         name={`tf-${i}`}
-                        className="accent-slate-800"
+                        className="w-5 h-5 accent-[#22c55e]"
                         disabled={submitted}
                         checked={ua === true}
-                        onChange={() =>
-                          setAnswersTfq((prev) => ({ ...prev, [i]: true }))
-                        }
+                        onChange={() => setAnswersTfq((prev) => ({ ...prev, [i]: true }))}
                       />
-                      <span>صح</span>
-                      {submitted && q.CorrectAnswer === true && (
-                        <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200">
-                          صحيح
-                        </span>
-                      )}
-                      {submitted && ua === true && q.CorrectAnswer !== true && (
-                        <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-rose-100 text-rose-700 border border-rose-200">
-                          خطأ
-                        </span>
-                      )}
+                      <span> صح</span>
                     </label>
 
-                    <label
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border transition hover:bg-gray-50 cursor-pointer text-[15px] ${noClass}`}
-                    >
+                    <label className="flex items-center gap-3 p-4 rounded-2xl border cursor-pointer text-[18px] font-bold shadow-sm hover:shadow min-w-[120px] justify-center"
+                           style={noStyle}>
                       <input
                         type="radio"
                         name={`tf-${i}`}
-                        className="accent-slate-800"
+                        className="w-5 h-5 accent-[#ef4444]"
                         disabled={submitted}
                         checked={ua === false}
-                        onChange={() =>
-                          setAnswersTfq((prev) => ({ ...prev, [i]: false }))
-                        }
+                        onChange={() => setAnswersTfq((prev) => ({ ...prev, [i]: false }))}
                       />
-                      <span>خطأ</span>
-                      {submitted && q.CorrectAnswer === false && (
-                        <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200">
-                          صحيح
-                        </span>
-                      )}
-                      {submitted && ua === false && q.CorrectAnswer !== false && (
-                        <span className="ms-auto text-[11px] rounded-full px-2 py-0.5 bg-rose-100 text-rose-700 border border-rose-200">
-                          خطأ
-                        </span>
-                      )}
+                      <span> خطأ</span>
                     </label>
                   </div>
 
                   {submitted && !isCorrect && (
-                    <div className="mt-2.5 text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-2">
-                      <span className="font-medium">الإجابة الصحيحة: </span>
-                      {q.CorrectAnswer ? "صح" : "خطأ"}
+                    <div className="mt-4 text-[14px] rounded-2xl p-4 font-semibold"
+                         style={{ background: "#ecfdf5", color: "#065f46", border: "1px solid #a7f3d0" }}>
+                      <span className="font-bold">🎯 الإجابة الصحيحة: </span>
+                      {q.CorrectAnswer ? " صح" : " خطأ"}
                     </div>
                   )}
                 </div>
@@ -436,47 +384,41 @@ export default function QuizPage() {
           </section>
         )}
 
-        {/* الأزرار — أسفل الصفحة بعد آخر سؤال */}
         {quizVisible && (
-          <div id="quiz-actions" className="mt-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-wrap items-center gap-3 justify-between">
-              <div className="text-[13px] sm:text-[14px] text-slate-600">
+          <div id="quiz-actions" className="mt-8">
+            <div className="rounded-3xl border-4 p-5 sm:p-6 flex flex-wrap items-center gap-4 justify-between shadow-xl"
+                 style={{ background: "#fff", borderColor: ACCENT }}>
+              <div className="text-[15px] sm:text-[16px] font-semibold" style={{ color: NAVY }}>
                 {submitted ? (
-                  <>
-                    تم الإرسال. الدرجة:{" "}
-                    <span className="font-semibold text-slate-900">{result?.score}</span> / {result?.totalQuestions}
-                  </>
+                  <>🎉 تم الإرسال! النتيجة: <span className="font-bold px-2 py-1 rounded-lg" style={{ background: "#fafafa", border: "1px solid #eee" }}>{result?.score}</span> / {result?.totalQuestions}</>
                 ) : (
-                  <>
-                    أُجيب على{" "}
-                    <span className="font-medium text-slate-900">
-                      {Math.min(
-                        Object.keys(answersMcq).length + Object.keys(answersTfq).length,
-                        mcq.length + tfq.length
-                      )}
-                    </span>{" "}
-                    من {mcq.length + tfq.length}
-                  </>
+                  <>📝 أُجيب على <span className="font-bold px-2 py-1 rounded-lg" style={{ background: "#fafafa", border: "1px solid #eee" }}>
+                    {Math.min(Object.keys(answersMcq).length + Object.keys(answersTfq).length, mcq.length + tfq.length)}
+                  </span> من {mcq.length + tfq.length}</>
                 )}
-                {error && <span className="ms-2 text-rose-700">{error}</span>}
+                {error && <span className="ms-2 font-bold" style={{ color: ACCENT }}>⚠️ {error}</span>}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 text-[14px] sm:text-[15px]"
+                  className="px-6 py-3 rounded-2xl text-white font-bold shadow-md disabled:opacity-50"
+                  style={{ background: ACCENT, border: `2px solid ${ACCENT}` }}
+                  onMouseOver={(e) => (e.currentTarget.style.background = ACCENT_HOVER)}
+                  onMouseOut={(e) => (e.currentTarget.style.background = ACCENT)}
                   onClick={handleSubmit}
                   disabled={submitted || !(Object.keys(answersMcq).length + Object.keys(answersTfq).length === mcq.length + tfq.length) || status === "submitting"}
                   title={!submitted && !(Object.keys(answersMcq).length + Object.keys(answersTfq).length === mcq.length + tfq.length) ? "أجب على جميع الأسئلة أولًا" : ""}
                 >
-                  إرسال الإجابات
+                  🏆 أرسل الإجابات
                 </button>
 
                 <button
-                  className="px-4 py-2 rounded-xl bg-gray-100 text-gray-900 hover:bg-gray-200 text-[14px] sm:text-[15px] border border-gray-200"
+                  className="px-6 py-3 rounded-2xl text-white font-bold shadow-md"
+                  style={{ background: NAVY }}
                   onClick={loadQuiz}
-                  disabled={status === "preparing"}
+                  disabled={status === "preparing" || !courseDetailId}
                 >
-                  إعادة الكويز
+                  🔄 جرّب تاني
                 </button>
               </div>
             </div>

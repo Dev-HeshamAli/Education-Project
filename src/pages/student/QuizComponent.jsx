@@ -12,14 +12,12 @@ export default function QuizComponent() {
     axios.get(`${BASE_URL}/api/Ai/Get-fileCoures/1`)
       .then(res => {
         setCourseData(res.data);
-        console.log("Course File:", res.data);
       });
 
     // 2. Get Quiz
     axios.get(`${BASE_URL}/api/Ai/New-Quiz/1`)
       .then(res => {
         setQuizData(res.data);
-        console.log("Quiz:", res.data);
       });
   }, []);
 
@@ -44,9 +42,7 @@ export default function QuizComponent() {
         "https://edu-smart.runasp.net/api/Ai/Quiz-Result",
         payload
       );
-      console.log("Result:", res.data);
     } catch (err) {
-      console.error("Error submitting:", err);
     }
   };
 

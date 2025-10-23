@@ -113,7 +113,6 @@ const withIds = useMemo(() => {
       alert("تم إرسال الطلب ");
       setModalOpen(false);
     } catch (e) {
-      console.log(e);
       alert(e?.response?.data?.title || e?.message || "فشل رفع المستند");
     } finally {
       setSubmitting(false);

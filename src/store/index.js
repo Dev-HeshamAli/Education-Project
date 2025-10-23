@@ -109,6 +109,20 @@ import sharedDataReducer from "./sharedData/sharedDataSlice";
 import studentReducer from "./student/studentSlice";
 import resetPasswordReducer from "./resetPassword/resetPasswordSlice"; 
 import parentReducer from "./parent/parentSlice";
+import dataIDsReducer from './dataIDs/dataIDsSlice';
+
+import studentNamesReducer from "./shared/studentByName/studentBynameSlice";
+import studentCoursesReducer from "./shared/student/studentCourses/studentCourses";
+import studentInfoReducer from "./shared/student/studentInfo/studentInfo";
+
+
+import registrationRequestsReducer from "./student/registrationRequestsSlice";
+import rejectedRequestsReducer from "./student/reject/rejectSlice";
+import acceptOnlineReducer from "./student/accept/onlineSchool/acceptOnline";
+import acceptOfflineReducer from "./student/accept/onlineOrOfflineCourses/onlineOrOfflineSlice";
+
+import allStudentsInStudyLevelReducer from "./shared/data/allStudentsData/student/studentSlice";
+import parentProfileReducer from "./shared/data/allStudentsData/parent/parentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -235,6 +249,20 @@ export const store = configureStore({
     sendProblem: sendProblemTeacherReducer,
     deleteProblemTeacher: deleteProblemTeacherReducer,
 
+    //***************************************************** */
+    dataIDs: dataIDsReducer,
+    studentNames: studentNamesReducer,
+    studentCourses: studentCoursesReducer,
+    studentInfo: studentInfoReducer,
+
+    /********************************
+     */
+    registrationRequests: registrationRequestsReducer,
+    rejectedRequests: rejectedRequestsReducer,
+    acceptOnline: acceptOnlineReducer,
+    acceptOffline: acceptOfflineReducer,
+    allStudentsInStudyLevel: allStudentsInStudyLevelReducer,
+    parentProfile: parentProfileReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

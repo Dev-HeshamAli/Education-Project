@@ -13,17 +13,14 @@ export default function StudentProfile() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(
-          `${BASE_URL}/api/Student/student-profile/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const { data } = await axios.get(`${BASE_URL}/api/Student/student-profile/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setStudent(data);
         setCourses(data?.courses || []);
-        console.log(data);
+   
       } catch (err) {
-        console.log(err);
+    
       }
     })();
   }, [id, token]);
@@ -33,6 +30,8 @@ export default function StudentProfile() {
       <div className="mx-auto max-w-6xl px-3 sm:px-6 lg:px-8 py-10">
         {/* ✅ Send student as prop */}
         <StudentInfo student={student} />
+
+        
       </div>
     </div>
   );
