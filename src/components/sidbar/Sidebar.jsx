@@ -43,9 +43,10 @@ export default function Sidebar({ open, handleDrawerClose, drawerWidth }) {
           },
         },
       }}
-      variant="persistent"
+      variant="temporary"
       anchor="left"
       open={open}
+      onClose={handleDrawerClose}
     >
       <DrawerHeader>
         <Logo />

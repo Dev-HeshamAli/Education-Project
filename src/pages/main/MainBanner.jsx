@@ -1,10 +1,18 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
+import ToggleButtonSelector from "../../components/landingPage/ToggleButton";
 
 export default function MainBanner() {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const videoRef = useRef(null);
   const [videoNumber, setVideoNumber] = useState(0);
+
+  const VIDEOS = {
+    1: { title: "كلمة أحد خبرائنا", src: "/assets/img/experience.mp4" },
+    2: { title: "الفيديو التوضيحي", src: "/assets/img/intro3.mp4" },
+    3: { title: "رحلاتنا ومغامرتنا", src: "/assets/img/moghamar.mp4" },
+  };
 
   const openVideo = () => {
     setShowVideoModal(true);
@@ -21,7 +29,7 @@ export default function MainBanner() {
     }
   };
 
-  // تعريف الألوان والبيانات لكل نجمة
+  // بيانات النجوم (زي ما هي)
   const starsData = [
     { stage: "KG1", route: "/kg1", colors: ["#fca120", "#ff9900"], delay: 1 },
     { stage: "KG2", route: "/kg2", colors: ["#2da9f7", "#4eaaff"], delay: 2 },
@@ -49,31 +57,77 @@ export default function MainBanner() {
       colors: ["#fca17d", "#ff6b6b"],
       delay: 6,
     },
+    {
+      stage: "Prim5",
+      route: "/prim5",
+      colors: ["#9893DA", "#9893DA"],
+      delay: 7,
+    },
+    {
+      stage: "Prim6",
+      route: "/prim6",
+      colors: ["#C13333", "#C13333"],
+      delay: 8,
+    },
   ];
 
+  // زر عام يعاد استخدامه (Icon + Label) علشان نحافظ على نفس الشكل
+  const VideoBtn = ({ label, onClick, className = "" }) => (
+    <button
+      onClick={onClick}
+      className={
+        "group z-10 flex items-center gap-3 rounded-full px-3 py-2 transition-all duration-300 " +
+        className
+      }
+    >
+      <div className="w-12 h-12 rounded-full flex items-center justify-center border-[3px] border-white text-white text-[30px] shadow-[0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300 bg-[rgba(255,107,107,0.9)] group-hover:scale-110 group-hover:bg-[#ff6b6b] animate-[pulse-animation_2s_infinite]">
+        <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M6.5 5.5v9l7-4.5-7-4.5z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+      <span className="text-[13px] sm:text-[14px] md:text-[15px] font-bold text-[#282727] transition-colors duration-300 ease-in-out group-hover:text-black px-2 py-1 rounded">
+        {label}
+      </span>
+    </button>
+  );
+
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 px-4">
-      {/* الزينة المتحركة مع تحسينات خفيفة */}
+    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 px-0 pb-2">
+      {/* <Box
+        sx={{
+          position: "absolute",
+          top: "30px",
+          left: "75%",
+          transform: "translateX(-50%)",
+          zIndex: 1,
+        }}
+      >
+        <ToggleButtonSelector />
+      </Box> */}
+      {/* زخارف */}
       <img
         src="/assets/img/dida.png"
         alt="dida"
-        className="absolute z-10 right-4 bottom-32 w-24 animate-bounce drop-shadow-lg"
+        className="absolute z-10 right-4 bottom-32 w-20 sm:w-24 animate-bounce drop-shadow-lg hidden 2xl:block"
       />
       <img
         src="/assets/img/bini.png"
         alt="bini"
-        className="absolute z-10 right-5 top-8 w-24 animate-slideLeft drop-shadow-lg"
+        className="absolute z-10 right-5 top-[5px] w-20 sm:w-24 animate-slideLeft drop-shadow-lg block xl:hidden 2xl:block"
       />
       <img
         src="/assets/img/booy.png"
         alt="booy"
-        className="absolute z-10 right-[670px] bottom-20 w-24 animate-bounce drop-shadow-lg"
+        className="absolute z-10 right-[40%] md:right-[55%] lg:right-[670px] bottom-20 w-20 sm:w-24 animate-bounce drop-shadow-lg hidden 2xl:block"
       />
 
-      <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-12">
+      <div className="flex flex-col-reverse xl:flex-row items-center justify-between gap-0">
         {/* النصوص */}
-        <div className="w-full lg:w-1/2 text-right space-y-4 px-10">
-          {/* نص التوجيه مع تحسين خفيف */}
+        <div className="w-full lg:w-1/2 text-right space-y-4 px-4 sm:px-8 lg:px-2">
           <div className="pointer-container text-gray-800 mt-4 flex items-center justify-center gap-2 px-4 py-2">
             <p className="text-sm md:text-base font-bold mb-1">
               اضغط علي الفصل الدراسي الخاص بالطالب
@@ -81,13 +135,13 @@ export default function MainBanner() {
             <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i>
           </div>
 
-          {/* النجوم بنفس شكل الصورة تماماً - نص واضح وكبير */}
-          <div className="flex justify-center flex-wrap gap-2">
+          {/* النجوم */}
+          <div className="flex justify-center flex-wrap gap-1">
             {starsData.map((star, i) => (
               <Link
                 key={`${star.stage}-${i}`}
                 to={star.route}
-                className="w-[100px] h-[100px] animate-bounce hover:scale-110 transition-transform duration-300"
+                className="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] animate-bounce hover:scale-110 transition-transform duration-300"
                 style={{ animationDelay: `${star.delay * 0.2}s` }}
               >
                 <svg
@@ -114,14 +168,12 @@ export default function MainBanner() {
                     </filter>
                   </defs>
 
-                  {/* النجمة زي الصورة بالظبط */}
                   <polygon
                     points="100,10 125,75 190,75 140,115 160,180 100,140 40,180 60,115 10,75 75,75"
                     fill={`url(#grad-${star.stage}-${i})`}
                     filter={`url(#glow-${star.stage}-${i})`}
                   />
 
-                  {/* النص كبير وواضح بلون مميز */}
                   <text
                     x="100"
                     y="115"
@@ -141,13 +193,13 @@ export default function MainBanner() {
             ))}
           </div>
 
-          {/* العنوان والفقرات مع تحسينات خفيفة */}
-          <h1 className="text-[2.5rem] font-extrabold text-black mb-[5px] leading-[1.4] text-center font-cairo drop-shadow-sm">
+          {/* عنوان وفقرات */}
+          <h1 className="text-[2rem] sm:text-[2.3rem] lg:text-[2.5rem] font-extrabold text-black mb-[5px] leading-[1.4] text-center font-cairo drop-shadow-sm">
             منصة تعليم أبنائنا المصريين بالخارج بدعم كامل من الذكاء الاصطناعي
           </h1>
 
           <div className="space-y-3 text-center">
-            <p className="max-w-[750px] text-[1.05rem] bg-gradient-to-br from-[#f78ca0] to-[#f9748f] text-white p-4 rounded-lg shadow-lg backdrop-blur-sm border border-pink-300/30">
+            <p className="mx-auto max-w-[750px] text-[1.02rem] sm:text-[1.05rem] bg-gradient-to-br from-[#f78ca0] to-[#f9748f] text-white p-4 rounded-lg shadow-lg backdrop-blur-sm border border-pink-300/30">
               تحويل محاضرة الفيديو إلى نص مكتوب بعد المحاضرة
               <br />
               <span className="text-sm opacity-90">
@@ -155,7 +207,7 @@ export default function MainBanner() {
               </span>
             </p>
 
-            <p className="max-w-[750px] text-[1.05rem] bg-gradient-to-br from-[#84fab0] to-[#8fd3f4] text-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm border border-green-300/30">
+            <p className="mx-auto max-w-[750px] text-[1.02rem] sm:text-[1.05rem] bg-gradient-to-br from-[#84fab0] to-[#8fd3f4] text-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm border border-green-300/30">
               التعامل يشمل بنوك أسئلة واختبارات تقييم
               <br />
               <span className="text-sm">
@@ -164,82 +216,97 @@ export default function MainBanner() {
               </span>
             </p>
 
-            <p className="max-w-[900px] text-[1.05rem] bg-gradient-to-br from-[#a1c4fd] to-[#c2e9fb] text-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm border border-blue-300/30">
+            <p className="mx-auto max-w-[750px] text-[1.02rem] sm:text-[1.05rem] bg-gradient-to-br from-[#a1c4fd] to-[#c2e9fb] text-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm border border-blue-300/30">
               محاضرون أونلاين على أعلى مستوى
               <br />
-              <span className="text-sm">
+              <span className="text-sm ">
                 تقوم المنصة بتقييم الطالب وتحلل له نجاحة عند تعلم الدرس
               </span>
             </p>
           </div>
         </div>
 
-        {/* قسم الصورة والفيديو */}
-        <div className="relative w-full lg:w-1/2 flex justify-center">
+        {/* الصورة + أزرار الفيديو */}
+        <div className="relative w-full xl:w-1/2 flex flex-col items-center">
           <img
             src="/assets/img/main-banner/education-girl.png"
             alt="girl"
-            className="w-full drop-shadow-2xl"
+            className="w-full object-contain drop-shadow-2xl"
+
           />
 
-          {/* أزرار الفيديو مع تحسينات */}
-          <button
-            onClick={() => {
-              openVideo();
-              setVideoNumber(1);
-            }}
-            className="group absolute top-[25%] right-[8%] z-10 flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 hover:bg-white/20 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full flex items-center justify-center border-[3px] border-white text-white text-[30px] shadow-[0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300 bg-[rgba(255,107,107,0.9)] group-hover:scale-110 group-hover:bg-[#ff6b6b] animate-[pulse-animation_2s_infinite]">
-              <svg
-                className="w-6 h-6 ml-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6.5 5.5v9l7-4.5-7-4.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
+          {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
+          <div className="hidden md:block">
+            {/* زر 1 */}
+            <div className="absolute md:top-[18%] md:right-[6%] lg:top-[15%] lg:right-[8%]">
+              <VideoBtn
+                label="كلمة أحد خبرائنا"
+                onClick={() => {
+                  setVideoNumber(1);
+                  openVideo();
+                }}
+              />
             </div>
-            <span className="text-[15px] font-bold text-[#333] transition-colors duration-300 ease-in-out group-hover:text-black bg-white/80 px-2 py-1 rounded backdrop-blur-sm">
-              كلمة احد خبرائنا
-            </span>
-          </button>
 
-          <button
-            onClick={() => {
-              openVideo();
-              setVideoNumber(2);
-            }}
-            className="group absolute top-[34%] right-[8%] z-10 flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 hover:bg-white/20 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full flex items-center justify-center border-[3px] border-white text-white text-[30px] shadow-[0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300 bg-[rgba(255,107,107,0.9)] group-hover:scale-110 group-hover:bg-[#ff6b6b] animate-[pulse-animation_2s_infinite]">
-              <svg
-                className="w-6 h-6 ml-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6.5 5.5v9l7-4.5-7-4.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
+            {/* زر 2 */}
+            <div className="absolute md:top-[30%] md:right-[6%] lg:top-[25%] lg:right-[8%]">
+              <VideoBtn
+                label="شاهد الفيديو التوضيحي"
+                onClick={() => {
+                  setVideoNumber(2);
+                  openVideo();
+                }}
+              />
             </div>
-            <span className="text-[15px] font-bold text-[#333] transition-colors duration-300 ease-in-out group-hover:text-black bg-white/80 px-2 py-1 rounded backdrop-blur-sm">
-              شاهد الفيديو التوضيحي
-            </span>
-          </button>
+
+            {/* زر 3 (جديد) */}
+            <div className="absolute md:top-[43%] md:right-[6%] lg:top-[35%] lg:right-[8%]">
+              <VideoBtn
+                label="رحلاتنا ومغامرتنا"
+                onClick={() => {
+                  setVideoNumber(3);
+                  openVideo();
+                }}
+              />
+            </div>
+          </div>
+
+          {/* === لوحة أزرار Responsive للموبايل (تحت الصورة) === */}
+          <div className="md:hidden mt-4 w-full max-w-md">
+            <div className="grid grid-cols-1 gap-3 px-2">
+              <VideoBtn
+                label="كلمة أحد خبرائنا"
+                onClick={() => {
+                  setVideoNumber(1);
+                  openVideo();
+                }}
+                className="w-full justify-center"
+              />
+              <VideoBtn
+                label="شاهد الفيديو التوضيحي"
+                onClick={() => {
+                  setVideoNumber(2);
+                  openVideo();
+                }}
+                className="w-full justify-center"
+              />
+              <VideoBtn
+                label="رحلاتنا ومغامرتنا"
+                onClick={() => {
+                  setVideoNumber(3);
+                  openVideo();
+                }}
+                className="w-full justify-center"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* مودال الفيديو مع تحسينات */}
+      {/* مودال الفيديو */}
       {showVideoModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1000]">
           <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-6 max-w-4xl w-[95%] md:w-full relative border border-gray-200">
-            {/* زر الإغلاق محسن */}
             <button
               onClick={closeVideo}
               className="absolute -top-4 -left-4 md:top-4 md:left-4 z-20 bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg hover:bg-red-600 hover:scale-110 transition-all duration-300"
@@ -249,10 +316,9 @@ export default function MainBanner() {
               ×
             </button>
 
-            {/* عنوان الفيديو */}
             <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">
-                {videoNumber === 1 ? "كلمة أحد خبرائنا" : "الفيديو التوضيحي"}
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                {VIDEOS[videoNumber]?.title || ""}
               </h3>
             </div>
 
@@ -264,11 +330,7 @@ export default function MainBanner() {
                 className="w-full rounded-xl shadow-lg"
                 style={{ maxHeight: "70vh" }}
               >
-                {videoNumber === 1 ? (
-                  <source src="/assets/img/experience.mp4" type="video/mp4" />
-                ) : (
-                  <source src="/assets/img/intro.mp4" type="video/mp4" />
-                )}
+                <source src={VIDEOS[videoNumber]?.src} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>

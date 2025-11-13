@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../store/auth/authSlice";
 import { UserCircle, LogOut, ChevronDown } from "lucide-react";
 import { actLogout } from "../../store/auth/logout/actLogout";
+import { setLoading } from "../../store/LOCAL_DATA/loaderSlice";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -14,7 +17,7 @@ export default function Navbar() {
 
   const links = [
     { to: "create-child", label: " إضافة ابن" },
-    { to: "requests", label: " طلبات  " },
+    { to: "requests", label: " طلبات تسجيل الابناء  " },
     { to: "contactus", label: "تواصل معنا" },
   ];
 
@@ -38,9 +41,22 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  const { userid, token, refreshToken } = useSelector((state) => state.auth);
+  const { error, userid, token, refreshToken } = useSelector(
+    (state) => state.auth
+  );
 
-  const handleLogout = () =>
+  // const handleLogout = () =>
+  //   dispatch(actLogout({
+  //         data: { userId: userid, refToken: refreshToken },
+  //         token,
+  //       })
+  //     ).then((res) => {
+  //       if (res.meta.requestStatus === "fulfilled") {
+  //         dispatch(logout());
+  //       }
+  //   });
+  const handleLogout = () => {
+    dispatch(setLoading(true));
     dispatch(
       actLogout({
         data: { userId: userid, refToken: refreshToken },
@@ -50,7 +66,9 @@ export default function Navbar() {
       if (res.meta.requestStatus === "fulfilled") {
         dispatch(logout());
       }
+      dispatch(setLoading(false));
     });
+  };
 
   return (
     <header
@@ -58,8 +76,8 @@ export default function Navbar() {
       className="sticky top-0 z-50 bg-slate-800 backdrop-blur border-b border-black/10"
     >
       <div className="h-1.5 bg-[linear-gradient(90deg,#f97316_0%,#ea580c_100%)]" />
-      <nav className="mx-auto max-w-6xl px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <nav className="mx-auto max-w-8xl px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Logo -> يودّي للـ Home */}
           <Link
             to="/home"
@@ -77,12 +95,12 @@ export default function Navbar() {
           </Link>
 
           {/* Links */}
-          <ul className="hidden md:flex items-center gap-8 text-[16px] font-semibold text-slate-200">
+          <ul className="hidden lg:flex items-center gap-8 text-[16px] font-semibold text-slate-200">
             {links.map((l) => (
               <li key={l.to} className="group">
                 <Link
                   to={l.to}
-                  className="inline-block py-2 transition-colors hover:text-white"
+                  className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 text-slate-100 hover:from-orange-500 hover:to-orange-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 border border-slate-600 hover:border-orange-400"
                 >
                   {l.label}
                 </Link>
@@ -93,7 +111,7 @@ export default function Navbar() {
 
           {/* Profile */}
           <div className="flex items-center gap-3">
-            <div className="hidden md:block relative" ref={menuRef}>
+            {/* <div className="hidden md:block relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
                 className="flex items-center gap-1 rounded-full p-1.5 hover:bg-white/10 text-slate-200"
@@ -123,11 +141,26 @@ export default function Navbar() {
                   </button>
                 </div>
               )}
+            </div> */}
+            <div className="mt-2 flex w-max items-center gap-3 rounded-xl text-slate-100 shadow-2xl overflow-hidden z-50 px-3 py-2">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 transition hidden lg:block"
+              >
+                تسجيل الخروج
+              </button>
+              <button
+                className="items-center gap-1 rounded-full p-1.5 hover:bg-white/10 text-slate-200 hidden lg:block"
+                onClick={() => {
+                  navigate("parent-profile");
+                }}
+              >
+                <UserCircle className="h-10 w-10" />
+              </button>
             </div>
-
             {/* Mobile menu */}
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-200 hover:bg-white/10"
+              className="lg:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-200 hover:bg-white/10"
               onClick={() => setOpen((v) => !v)}
               aria-label="القائمة"
             >
@@ -152,7 +185,7 @@ export default function Navbar() {
 
         {/* Mobile dropdown */}
         <div
-          className={`md:hidden origin-top transition-all ${
+          className={`lg:hidden origin-top transition-all ${
             open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           } overflow-hidden`}
         >
@@ -174,7 +207,7 @@ export default function Navbar() {
               <Link
                 to="parent-profile"
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-white/10 hover:bg-white/10 text-sm"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-white/10 hover:bg-white/10 text-sm bg-white"
               >
                 <UserCircle className="h-5 w-5" /> الملف الشخصي
               </Link>

@@ -18,12 +18,12 @@ function Problems() {
                     },
                 }
                )
-               console.log(data)
+              
                setProblems(data)
               
            }
            catch(err){
-               console.log(err)
+           
            }
            
        }
@@ -32,15 +32,15 @@ function Problems() {
    async function handleDelete(id) {
     try {
       await axios.delete(
-        `https://edu-smart.runasp.net/api/ContactUs/Delete-problem/${id}`,
+        `${BASE_URL}/api/ContactUs/Delete-problem/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // شيل العنصر محليًا (بدون ريفريش)
       setProblems((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Problem deleted!");
+      toast.success("تم حذف المشكلة!");
     } catch (err) {
-      console.log(err);
-      toast.error("Delete failed");
+   
+      toast.error("فشلت عملية الحذف");
     }
   }
 

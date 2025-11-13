@@ -1,11 +1,21 @@
 // src/pages/student/TranslatePage.jsx
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { BASE_URL } from "../../api/BASE_URL";
+import { selectActiveCourseDetailId } from "../../store/dataIDs/dataIDsSlice";
+
+const ACCENT = "#e76f2e";
+const ACCENT_HOVER = "#cf5f1f";
+const NAVY = "#1c2431";
 
 export default function TranslatePage() {
-  const { id } = useParams(); // CourseDetailId
+  const navigate = useNavigate();
+  const token = useSelector((s) => s.auth.token);
+
+  // ✅ بدل useParams: ID من الريدكس
+  const courseDetailId = useSelector(selectActiveCourseDetailId);
 
   const [status, setStatus] = useState("idle"); // idle | preparing | ready | translating | done
   const [error, setError] = useState("");
@@ -19,7 +29,26 @@ export default function TranslatePage() {
 
   const retriedRef = useRef(false);
 
-  // -------- helpers --------
+  const api = useMemo(() => {
+    const instance = axios.create({
+      baseURL: BASE_URL,
+      headers: { "Content-Type": "application/json" },
+    });
+    instance.interceptors.request.use((config) => {
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+    instance.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        const st = err?.response?.status;
+        if (st === 401 || st === 403) navigate("/login");
+        return Promise.reject(err);
+      }
+    );
+    return instance;
+  }, [token, navigate]);
+
   const extractErr = (e) =>
     e?.response?.data
       ? typeof e.response.data === "string"
@@ -27,56 +56,47 @@ export default function TranslatePage() {
         : JSON.stringify(e.response.data)
       : e?.message || "Unknown error";
 
-  // بعض الـAPIs ترجع لغات بشكل {label: code} أو {code: label}
   const getLanguageEntries = (obj) => {
     const entries = Object.entries(obj || {});
     return entries.map(([a, b]) => {
-      // لو القيمة شكل كود (en/ar/..) نخليها code
-      if (typeof b === "string" && /^[a-z]{2,3}(-[A-Z]{2})?$/.test(b)) {
-        return [a, b]; // [label, code]
-      }
-      // العكس: المفتاح هو الكود
-      if (typeof a === "string" && /^[a-z]{2,3}(-[A-Z]{2})?$/.test(a)) {
-        return [b, a]; // [label, code]
-      }
+      if (typeof b === "string" && /^[a-z]{2,3}(-[A-Z]{2})?$/.test(b)) return [a, b];
+      if (typeof a === "string" && /^[a-z]{2,3}(-[A-Z]{2})?$/.test(a)) return [b, a];
       return [a, String(b)];
     });
   };
 
-  // لازم يتنفّذ قبل أي خدمة AI
-  const prepareAI = async () => {
-    await axios.post(`${BASE_URL}/api/Ai/Get-fileCoures/${id}`, {});
-  };
-
+  const prepareAI = async () => api.post(`/api/Ai/Get-fileCoures/${courseDetailId}`, {});
   const newTranslate = async () => {
-    const res = await axios.get(`${BASE_URL}/api/Ai/New-Translate/${id}`);
+    const res = await api.get(`/api/Ai/New-Translate/${courseDetailId}`);
     const data = res.data || {};
     setUploadedFilePath(data.uploadedFilePath || "");
     setLanguagesMap(data.languages || {});
     const entries = getLanguageEntries(data.languages || {});
-    // اختيارات افتراضية مع تفضيل ar ثم en
     const hasAr = entries.find(([, code]) => code === "ar");
     const hasEn = entries.find(([, code]) => code === "en");
-    setSelectedLanguageCode(
-      data.selectedLanguageCode || hasAr?.[1] || hasEn?.[1] || (entries[0]?.[1] || "")
-    );
+    setSelectedLanguageCode(data.selectedLanguageCode || hasAr?.[1] || hasEn?.[1] || (entries[0]?.[1] || ""));
     setTranslation(data.translation || "");
     setDetectedLanguageInfo(data.detectedLanguageInfo || null);
     setTransliteration(data.transliteration || null);
     return data;
   };
+  const startTranslate = async (payload) =>
+    (await api.post(`/api/Ai/Start-Translate`, payload)).data || {};
 
-  const startTranslate = async (payload) => {
-    const res = await axios.post(`${BASE_URL}/api/Ai/Start-Translate`, payload, {
-      headers: { "Content-Type": "application/json" },
-    });
-    return res.data || {};
-  };
-
-  // on mount
   useEffect(() => {
     (async () => {
+      // 🛡️ لو مفيش ID من الريدكس
+      if (!courseDetailId) {
+        setError("لا يمكن فتح الترجمة مباشرة. ارجع لتفاصيل المادة واختر الحصة ثم ادخل هنا.");
+        setStatus("idle");
+        return;
+      }
       try {
+        if (!token) {
+          setError("هذه الخدمة تتطلب تسجيل الدخول.");
+          setStatus("idle");
+          return;
+        }
         setStatus("preparing");
         setError("");
         await prepareAI();
@@ -87,9 +107,8 @@ export default function TranslatePage() {
         setStatus("idle");
       }
     })();
-  }, [id]);
+  }, [courseDetailId, token]); // ⛳️ مابقاش في useParams
 
-  // actions
   const handleTranslate = async () => {
     if (!selectedLanguageCode) {
       setError("اختر لغة للترجمة أولًا.");
@@ -111,7 +130,6 @@ export default function TranslatePage() {
       const data = await startTranslate(payload);
       const text = data.translation || "";
 
-      // إعادة تهيئة تلقائية لو في مشكلة مسار
       const looksLikePathError =
         /could not find a part of the path/i.test(text) || /an error occurred/i.test(text);
 
@@ -171,7 +189,7 @@ export default function TranslatePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `translation-course-${id}-${selectedLanguageCode || "xx"}.txt`;
+    a.download = `translation-${courseDetailId || "lecture"}-${selectedLanguageCode || "xx"}.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -181,32 +199,40 @@ export default function TranslatePage() {
   const languageEntries = getLanguageEntries(languagesMap);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6 space-y-5">
-        <div className="flex items-center justify-between flex-row-reverse">
-          <h1 className="text-2xl font-bold">ترجمة الحصة</h1>
-          <div
-            className="text-xs text-gray-500 text-right max-w-[60%] truncate"
-            title={uploadedFilePath}
-          >
-            {uploadedFilePath || "(لم يتم تحديد ملف بعد)"}
-          </div>
+    <div className="min-h-screen p-6 bg-white" dir="rtl">
+      <div className="max-w-3xl mx-auto p-6 space-y-6 rounded-3xl border-4 shadow-xl" style={{ borderColor: ACCENT }}>
+        <div className="flex items-center justify-center">
+          <h1 className="text-3xl font-bold" style={{ color: NAVY }}> مترجم الحصص</h1>
         </div>
 
-        {error && (
-          <div className="whitespace-pre-wrap p-3 bg-red-50 text-red-700 rounded-xl">
-            {error}
+        {(!courseDetailId || error) && (
+          <div className="whitespace-pre-wrap p-4 rounded-3xl border-2 shadow-md"
+               style={{ background: "#fff4ef", color: ACCENT, borderColor: ACCENT }}>
+            ⚠️ {error || "لا يمكن فتح الترجمة مباشرة."}
+            {!courseDetailId && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={() => navigate("/student/course-details", { replace: true })}
+                  className="rounded-lg bg-gray-800 text-white px-4 py-2"
+                >
+                  الرجوع لتفاصيل المادة
+                </button>
+              </div>
+            )}
           </div>
         )}
 
+        {/* باقي الواجهة كما هي */}
         <div className="grid sm:grid-cols-3 gap-4 items-end">
-          <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-700 mb-1">اختر اللغة المستهدفة</label>
+          <div className="sm:col-span-2 p-4 rounded-3xl border-2"
+               style={{ background: "#fdf7f3", borderColor: "#f7c9ab" }}>
+            <label className="block text-lg font-bold mb-3" style={{ color: NAVY }}>🌍 اختر لغتك المفضلة</label>
             <select
               value={selectedLanguageCode}
               onChange={(e) => setSelectedLanguageCode(e.target.value)}
-              className="w-full border rounded-xl px-3 py-2 bg-white disabled:opacity-50"
+              className="w-full rounded-2xl px-4 py-3 text-lg font-semibold bg-white border focus:outline-none"
               disabled={!languageEntries.length}
+              style={{ borderColor: ACCENT, color: NAVY }}
             >
               {languageEntries.length ? (
                 languageEntries.map(([label, code]) => (
@@ -218,75 +244,91 @@ export default function TranslatePage() {
                 <option value="">لا توجد لغات متاحة</option>
               )}
             </select>
-            <div className="text-xs text-gray-500 mt-1">
-              سيتم الترجمة من لغة المستند المكتشفة إلى اللغة التي تختارها.
+            <div className="text-sm mt-2 font-medium" style={{ color: NAVY }}>
+              ✨ سأكتشف لغة النص وأترجمها للغة التي تريدها!
             </div>
           </div>
 
-          <div className="flex gap-2 flex-row-reverse">
+          <div className="flex gap-3 flex-row-reverse">
             <button
               onClick={handleReset}
-              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 disabled:opacity-50"
-              disabled={status === "preparing"}
+              className="px-6 py-3 rounded-2xl font-bold disabled:opacity-50 shadow-md"
+              style={{ background: "#e5e7eb", color: NAVY }}
+              disabled={status === "preparing" || !courseDetailId}
             >
-              🔄 تهيئة من جديد
+              🔄 ابدأ من جديد
             </button>
             <button
               onClick={handleTranslate}
-              className="px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 flex items-center gap-2"
-              disabled={status === "translating" || status === "preparing" || !selectedLanguageCode}
+              className="px-6 py-3 rounded-2xl text-white font-bold disabled:opacity-50 shadow-md"
+              style={{ background: ACCENT, border: `2px solid ${ACCENT}` }}
+              onMouseOver={(e) => (e.currentTarget.style.background = ACCENT_HOVER)}
+              onMouseOut={(e) => (e.currentTarget.style.background = ACCENT)}
+              disabled={status === "translating" || status === "preparing" || !selectedLanguageCode || !courseDetailId}
             >
-              {status === "translating" ? "⏳ جارٍ الترجمة..." : "🧠 ابدأ الترجمة"}
+              {status === "translating" ? "⏳ أترجم الآن..." : "🪄 ترجم!"}
             </button>
           </div>
         </div>
 
-        {/* معلومات إضافية إن وُجدت */}
-        {(detectedLanguageInfo || transliteration) && (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm space-y-2">
+        {/*(detectedLanguageInfo || transliteration) && (
+          <div className="rounded-3xl border-2 p-5 text-sm shadow-md"
+               style={{ background: "#fffefb", borderColor: "#fde7d7", color: NAVY }}>
             {detectedLanguageInfo && (
-              <div>
-                <span className="font-semibold">اللغة المكتشفة:</span>{" "}
-                {typeof detectedLanguageInfo === "string"
-                  ? detectedLanguageInfo
-                  : JSON.stringify(detectedLanguageInfo)}
+              <div className="flex items-center gap-2">
+                <span className="font-bold" style={{ color: ACCENT }}>🔍 اللغة المكتشفة:</span>{" "}
+                <span className="px-3 py-1 rounded-full font-semibold"
+                      style={{ background: "#fff4ef", color: ACCENT, border: `1px solid ${ACCENT}` }}>
+                  {typeof detectedLanguageInfo === "string" ? detectedLanguageInfo : JSON.stringify(detectedLanguageInfo)}
+                </span>
               </div>
             )}
             {transliteration && (
-              <div>
-                <span className="font-semibold">Transliteration:</span>{" "}
-                {typeof transliteration === "string"
-                  ? transliteration
-                  : JSON.stringify(transliteration)}
+              <div className="flex items-center gap-2 mt-2">
+                <span className="font-bold" style={{ color: ACCENT }}>📝 النطق:</span>{" "}
+                <span className="px-3 py-1 rounded-full font-semibold"
+                      style={{ background: "#fff4ef", color: ACCENT, border: `1px solid ${ACCENT}` }}>
+                  {typeof transliteration === "string" ? transliteration : JSON.stringify(transliteration)}
+                </span>
               </div>
             )}
           </div>
-        )}
+        )*/}
 
-        <div className="min-h-[160px] border rounded-xl p-4 bg-gray-50 text-right">
+        <div className="min-h-[200px] rounded-3xl p-6 border-2"
+             style={{ background: "#fafafa", borderColor: ACCENT }}>
           {translation ? (
-            <p className="leading-7 whitespace-pre-wrap">{translation}</p>
+            <p className="leading-8 whitespace-pre-wrap text-lg rounded-xl p-4 border shadow-inner"
+               style={{ color: NAVY, background: "#fff", borderColor: "#eee" }}>
+              {translation}
+            </p>
           ) : (
-            <div className="text-gray-500">
-              {status === "preparing" ? "جارٍ التهيئة…" : "ستظهر الترجمة هنا بعد التنفيذ."}
+            <div className="text-center" style={{ color: NAVY }}>
+              <div className="text-xl font-bold">
+                {status === "preparing" ? "🔄 أجهز الترجمة..." : " ستظهر الترجمة هنا!"}
+              </div>
             </div>
           )}
         </div>
 
-        <div className="flex gap-2 flex-row-reverse">
+        <div className="flex gap-3 flex-row-reverse">
           <button
             onClick={handleCopy}
-            className="px-4 py-2 rounded-xl bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-50"
+            className="px-6 py-3 rounded-2xl text-white font-bold disabled:opacity-50 shadow-md"
+            style={{ background: ACCENT }}
+            onMouseOver={(e) => (e.currentTarget.style.background = ACCENT_HOVER)}
+            onMouseOut={(e) => (e.currentTarget.style.background = ACCENT)}
             disabled={!translation}
           >
-            📋 نسخ الترجمة
+            📋 انسخ النص
           </button>
           <button
             onClick={handleDownload}
-            className="px-4 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="px-6 py-3 rounded-2xl text-white font-bold disabled:opacity-50 shadow-md"
+            style={{ background: NAVY }}
             disabled={!translation}
           >
-            💾 تحميل كملف .txt
+            💾 احفظ في ملف
           </button>
         </div>
       </div>

@@ -48,8 +48,6 @@ import teacherProblemsReducer from "./shared/problems/teacherProblems/teacherPro
 import sendProblemTeacherReducer from "./shared/problems/sendTeacherProblem/sendProblemSlice";
 import deleteProblemTeacherReducer from "./shared/problems/deleteTeacherProblem/deleteProblemSlice";
 
-
-
 import addTeacherToStudyLevelReducer from "./addTeacherToStudyLevel/addTeacherToStudyLevelSlice";
 import teacherByStudyLevelReducer from "./shared/teacherByStudyLevel/teacherByStudyLevelSlice";
 import addTeacherToCourseReducer from "./addTeacherToCourse/addTeacherToCourseSlice";
@@ -107,8 +105,22 @@ import schoolClassDetailsReducer from "./shared/schoolClass/getSchoolClassDetail
 
 import sharedDataReducer from "./sharedData/sharedDataSlice";
 import studentReducer from "./student/studentSlice";
-import resetPasswordReducer from "./resetPassword/resetPasswordSlice"; 
+import resetPasswordReducer from "./resetPassword/resetPasswordSlice";
 import parentReducer from "./parent/parentSlice";
+import dataIDsReducer from "./dataIDs/dataIDsSlice";
+
+import studentNamesReducer from "./shared/studentByName/studentBynameSlice";
+import studentCoursesReducer from "./shared/student/studentCourses/studentCourses";
+import studentInfoReducer from "./shared/student/studentInfo/studentInfo";
+
+import registrationRequestsReducer from "./student/registrationRequestsSlice";
+import rejectedRequestsReducer from "./student/reject/rejectSlice";
+import acceptOnlineReducer from "./student/accept/onlineSchool/acceptOnline";
+import acceptOfflineReducer from "./student/accept/onlineOrOfflineCourses/onlineOrOfflineSlice";
+
+import allStudentsInStudyLevelReducer from "./shared/data/allStudentsData/student/studentSlice";
+import parentProfileReducer from "./shared/data/allStudentsData/parent/parentSlice";
+import loaderReducer from "./LOCAL_DATA/loaderSlice";
 
 export const store = configureStore({
   reducer: {
@@ -119,6 +131,7 @@ export const store = configureStore({
     removeAdmin: removeAdminReducer,
     dataAdmin: allDataAdminsReducer,
     newLogout: logoutReducer,
+    loader: loaderReducer,
     //--------------Admin Reducers----------------//
     admin: adminReducer,
     adminInfo: adminInfoReducer,
@@ -235,6 +248,20 @@ export const store = configureStore({
     sendProblem: sendProblemTeacherReducer,
     deleteProblemTeacher: deleteProblemTeacherReducer,
 
+    //***************************************************** */
+    dataIDs: dataIDsReducer,
+    studentNames: studentNamesReducer,
+    studentCourses: studentCoursesReducer,
+    studentInfo: studentInfoReducer,
+
+    /********************************
+     */
+    registrationRequests: registrationRequestsReducer,
+    rejectedRequests: rejectedRequestsReducer,
+    acceptOnline: acceptOnlineReducer,
+    acceptOffline: acceptOfflineReducer,
+    allStudentsInStudyLevel: allStudentsInStudyLevelReducer,
+    parentProfile: parentProfileReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

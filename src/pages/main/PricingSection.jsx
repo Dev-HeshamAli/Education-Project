@@ -8,13 +8,13 @@ export default function PricingSection() {
   const PRICING = {
     primary: {
       school: { old: 13000, current: 6500, unit: "term" },
-      separate: { old: 4000, current: 2000, unit: "للمادة" },
-      recorded: { old: 2000, current: 1000, unit: "للمادة" },
+      separate: { old: 4000, current: 2000, unit: "term" },
+      recorded: { old: 2000, current: 1000, unit: "term" },
     },
     kg: {
       school: { old: 12000, current: 6000, unit: "term" },
-      separate: { old: 3400, current: 1700, unit: "للمادة" },
-      recorded: { old: 1400, current: 700, unit: "للمادة" },
+      separate: { old: 3400, current: 1700, unit: "term" },
+      recorded: { old: 1400, current: 700, unit: "term" },
     },
   };
 

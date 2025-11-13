@@ -10,8 +10,6 @@ const TeacherProfile = () => {
     (state) => state.teacherInfo
   );
 
-  // console.log(teacherData, "teacherData");
-
   const { id } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -68,52 +66,56 @@ const TeacherProfile = () => {
             ) : (
               <div
                 style={{ position: "relative" }}
-                className="flex flex-col md:flex-row items-center md:items-center md:justify-start gap-6"
+                className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6"
               >
                 {/* صورة المدرس */}
-                <div className="relative cursor-pointer" onClick={handleOpen}>
+                <div
+                  className="relative cursor-pointer flex-shrink-0"
+                  onClick={handleOpen}
+                >
                   <img
                     src={teacherData.photo}
                     alt="Teacher Photo"
-                    className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                    className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg object-cover transition-all duration-300 hover:scale-105"
                   />
                   <div
-                    className={`absolute -bottom-2 -right-2 w-8 h-8 ${
+                    className={`absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 ${
                       teacherData.isActive ? "bg-green-500" : "bg-red-500"
-                    } rounded-full border-4 border-white flex items-center justify-center`}
+                    } rounded-full border-2 sm:border-4 border-white flex items-center justify-center shadow-lg`}
                   >
-                    <div className="w-3 h-3 bg-white rounded-full"></div>
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
                   </div>
                 </div>
 
                 {/* بيانات المدرس */}
-                <div className="text-right md:text-left">
-                  <h1 className="text-3xl font-bold text-white mb-2">
-                    {teacherData.fullName}
+                <div className="text-center sm:text-right md:text-left flex-1 w-full sm:w-auto">
+                  {/* اسم المدرس مع زر التعديل */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight order-2 sm:order-1">
+                      {teacherData.fullName}
+                    </h1>
                     <button
                       onClick={handleOpenEdit}
-                      style={{
-                        color: "white",
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        borderRadius: "10px",
-                        padding: "10px",
-                        cursor: "pointer",
-                        marginRight: "15px",
-                      }}
+                      className="order-1 sm:order-2 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-white bg-black bg-opacity-50 hover:bg-opacity-70 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                      aria-label="تعديل بيانات المدرس"
                     >
-                      <Edit3 className="h-5 w-5" />
+                      <Edit3 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
-                  </h1>
-                  <p className="text-indigo-100 text-lg mb-2 text-right">
+                  </div>
+
+                  {/* جهة العمل */}
+                  <p className="text-indigo-100 text-lg mb-2 text-center sm:text-right">
                     {teacherData.employer}
                   </p>
-                  <div className="flex items-center gap-2 justify-start md:justify-start">
+
+                  {/* حالة النشاط */}
+                  <div className="flex items-center justify-center sm:justify-start">
                     <div
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                         teacherData.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                          ? "bg-green-100 text-green-800 shadow-green-200"
+                          : "bg-red-100 text-red-800 shadow-red-200"
+                      } shadow-lg`}
                     >
                       {teacherData.isActive ? t.active : t.inactive}
                     </div>
@@ -140,19 +142,6 @@ const TeacherProfile = () => {
                   <InfoItem label={t.email} value={teacherData.email} />
                   <InfoItem label={t.birthDate} value={teacherData.birthDate} />
                   <InfoItem label={t.ssn} value={teacherData.ssn} />
-
-                  {/* <InfoItem
-                    label={t.country}
-                    value={teacherData.country || t.notAvailable}
-                    icon={<MapPin className="h-4 w-4 text-gray-500" />}
-                  /> */}
-
-                  {/* <InfoItem
-                    label={t.governorate}
-                    value={teacherData.governorate || t.notAvailable}
-                    icon={<MapPin className="h-4 w-4 text-gray-500" />}
-                  /> */}
-
                   <InfoItem label={t.gender} value={teacherData.gender} />
                   <InfoItem label={t.status} value={teacherData.status} />
                 </div>

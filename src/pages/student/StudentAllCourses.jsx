@@ -55,9 +55,9 @@ export default function StudentAllCourses() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-              جميع كورسات الطالب
+              جميع مواد الطالب
             </h1>
-            <p className="text-gray-600 mt-1">الطالب رقم #{studentId}</p>
+
           </div>
           <span className="inline-flex items-center rounded-xl bg-white border border-gray-200 px-3 py-2 text-sm text-gray-700">
             {loading ? "جارِ التحميل…" : `${studyLevels.length} مستوى`}

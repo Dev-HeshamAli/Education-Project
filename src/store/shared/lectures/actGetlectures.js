@@ -8,7 +8,7 @@ export const actGetlectures = createAsyncThunk(
   "lectures/fetchlectures",
   async ({token, id}, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/Course/course-lectures-and-cartoon-videos/${id}`, {
+      const response = await axios.get(`${BASE_URL}/api/Course/course-Lectures/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;

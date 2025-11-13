@@ -1,26 +1,48 @@
 // src/pages/student/SummarizePage.jsx
-// تعتمد على 3 Endpoints بدون توكن:
-// 1) POST /api/Ai/Get-fileCoures/{id}
-// 2) GET  /api/Ai/New-Summarize/{id}
-// 3) POST /api/Ai/Start-Summarize
 
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { BASE_URL } from "../../api/BASE_URL";
 
+// ✅ هات الـ courseDetailId من الـRedux (بديل الـ URL params)
+import { selectActiveCourseDetailId } from "../../store/dataIDs/dataIDsSlice";
+
 export default function SummarizePage() {
-  const { id } = useParams(); // CourseDetailId
+  const navigate = useNavigate();
+
+  // 🧠 ID جاي من الريدكس (اللي اتحفظ لما ضغطتي من صفحة التفاصيل)
+  const courseDetailId = useSelector(selectActiveCourseDetailId);
+
+  // 🎯 الصفحة بقت لا تعتمد على التوكن (الـ API هنا مش محتاج Authorization)
+  // سيبنا التوكن بعيد
 
   const [status, setStatus] = useState("idle"); // idle | preparing | ready | summarizing | done
   const [error, setError] = useState("");
 
-  // بيانات التلخيص
   const [sourceId, setSourceId] = useState(null);
-  const [wordCount, setWordCount] = useState(100);
+  const [wordCount, setWordCount] = useState(100); // default
   const [summary, setSummary] = useState("");
 
-  // ===== Helpers =====
+  // Axios instance بدون توكن
+  const api = useMemo(() => {
+    const instance = axios.create({
+      baseURL: BASE_URL,
+      headers: { "Content-Type": "application/json" },
+    });
+    // لو السيرفر بيرجع 401 لأي سبب، نرجّع المستخدم للّوجين
+    instance.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        const st = err?.response?.status;
+        if (st === 401 || st === 403) navigate("/login");
+        return Promise.reject(err);
+      }
+    );
+    return instance;
+  }, [navigate]);
+
   const extractErr = (e) =>
     e?.response?.data
       ? typeof e.response.data === "string"
@@ -28,13 +50,15 @@ export default function SummarizePage() {
         : JSON.stringify(e.response.data)
       : e?.message || "Unknown error";
 
-  // لازم يتنفّذ قبل أي خدمة AI
+  // 🔧 API calls (كلها بتستخدم courseDetailId من الريدكس)
   const prepareAI = async () => {
-    await axios.post(`${BASE_URL}/api/Ai/Get-fileCoures/${id}`, {});
+    // كان زمان: /api/Ai/Get-fileCoures/:id
+    // فضّلنا نفس النهاية مع الـID من الريدكس
+    await api.post(`/api/Ai/Get-fileCoures/${courseDetailId}`, {});
   };
 
   const newSummarize = async () => {
-    const res = await axios.get(`${BASE_URL}/api/Ai/New-Summarize/${id}`);
+    const res = await api.get(`/api/Ai/New-Summarize/${courseDetailId}`);
     const data = res.data || {};
     setSourceId(data.sourceId || null);
     if (typeof data.wordCount === "number") setWordCount(data.wordCount);
@@ -44,15 +68,22 @@ export default function SummarizePage() {
 
   const startSummarize = async (sid, wc) => {
     const payload = { sourceId: sid, wordCount: wc, summary: null };
-    const res = await axios.post(`${BASE_URL}/api/Ai/Start-Summarize`, payload, {
-      headers: { "Content-Type": "application/json" },
-    });
+    const res = await api.post(`/api/Ai/Start-Summarize`, payload);
     return res.data || {};
   };
 
-  // ===== On mount =====
+  // ⛳️ تهيئة الصفحة
   useEffect(() => {
     (async () => {
+      // لو دخل مباشرة بدون ما نكون حفظنا الـID في الريدكس
+      if (!courseDetailId) {
+        setError(
+          "لا يمكن فتح صفحة التلخيص مباشرة. من فضلك ارجع إلى تفاصيل المادة واختر الحصة ثم ادخل على التلخيص."
+        );
+        setStatus("idle");
+        return;
+      }
+
       try {
         setStatus("preparing");
         setError("");
@@ -64,14 +95,20 @@ export default function SummarizePage() {
         setStatus("idle");
       }
     })();
-  }, [id]);
+  }, [courseDetailId]); // ✅ مابقاش في useParams ولا توكن
 
-  // ===== Actions =====
   const handleSummarize = async () => {
     if (!sourceId) {
       setError('لم يتم تهيئة جلسة التلخيص بعد. اضغط "تهيئة من جديد".');
       return;
     }
+
+    // ✅ أقل عدد كلمات 20 (وموحّد مع الـinput)
+    if (Number(wordCount) < 20) {
+      setError("⚠️ لا يمكن إنشاء ملخص بأقل من 20 كلمة. اختر رقم أكبر.");
+      return;
+    }
+
     try {
       setStatus("summarizing");
       setError("");
@@ -80,7 +117,6 @@ export default function SummarizePage() {
       setStatus("done");
     } catch (e) {
       const msg = extractErr(e);
-      // لو الجلسة منتهية نحاول إعادة التهيئة مرة واحدة
       if (String(msg).toLowerCase().includes("expired")) {
         try {
           setStatus("preparing");
@@ -91,12 +127,12 @@ export default function SummarizePage() {
           setStatus("done");
           return;
         } catch (re) {
-          setError(`تعذّر إعادة تهيئة الجلسة.\n${extractErr(re)}`);
+          setError(`تعذّر إعادة التهيئة.\n${extractErr(re)}`);
           setStatus("ready");
           return;
         }
       }
-      setError(`تعذّر تنفيذ التلخيص.\n${msg}`);
+      setError("تعذّر التنفيذ. حاول مرة أخرى.");
       setStatus("ready");
     }
   };
@@ -110,7 +146,7 @@ export default function SummarizePage() {
       await newSummarize();
       setStatus("ready");
     } catch (e) {
-      setError(`تعذّر تهيئة جلسة جديدة.\n${extractErr(e)}`);
+      setError(`تعذّر التهيئة.\n${extractErr(e)}`);
       setStatus("idle");
     }
   };
@@ -126,7 +162,8 @@ export default function SummarizePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `summary-course-${id}.txt`;
+    // اسم الملف مبني على الـID اللي من الريدكس (مش بارامز)
+    a.download = `summary-${courseDetailId || "lecture"}.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -134,74 +171,123 @@ export default function SummarizePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6 space-y-5">
-        <div className="flex items-center justify-between flex-row-reverse">
-          <h1 className="text-2xl font-bold">ملخّص الحصة</h1>
-          <div className="text-sm text-gray-500">CourseDetailId: {id}</div>
-        </div>
+    <div className="min-h-screen p-6 bg-white" dir="rtl">
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="bg-white rounded-3xl shadow-xl p-8 space-y-6 border-4 border-[#e76f2e]">
+          {/* Error */}
+          {error && (
+            <div className="whitespace-pre-wrap p-4 text-center rounded-2xl border-2 border-[#e76f2e] bg-[#fff4ef] text-[#e76f2e]">
+              <div className="text-2xl mb-2">😔</div>
+              <div className="font-bold">عذراً! حدث خطأ</div>
+              <div className="mt-2 text-sm">{error}</div>
 
-        {error && (
-          <div className="whitespace-pre-wrap p-3 bg-red-50 text-red-700 rounded-xl">{error}</div>
-        )}
-
-        <div className="flex items-end gap-4">
-          <div className="flex-1">
-            <label className="block text-sm text-gray-700 mb-1">عدد الكلمات التقريبي</label>
-            <input
-              type="number"
-              min={50}
-              max={1000}
-              step={50}
-              value={wordCount}
-              onChange={(e) => setWordCount(e.target.value)}
-              className="w-full border rounded-xl px-3 py-2"
-            />
-            <div className="text-xs text-gray-500 mt-1">المدى المقترح 50–1000 كلمة</div>
-          </div>
-          <div className="flex gap-2 flex-row-reverse">
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 disabled:opacity-50"
-              disabled={status === "preparing"}
-            >
-              🔄 تهيئة من جديد
-            </button>
-            <button
-              onClick={handleSummarize}
-              className="px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50"
-              disabled={status === "summarizing" || status === "preparing"}
-            >
-              {status === "summarizing" ? "⏳ جارٍ التلخيص..." : "🧠 ابدأ التلخيص"}
-            </button>
-          </div>
-        </div>
-
-        <div className="min-h-[160px] border rounded-xl p-4 bg-gray-50 text-right">
-          {summary ? (
-            <p className="leading-7 whitespace-pre-wrap">{summary}</p>
-          ) : (
-            <div className="text-gray-500">
-              {status === "preparing" ? "جارٍ التهيئة…" : "سيظهر الملخّص هنا بعد التنفيذ."}
+              {/* زر رجوع لقائمة التفاصيل لو الـID ناقص */}
+              {!courseDetailId && (
+                <div className="mt-3">
+                  <button
+                    onClick={() =>
+                      navigate("/student/course-details", { replace: true })
+                    }
+                    className="rounded-lg bg-gray-800 text-white px-4 py-2"
+                  >
+                    الرجوع لتفاصيل المادة
+                  </button>
+                </div>
+              )}
             </div>
           )}
-        </div>
 
-        <div className="flex gap-2 flex-row-reverse">
-          <button
-            onClick={handleCopy}
-            className="px-4 py-2 rounded-xl bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-50"
-            disabled={!summary}
-          >
-            📋 نسخ الملخص
-          </button>
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50"
-            disabled={!summary}
-          >
-            💾 تحميل كملف .txt
-          </button>
+          {/* Controls */}
+          <div className="bg-[#fdf7f3] rounded-2xl p-6 border-2 border-[#f7c9ab]">
+            <div className="flex items-end gap-4 flex-col md:flex-row">
+              <div className="flex-1 w-full">
+                <label className="block text-lg font-bold mb-3 text-center text-[#1c2431]">
+                  🔢 كم كلمة تريد في الملخص؟
+                </label>
+                <input
+                  type="number"
+                  min={20}
+                  max={1000}
+                  step={10}
+                  value={wordCount}
+                  onChange={(e) => setWordCount(e.target.value)}
+                  className="w-full rounded-2xl px-4 py-3 text-lg font-semibold text-center border-2 border-[#e76f2e] focus:outline-none focus:ring-2 focus:ring-[#e76f2e]/50"
+                />
+                <div className="text-sm text-[#1c2431] mt-2 text-center bg-[#fafafa] rounded-xl p-2 border border-[#eee]">
+                  💡 اختر رقم بين 20 و 1000 كلمة
+                </div>
+              </div>
+
+              <div className="flex gap-3 flex-col md:flex-row w-full md:w-auto">
+                <button
+                  onClick={handleReset}
+                  className="px-6 py-3 rounded-2xl bg-gray-300 text-[#1c2431] font-bold hover:bg-gray-400 disabled:opacity-50 transition-all shadow-md"
+                  disabled={status === "preparing" || !courseDetailId}
+                >
+                  🔄 ابدأ من جديد
+                </button>
+                <button
+                  onClick={handleSummarize}
+                  className="px-6 py-3 rounded-2xl bg-[#e76f2e] text-white font-bold hover:bg-[#cf5f1f] disabled:opacity-50 transition-all shadow-md"
+                  disabled={
+                    status === "summarizing" || status === "preparing" || !courseDetailId
+                  }
+                >
+                  {status === "summarizing" ? "⏳ جارٍ العمل..." : "🪄 اصنع الملخص!"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Result */}
+          <div className="min-h-[200px] border-2 border-[#e76f2e] rounded-2xl p-6 bg-[#fafafa]">
+            {summary ? (
+              <div>
+                <div className="text-center mb-4">
+                  <span className="bg-[#fff4ef] text-[#e76f2e] font-bold px-4 py-2 rounded-full border border-[#e76f2e]">
+                    🎉 تم إنشاء الملخص!
+                  </span>
+                </div>
+                <p className="leading-8 whitespace-pre-wrap text-lg text-[#1c2431] bg-white rounded-xl p-4 border border-[#eee] shadow-inner">
+                  {summary}
+                </p>
+              </div>
+            ) : (
+              <div className="text-center text-[#1c2431] py-12">
+                {status === "preparing" ? (
+                  <div>
+                    <div className="text-4xl mb-4 animate-spin text-[#e76f2e]">📘</div>
+                    <div className="text-xl font-bold">جارٍ التحضير... ✨</div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-5xl mb-4 text-[#e76f2e]">📚</div>
+                    <div className="text-xl font-bold">
+                      اضغط على الزر وستظهر النتيجة هنا 🌟
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-4 flex-col md:flex-row">
+            <button
+              onClick={handleCopy}
+              className="flex-1 px-6 py-4 rounded-2xl bg-[#e76f2e] text-white font-bold hover:bg-[#cf5f1f] disabled:opacity-50 shadow-md"
+              disabled={!summary}
+            >
+              📋 انسخ الملخص
+            </button>
+            <button
+              onClick={handleDownload}
+              className="flex-1 px-6 py-4 rounded-2xl bg-[#1c2431] text-white font-bold hover:bg-[#0f1723] disabled:opacity-50 shadow-md"
+              disabled={!summary}
+            >
+              💾 احفظ كملف نصي
+            </button>
+          </div>
         </div>
       </div>
     </div>

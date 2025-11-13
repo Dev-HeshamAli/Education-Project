@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef } from "react";
 import CookieService from "../utils/cookies";
 import { actRefreshAuth } from "../store/auth/actRefreshAuth";
@@ -40,12 +39,12 @@ export default function AuthProvider({ children }) {
 
   const isPublicPath = PUBLIC_PATHS.has(location.pathname);
 
-  // دالة جدولة التحديث
+  // ⏱️ دالة جدولة التحديث
   const scheduleRefresh = (expiresIn) => {
     const expiresInSeconds = parseInt(expiresIn);
     if (isNaN(expiresInSeconds) || expiresInSeconds <= 0) return;
 
-    // نعمل refresh قبل انتهاء الصلاحية بدقيقتين
+    // نعمل refresh قبل انتهاء الصلاحية بدقيقة
     const refreshTime = Math.max((expiresInSeconds - 60) * 1000, 5000);
 
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
@@ -55,7 +54,7 @@ export default function AuthProvider({ children }) {
       const storedRefreshToken = CookieService.getCookie("refreshToken");
 
       if (isPublicPath) {
-        // لو صفحة عامة → جرب تعيد تحميل التوكين لو مش موجود
+        // لو صفحة عامة → بس حاول تعيد التحميل لو Redux فاضي
         if (storedToken && storedRefreshToken && !token) {
           const result = await dispatch(
             actRefreshAuth({
@@ -163,15 +162,15 @@ export default function AuthProvider({ children }) {
     }, refreshTime);
   };
 
-  // initAuth عند أول تحميل
+  // 🔑 initAuth عند أول تحميل
   useEffect(() => {
     const initAuth = async () => {
       try {
         const storedToken = CookieService.getCookie("token");
         const storedRefreshToken = CookieService.getCookie("refreshToken");
 
-        // ✅ لو عندك توكن في الكوكيز → اعمل refresh
-        if (storedToken && storedRefreshToken) {
+        // ✅ الحالة ١: لو عندك توكن في الكوكيز والستور فاضي → رجّع التوكين
+        if (storedToken && storedRefreshToken && !token) {
           const result = await dispatch(
             actRefreshAuth({
               token: storedToken,
@@ -182,7 +181,6 @@ export default function AuthProvider({ children }) {
           if (actRefreshAuth.fulfilled.match(result)) {
             scheduleRefresh(result.payload.expiresIn);
           } else {
-            // لو التوكين بايظ → اعمل مسح
             await dispatch(
               actLogout({
                 data: { userId: userid, refToken: refreshToken },
@@ -193,6 +191,20 @@ export default function AuthProvider({ children }) {
                 dispatch(logout());
               }
             });
+          }
+        }
+
+        // ✅ الحالة ٢: دايمًا اعمل refresh أول ما تفتح أو تسجل دخول
+        if (storedToken && storedRefreshToken) {
+          const result = await dispatch(
+            actRefreshAuth({
+              token: storedToken,
+              refrehToken: storedRefreshToken,
+            })
+          );
+
+          if (actRefreshAuth.fulfilled.match(result)) {
+            scheduleRefresh(result.payload.expiresIn);
           }
         }
 

@@ -73,7 +73,6 @@ export default function Navbar() {
         dispatch(logout());
       }
     });
-
     setAcctOpen(false);
     navigate("/home");
   };
@@ -85,9 +84,9 @@ export default function Navbar() {
         <div className="order-1 flex items-center gap-3">
           <Link to="/home" className="flex items-center gap-2">
             <img
-              src="/assets/img/Logoo.png"
+              src="/logo.png"
               alt="Edu-Smart Logo"
-              className="h-14 w-auto"
+              className="h-[100px] w-[85px]"
             />
             <span className="text-xl font-bold text-[#051441]">
               Edu-Smart.ai
@@ -96,12 +95,12 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex order-2 items-center gap-6 text-[16px] font-medium text-gray-700">
+        <nav className="hidden lg:flex order-2 items-center gap-6 text-[16px] font-medium text-gray-700">
           <NavLink
             to="/home"
             end
             className={({ isActive }) =>
-              `${baseLink} ${isActive ? activeLink : ""}`
+              `${baseLink} ${isActive ? activeLink : ""} hidden xl:inline-block`
             }
           >
             الرئيسية
@@ -114,6 +113,14 @@ export default function Navbar() {
             }
           >
             الرؤية والرسالة
+          </NavLink>
+          <NavLink
+            to="/register"
+            className={({ isActive }) =>
+              `${baseLink} ${isActive ? activeLink : ""}`
+            }
+          >
+            إضافة ابن
           </NavLink>
 
           {/* Pricing مع هاش */}
@@ -189,9 +196,9 @@ export default function Navbar() {
           {!token ? (
             <Link
               to="/login"
-              className="hidden md:inline-block bg-orange-600 text-white py-2 px-4 rounded-lg hover:opacity-90"
+              className="hidden lg:inline-block bg-orange-600 text-white py-2 px-4 rounded-lg hover:opacity-90"
             >
-              سجل الآن
+              تسجيل الدخول
             </Link>
           ) : (
             <div className="hidden md:block relative" ref={acctRef}>
@@ -228,10 +235,10 @@ export default function Navbar() {
           {/* زر الموبايل */}
           <button
             onClick={toggleMenu}
-            className="md:hidden focus:outline-none text-gray-700"
+            className="lg:hidden focus:outline-none text-gray-700"
           >
             <svg
-              className="w-6 h-6"
+              className="w-9 h-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -249,7 +256,7 @@ export default function Navbar() {
 
       {/* Mobile Nav */}
       {menuOpen && (
-        <div className="md:hidden bg-white px-4 pb-4 pt-2 shadow-md rounded-b-xl flex flex-col gap-3 text-sm font-semibold text-right">
+        <div className="lg:hidden bg-white px-4 pb-4 pt-2 shadow-md rounded-b-xl flex flex-col gap-3 text-sm font-semibold text-right">
           <NavLink
             to="/home"
             end
@@ -301,44 +308,19 @@ export default function Navbar() {
             اعرف معلمك
           </NavLink>
 
-          {/* قسم الحساب للموبايل */}
-          <div className="mt-2 border-t pt-2">
-            {!token ? (
-              <Link
-                to="/register"
-                className="bg-orange-600 text-white py-2 px-4 rounded-lg text-center hover:opacity-90"
-              >
-                سجل الآن
-              </Link>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    goProfile();
-                  }}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border hover:bg-gray-50 text-sm justify-end"
-                >
-                  <UserCircle className="h-5 w-5" /> الملف الشخصي
-                </button>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 bg-orange-600 hover:opacity-90 text-white text-sm"
-                >
-                  <LogOut className="h-5 w-5" /> تسجيل الخروج
-                </button>
-              </div>
-            )}
-          </div>
-
+          <NavLink
+            to="/register"
+            className={({ isActive }) =>
+              `${baseLink} ${isActive ? activeLink : ""}`
+            }
+          >
+            إضافة ابن
+          </NavLink>
           {/* تواصل معنا للموبايل */}
           <div className="relative text-right">
             <button
               onClick={() => setOpen((v) => !v)}
-              className="text-gray-700 px-4 py-2 rounded hover:text-orange-500 focus:outline-none w-full text-right"
+              className="text-gray-700 px-1 rounded hover:text-orange-500 focus:outline-none w-full text-right"
             >
               تواصل معنا
             </button>
@@ -365,6 +347,39 @@ export default function Navbar() {
                   </a>
                 </li>
               </ul>
+            )}
+          </div>
+
+          {/* قسم الحساب للموبايل */}
+          <div className="mt-2 pt-2 text-center">
+            {!token ? (
+              <Link
+                to="/login"
+                className="bg-orange-600 text-white py-2 px-4 rounded-lg text-center hover:opacity-90"
+              >
+                تسجيل الدخول
+              </Link>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    goProfile();
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border hover:bg-gray-50 text-sm justify-end"
+                >
+                  <UserCircle className="h-5 w-5" /> الملف الشخصي
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 bg-orange-600 hover:opacity-90 text-white text-sm"
+                >
+                  <LogOut className="h-5 w-5" /> تسجيل الخروج
+                </button>
+              </div>
             )}
           </div>
         </div>

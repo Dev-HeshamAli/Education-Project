@@ -6,10 +6,10 @@ import { BASE_URL } from "../../../../api/BASE_URL";
 
 export const actDeleteCourseVideo = createAsyncThunk(
   "video/create",
-  async ({ lecId, courseId, token }, { rejectWithValue }) => {
+  async ({  courseId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${BASE_URL}/api/Course/delete-cartoon-video/${courseId}/${lecId}`,
+        `${BASE_URL}/api/Course/Delete-CourseDetail/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

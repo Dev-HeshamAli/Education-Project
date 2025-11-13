@@ -10,7 +10,7 @@ export const actRefreshAuth = createAsyncThunk(
         token: token,
         refrehToken: refrehToken,
       });
-      console.log("Refresh response:", res.data);
+      // console.log("Refresh response:", res.data);
       return res.data;
     } catch (error) {
       console.error(

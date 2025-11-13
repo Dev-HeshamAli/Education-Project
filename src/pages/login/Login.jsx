@@ -40,7 +40,7 @@ const Login = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -68,7 +68,7 @@ const Login = () => {
     } else if (error) {
       const timer = setTimeout(() => {
         dispatch(resetLoginMessages());
-      }, 4000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
   }, [token, navigate, error, dispatch, id, role]);
@@ -87,7 +87,7 @@ const Login = () => {
 
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
-              حدث خطأ أثناء تسجيل الدخول: {error}
+              {error}
             </div>
           )}
 
@@ -153,10 +153,9 @@ const Login = () => {
                 fontSize: "16px",
               }}
               fullWidth
-              disabled={!isValid || Boolean(loading)}
               startIcon={
                 loading && (
-                  <CircularProgress sx={{ mr: 1 }} size={20} color="inherit" />
+                  <CircularProgress sx={{ mx: 2  }} size={22} color="inherit" />
                 )
               }
             >
@@ -171,7 +170,7 @@ const Login = () => {
               to="/register"
               className="text-orange-600 hover:underline font-semibold ml-1"
             >
-              أنشئ حساب الآن
+              أنشئ حساب لطفلك الأن
             </Link>
           </p>
           <p className="mt-3 text-sm text-gray-800">
@@ -201,9 +200,7 @@ const Login = () => {
             <p className="text-gray-300 text-sm leading-relaxed">
               حقوق النشر © 2024 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
               <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/https://edu-smart.ai"
                 className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"
               >
                 Edu-Smart.ai

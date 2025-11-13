@@ -13,7 +13,7 @@ const selectinIdsSlice = createSlice({
     studentId: null,
     stageId: null,
     scheduleId: null,
-        activeAccordion: null,   // 👈 الجديد
+    activeAccordion: null,   // 👈 الجديد
     activeItem: null,  
     scheduleTime: null,      // 👈 الجديد
     scheduleTime2: null,      // 👈 الجديد
