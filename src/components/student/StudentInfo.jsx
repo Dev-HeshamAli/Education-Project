@@ -75,10 +75,10 @@ export default function StudentInfo({ student }) {
   const schoolClass = pick(student, ["school_class", "school_Class"]);
   const semester = student?.semester;
   const isPayed = !!student?.isPayed;
-  const isDisabled = !!student?.isDisabled;
+  // const isDisabled = !!student?.isDisabled;
 
   const lastQualification = student?.last_educational_qualification; // رابط
-  const medicalReports = student?.medical_reports; // رابط (قد يكون فارغ)
+  // const medicalReports = student?.medical_reports; // رابط (قد يكون فارغ)
 
   // أحرف الاسم (أفاتار)
   const initials = useMemo(() => {
@@ -133,12 +133,12 @@ export default function StudentInfo({ student }) {
     </span>
   );
 
-  const disabledBadge = isDisabled ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 text-xs">
-      <HeartPulse className="h-4 w-4" />
-      حالة خاصة
-    </span>
-  ) : null;
+  // const disabledBadge = isDisabled ? (
+  //   <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 text-xs">
+  //     <HeartPulse className="h-4 w-4" />
+  //     حالة خاصة
+  //   </span>
+  // ) : null;
 
   return (
     <div
@@ -182,7 +182,7 @@ export default function StudentInfo({ student }) {
 
             <Link
               to="/student/edit-profile"
-              className="sm:ms-auto mb-2 inline-flex justify-center sm:justify-end items-center rounded-xl bg-[#f97316] hover:bg-[#ea580c] px-4 py-2 text-sm text-white mx-auto sm:mx-0"
+              className="sm:ms-auto mb-2 inline-flex justify-center sm:justify-end items-center rounded-xl bg-[#f95e16] hover:bg-[#ea580c] px-4 py-2 text-sm text-white mx-auto sm:mx-0"
             >
               تعديل الملف الشخصي
             </Link>

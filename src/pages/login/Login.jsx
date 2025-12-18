@@ -57,7 +57,7 @@ const Login = () => {
         navigate("/dashboard", { replace: true });
         dispatch(fetchAdminById({ id, token }));
       } else if (role.includes("Student")) {
-        navigate("/student", { replace: true });
+        navigate("/student/class-Schedule", { replace: true });
       } else if (role.includes("Teacher")) {
         navigate("/teacher", { replace: true });
       } else if (role.includes("Parent")) {

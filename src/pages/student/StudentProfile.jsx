@@ -8,19 +8,22 @@ export default function StudentProfile() {
   const token = useSelector((s) => s.auth.token);
   const { id } = useSelector((s) => s.auth);
   const [student, setStudent] = useState(null);
-  const [courses, setCourses] = useState([]);
+  // const [courses, setCourses] = useState([]);
+  // console.log(student);
 
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/Student/student-profile/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data } = await axios.get(
+          `${BASE_URL}/api/Student/student-profile/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setStudent(data);
-        setCourses(data?.courses || []);
-   
+        // setCourses(data?.courses || []);
       } catch (err) {
-    
+        console.error("Error fetching student profile:", err);
       }
     })();
   }, [id, token]);
@@ -30,8 +33,6 @@ export default function StudentProfile() {
       <div className="mx-auto max-w-6xl px-3 sm:px-6 lg:px-8 py-10">
         {/* ✅ Send student as prop */}
         <StudentInfo student={student} />
-
-        
       </div>
     </div>
   );

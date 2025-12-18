@@ -8,6 +8,7 @@ import {
   setLectureContext,
   setActiveCourseDetailId,
 } from "../../store/dataIDs/dataIDsSlice";
+import { CircularProgress, Typography } from "@mui/material";
 
 /* --------- utils --------- */
 const extractDriveId = (url) => {
@@ -270,14 +271,27 @@ export default function WatchLecture() {
     return (
       <main
         dir="rtl"
-        className="min-h-screen flex items-center justify-center bg-slate-50"
+        className="min-h-screen flex items-center justify-center flex-col bg-slate-50 gap-4"
       >
-        <div className="rounded-xl bg-white shadow p-6 text-slate-700">
-          جارٍ التحميل…
-        </div>
+        <CircularProgress color="inherit" size={50} />
+        <Typography variant="h4" color="initial">
+          جارٍ التحميل
+        </Typography>
       </main>
     );
   }
+  // if (loading) {
+  //   return (
+  //     <main
+  //       dir="rtl"
+  //       className="min-h-screen flex items-center justify-center bg-slate-50"
+  //     >
+  //       {/* <div className="rounded-xl bg-white shadow p-6 text-slate-700">
+  //         جارٍ التحميل…
+  //       </div> */}
+  //     </main>
+  //   );
+  // }
   if (err) {
     return (
       <main

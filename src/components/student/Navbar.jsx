@@ -9,6 +9,7 @@ import { setLoading } from "../../store/LOCAL_DATA/loaderSlice";
 export default function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -61,8 +62,8 @@ export default function Navbar() {
       dir="rtl"
       className="sticky top-0 z-50 bg-slate-800 backdrop-blur border-b border-black/10"
     >
-      <div className="h-1 bg-[linear-gradient(90deg,#f97316_0%,#ea580c_100%)]" />
-      <nav className="mx-auto max-w-8xl px-3 sm:px-6 lg:px-8">
+      {/* <div className="h-1 bg-[linear-gradient(90deg,#f97316_0%,#ea580c_100%)]" /> */}
+      <nav className="mx-auto max-w-8xl px-3 sm:px-6 lg:px-0">
         <div className="flex items-center justify-between h-20">
           {/* Logo -> يودّي للـ Home */}
           <Link
@@ -99,7 +100,7 @@ export default function Navbar() {
               <li key={l.to}>
                 <Link
                   to={l.to}
-                  className="px-6 py-3 rounded-lg bg-[#f97316] text-slate-100 hover:from-orange-500 hover:to-orange-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 border border-slate-600 hover:border-orange-400"
+                  className="text-lg font-semibold px-5 py-2 rounded-lg bg-[#fff] text-black hover:bg-gradient-to-r from-orange-100 hover:from-gray-500 hover:to-gray-600 hover:text-white transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 border border-slate-600 hover:border-gray-400"
                 >
                   {l.label}
                 </Link>
@@ -143,17 +144,18 @@ export default function Navbar() {
             <div className="mt-2 flex w-max items-center gap-3 rounded-xl text-slate-100 shadow-2xl overflow-hidden z-50 px-3 py-2">
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 transition hidden lg:block"
+                className="text-lg font-semibold px-4 py-1 rounded-lg bg-red-600 hover:bg-red-700 transition hidden lg:block"
               >
                 تسجيل الخروج
               </button>
               <button
-                className="items-center gap-1 rounded-full p-1.5 hover:bg-white/10 text-slate-200 hidden lg:block"
+                className="px-4 py-1 rounded-lg bg-[#fff] text-black hover:bg-gradient-to-r from-orange-100 hover:from-gray-500 hover:to-gray-600 hover:text-white transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 border border-slate-600 hover:border-gray-400 hidden lg:flex justify-center "
                 onClick={() => {
                   navigate("student-profile");
                 }}
               >
-                <UserCircle className="h-10 w-10" />
+                {/* <UserCircle className="h-6 w-6 " /> */}
+                <span className="text-lg font-semibold ">الملف الشخصي</span>
               </button>
             </div>
 
@@ -215,7 +217,7 @@ export default function Navbar() {
                   handleLogout();
                   setOpen(false);
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 bg-[#f97316] hover:bg-[#ea580c] text-white text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 bg-[#f91616] hover:bg-[#671b06] text-white text-sm"
               >
                 <LogOut className="h-5 w-5" /> تسجيل الخروج
               </button>

@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import ToggleButtonSelector from "../../components/landingPage/ToggleButton";
+import Button from "@mui/material/Button";
 
 export default function MainBanner() {
+  const navigate = useNavigate();
   const [showVideoModal, setShowVideoModal] = useState(false);
   const videoRef = useRef(null);
   const [videoNumber, setVideoNumber] = useState(0);
@@ -117,7 +119,7 @@ export default function MainBanner() {
       <img
         src="/assets/img/bini.png"
         alt="bini"
-        className="absolute z-10 right-5 top-[5px] w-20 sm:w-24 animate-slideLeft drop-shadow-lg block xl:hidden 2xl:block"
+        className="absolute z-10 right-5 top-[5px] w-20 sm:w-24 animate-slideLeft drop-shadow-lg hidden 2xl:block"
       />
       <img
         src="/assets/img/booy.png"
@@ -232,11 +234,43 @@ export default function MainBanner() {
             src="/assets/img/main-banner/education-girl.png"
             alt="girl"
             className="w-full object-contain drop-shadow-2xl"
-
           />
 
           {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
           <div className="hidden md:block">
+            <div className="absolute md:top-[6%] md:right-[6%] lg:top-[5%] lg:right-[8%]">
+              {/* <VideoBtn
+                label="كلمة أحد خبرائنا"
+                onClick={() => {
+                  setVideoNumber(1);
+                  openVideo();
+                }}
+              /> */}
+              <Button
+                variant="contained"
+                color="success"
+                sx={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "25px",
+                  px: 6,
+                  py: 1,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "#45a049",
+                    transform: "scale(1.02)",
+                    transition: "all 0.2s ease",
+                  },
+                  borderRadius: "50px",
+                }}
+                onClick={() => {
+                  navigate("/register");
+                }}
+              >
+                سجل الان
+              </Button>
+            </div>
+
             {/* زر 1 */}
             <div className="absolute md:top-[18%] md:right-[6%] lg:top-[15%] lg:right-[8%]">
               <VideoBtn
@@ -274,6 +308,29 @@ export default function MainBanner() {
           {/* === لوحة أزرار Responsive للموبايل (تحت الصورة) === */}
           <div className="md:hidden mt-4 w-full max-w-md">
             <div className="grid grid-cols-1 gap-3 px-2">
+              <Button
+                variant="contained"
+                color="success"
+                sx={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "25px",
+                  px: 6,
+                  py: 1,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "#45a049",
+                    transform: "scale(1.02)",
+                    transition: "all 0.2s ease",
+                  },
+                  borderRadius: "50px",
+                }}
+                onClick={() => {
+                  navigate("/register");
+                }}
+              >
+                سجل الان
+              </Button>
               <VideoBtn
                 label="كلمة أحد خبرائنا"
                 onClick={() => {

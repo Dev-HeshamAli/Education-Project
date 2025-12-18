@@ -59,24 +59,24 @@ const TeacherSchedule = () => {
 
   // ترجمة أيام الأسبوع
   const dayTranslations = {
+    السبت: "Saturday",
     الأحد: "Sunday",
     الاثنين: "Monday",
     الثلاثاء: "Tuesday",
     الأربعاء: "Wednesday",
     الخميس: "Thursday",
     الجمعة: "Friday",
-    السبت: "Saturday",
   };
 
   // ترتيب الأيام
   const weekOrder = [
+    "السبت",
     "الأحد",
     "الاثنين",
     "الثلاثاء",
     "الأربعاء",
     "الخميس",
     "الجمعة",
-    "السبت",
   ];
 
   // ترتيب البيانات

@@ -10,7 +10,7 @@ const Loader = () => {
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color="inherit" size={55} />
       </Backdrop>
     </>
   );
