@@ -105,11 +105,28 @@ export default function MainBanner() {
           top: "30px",
           left: "75%",
           transform: "translateX(-50%)",
+          width: "fit-content",
           zIndex: 1,
         }}
       >
         <ToggleButtonSelector />
       </Box> */}
+      <Box
+        className="hidden xl:block"
+        sx={{
+          position: "absolute",
+          top: { xs: "20px", xl: "50px" },
+          left: { xs: "50%", lg: "75%" },
+          transform: { md: "translateX(-50%)" },
+          width: { xs: "100%", sm: "auto" },
+          maxWidth: { xs: "100%", sm: "384px" },
+          zIndex: { md: 1 },
+          padding: { xs: "16px", md: "0" },
+          transition: "all 0.3s ease-in-out",
+        }}
+      >
+        <ToggleButtonSelector lvl={"kg"} />
+      </Box>
       {/* زخارف */}
       <img
         src="/assets/img/dida.png"
@@ -131,7 +148,7 @@ export default function MainBanner() {
         {/* النصوص */}
         <div className="w-full lg:w-1/2 text-right space-y-4 px-4 sm:px-8 lg:px-2">
           <div className="pointer-container text-gray-800 mt-4 flex items-center justify-center gap-2 px-4 py-2">
-            <p className="text-sm md:text-base font-bold mb-1">
+            <p className="text-sm md:text-base font-bold mb-1 md:mt-20">
               اضغط علي الفصل الدراسي الخاص بالطالب
             </p>
             <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i>
@@ -248,7 +265,7 @@ export default function MainBanner() {
               /> */}
               <Button
                 variant="contained"
-                color="success"
+                className="bg-gradient-to-r from-orange-400 to-orange-600"
                 sx={{
                   color: "white",
                   fontWeight: "bold",
@@ -270,9 +287,11 @@ export default function MainBanner() {
                 سجل الان
               </Button>
             </div>
-
+            <div className="absolute md:top-[15%] md:right-[2%] lg:top-[11%] lg:right-[8%] block xl:hidden">
+              <ToggleButtonSelector />
+            </div>
             {/* زر 1 */}
-            <div className="absolute md:top-[18%] md:right-[6%] lg:top-[15%] lg:right-[8%]">
+            <div className="absolute md:top-[25%] md:right-[2%] lg:top-[18%] lg:right-[8%]">
               <VideoBtn
                 label="كلمة أحد خبرائنا"
                 onClick={() => {
@@ -283,7 +302,7 @@ export default function MainBanner() {
             </div>
 
             {/* زر 2 */}
-            <div className="absolute md:top-[30%] md:right-[6%] lg:top-[25%] lg:right-[8%]">
+            <div className="absolute md:top-[32%] md:right-[2%] lg:top-[27%] lg:right-[8%]">
               <VideoBtn
                 label="شاهد الفيديو التوضيحي"
                 onClick={() => {
@@ -294,7 +313,7 @@ export default function MainBanner() {
             </div>
 
             {/* زر 3 (جديد) */}
-            <div className="absolute md:top-[43%] md:right-[6%] lg:top-[35%] lg:right-[8%]">
+            <div className="absolute md:top-[40%] md:right-[2%] lg:top-[36%] lg:right-[8%]">
               <VideoBtn
                 label="رحلاتنا ومغامرتنا"
                 onClick={() => {
@@ -308,9 +327,10 @@ export default function MainBanner() {
           {/* === لوحة أزرار Responsive للموبايل (تحت الصورة) === */}
           <div className="md:hidden mt-4 w-full max-w-md">
             <div className="grid grid-cols-1 gap-3 px-2">
+              <ToggleButtonSelector />
               <Button
                 variant="contained"
-                color="success"
+                className="bg-gradient-to-r from-green-400 to-blue-500"
                 sx={{
                   color: "white",
                   fontWeight: "bold",

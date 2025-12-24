@@ -196,7 +196,7 @@ export default function Navbar() {
           {!token ? (
             <Link
               to="/login"
-              className="hidden lg:inline-block bg-orange-600 text-white py-2 px-4 rounded-lg hover:opacity-90"
+              className="hidden lg:inline-block bg-gradient-to-r from-orange-400 to-orange-600 text-white py-3 px-6 rounded-full hover:opacity-90"
             >
               تسجيل الدخول
             </Link>
