@@ -98,7 +98,7 @@ export default function MainBanner() {
   );
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 px-0 pb-2">
+    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-100 px-0 pb-2">
       {/* <Box
         sx={{
           position: "absolute",
@@ -250,12 +250,12 @@ export default function MainBanner() {
           <img
             src="/assets/img/main-banner/education-girl.png"
             alt="girl"
-            className="w-full object-contain drop-shadow-2xl"
+            className="w-full xl:w-[889px] xl:h-[1030px] object-cover drop-shadow-2xl "
           />
 
           {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
           <div className="hidden md:block">
-            <div className="absolute md:top-[6%] md:right-[6%] lg:top-[5%] lg:right-[8%]">
+            <div className="absolute md:top-[6%] md:right-[2%] lg:top-[5%] lg:right-[8%]">
               {/* <VideoBtn
                 label="كلمة أحد خبرائنا"
                 onClick={() => {
@@ -330,7 +330,7 @@ export default function MainBanner() {
               <ToggleButtonSelector />
               <Button
                 variant="contained"
-                className="bg-gradient-to-r from-green-400 to-blue-500"
+                className="bg-gradient-to-r from-orange-400 to-orange-600"
                 sx={{
                   color: "white",
                   fontWeight: "bold",

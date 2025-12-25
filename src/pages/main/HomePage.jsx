@@ -185,7 +185,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      {/*<Testimonials/>*/}
+      {/* <Testimonials/> */}
 
       {/* Footer with enhanced styling */}
       <div className="relative">
