@@ -60,7 +60,11 @@ export default function Footer() {
   };
 
   return (
-    <section id="footer" className="footer-area pt-20 pb-16 bg-gray-950" dir="rtl">
+    <section
+      id="footer"
+      className="footer-area pt-20 pb-16 bg-gray-950"
+      dir="rtl"
+    >
       <div className="max-w-7xl mx-auto px-4">
         {/* Top blocks */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-right">
@@ -70,9 +74,10 @@ export default function Footer() {
               <span className="cursor-default">Edu-Smart.ai</span>
             </h2>
             <p className="text-white/85 mb-4 text-sm">
-              منصة تعليمية رائدة للمصريين في الخارج، نقدم المنهج المصري بحب وشغف.
+              منصة تعليمية رائدة للمصريين في الخارج، نقدم المنهج المصري بحب
+              وشغف.
             </p>
-            <ul className="flex justify-end gap-4 text-xl text-white">
+            <ul className="flex justify-start gap-4 text-xl text-white ">
               <li>
                 <a
                   href="https://www.tiktok.com/@edu_smart.ai"
@@ -118,7 +123,9 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4">تواصل معنا</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              تواصل معنا
+            </h3>
             <ul className="text-white space-y-2 text-sm">
               <li>
                 <i className="bx bxl-whatsapp ml-2" />
@@ -129,13 +136,16 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-orange-500"
                 >
-                  <bdi dir="ltr">+20  01021355543</bdi>
+                  <bdi dir="ltr">+20 01021355543</bdi>
                 </a>
               </li>
               <li>
                 <i className="bx bx-envelope ml-2" />
                 <span className="font-medium">البريد الإلكتروني:</span>{" "}
-                <a href="mailto:Edu-smart@gmail.com" className="hover:text-orange-500">
+                <a
+                  href="mailto:Edu-smart@gmail.com"
+                  className="hover:text-orange-500"
+                >
                   Info@edu-smart.ai
                 </a>
               </li>
@@ -156,7 +166,9 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4">روابط سريعة</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              روابط سريعة
+            </h3>
             <ul className="space-y-2 text-white text-sm">
               <li>
                 <Link to="/vision" className="hover:text-orange-500">
@@ -164,7 +176,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="/home#pricing" onClick={handlePricing} className="hover:text-orange-500">
+                <a
+                  href="/home#pricing"
+                  onClick={handlePricing}
+                  className="hover:text-orange-500"
+                >
                   الرسوم الدراسية
                 </a>
               </li>
@@ -178,7 +194,9 @@ export default function Footer() {
 
           {/* Photo Gallery */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4">معرض الصور</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              معرض الصور
+            </h3>
             <div className="grid grid-cols-3 gap-2">
               {GALLERY.map((item, idx) => (
                 <button
@@ -203,7 +221,9 @@ export default function Footer() {
 
         {/* Policies */}
         <div className="mt-10 border-t border-white/10 pt-6">
-          <h3 className="text-xl font-bold text-white mb-3 text-right">السياسات</h3>
+          <h3 className="text-xl font-bold text-white mb-3 text-right">
+            السياسات
+          </h3>
           <div className="flex flex-wrap gap-3 justify-start">
             <button
               onClick={() =>
@@ -211,16 +231,22 @@ export default function Footer() {
                   "سياسة الاسترجاع والاستبدال",
                   <div className="space-y-2 leading-8">
                     <p>
-                      نحن نقدر ثقتكم. الرسوم المدفوعة مقابل الدورات الإلكترونية أو المواد الرقمية أو الاشتراكات تعتبر غير
-                      قابلة للاسترداد بعد منح صلاحية الدخول. ومع ذلك، قد يتم النظر في الاسترداد في حالات خاصة (مثل الدفع
-                      المكرر أو وجود مشاكل تقنية تمنع الوصول).
+                      نحن نقدر ثقتكم. الرسوم المدفوعة مقابل الدورات الإلكترونية
+                      أو المواد الرقمية أو الاشتراكات تعتبر غير قابلة للاسترداد
+                      بعد منح صلاحية الدخول. ومع ذلك، قد يتم النظر في الاسترداد
+                      في حالات خاصة (مثل الدفع المكرر أو وجود مشاكل تقنية تمنع
+                      الوصول).
                     </p>
                     <ul className="list-disc mr-5">
                       <li>
-                        يجب تقديم طلب الاسترداد خلال <strong>7 أيام</strong> من عملية الدفع.
+                        يجب تقديم طلب الاسترداد خلال <strong>7 أيام</strong> من
+                        عملية الدفع.
                       </li>
                       <li>لا يتم استرداد الرسوم بعد بدء الدخول إلى الدورة.</li>
-                      <li>يمكن استبدال الدورة بأخرى إذا تم الطلب قبل بدء الدخول إلى المحتوى.</li>
+                      <li>
+                        يمكن استبدال الدورة بأخرى إذا تم الطلب قبل بدء الدخول
+                        إلى المحتوى.
+                      </li>
                     </ul>
                   </div>
                 )
@@ -235,9 +261,14 @@ export default function Footer() {
                 openPolicy(
                   "سياسة مدة الخدمة/التسليم",
                   <div className="space-y-2 leading-8">
-                    <p>بما أننا مدرسة تعليمية إلكترونية، لا يتم شحن منتجات مادية.</p>
+                    <p>
+                      بما أننا مدرسة تعليمية إلكترونية، لا يتم شحن منتجات مادية.
+                    </p>
                     <ul className="list-disc mr-5">
-                      <li>يتم منح صلاحية الوصول إلى الدورات مباشرة بعد تأكيد الدفع.</li>
+                      <li>
+                        يتم منح صلاحية الوصول إلى الدورات مباشرة بعد تأكيد
+                        الدفع.
+                      </li>
                       <li>لا نقدم شهادات؛ فجميع خدماتنا تعليمية رقمية فقط.</li>
                     </ul>
                   </div>
@@ -257,9 +288,13 @@ export default function Footer() {
                     <ol className="list-decimal mr-5 space-y-1">
                       <li>إدخال معلومات صحيحة عند التسجيل.</li>
                       <li>استخدام المنصة لأغراض تعليمية فقط.</li>
-                      <li>عدم مشاركة أو إعادة بيع أو توزيع محتوى الدورات دون إذن.</li>
+                      <li>
+                        عدم مشاركة أو إعادة بيع أو توزيع محتوى الدورات دون إذن.
+                      </li>
                       <li>احترام حقوق الملكية الفكرية للمنصة والمدربين.</li>
-                      <li>قبول أن أي مخالفة قد تؤدي إلى إيقاف أو إلغاء الحساب.</li>
+                      <li>
+                        قبول أن أي مخالفة قد تؤدي إلى إيقاف أو إلغاء الحساب.
+                      </li>
                     </ol>
                   </div>
                 )
@@ -274,11 +309,22 @@ export default function Footer() {
                 openPolicy(
                   "سياسة الخصوصية",
                   <div className="space-y-2 leading-8">
-                    <p>نقوم بجمع الحد الأدنى من المعلومات الشخصية (الاسم، البريد الإلكتروني، بيانات الدفع) لتقديم الخدمة.</p>
+                    <p>
+                      نقوم بجمع الحد الأدنى من المعلومات الشخصية (الاسم، البريد
+                      الإلكتروني، بيانات الدفع) لتقديم الخدمة.
+                    </p>
                     <ul className="list-disc mr-5">
-                      <li>لن نقوم أبداً ببيع بياناتك أو مشاركتها مع أطراف خارجية دون موافقتك.</li>
-                      <li>نستخدم بوابات دفع آمنة وتقنيات التشفير لحماية معلوماتك.</li>
-                      <li>يمكنك طلب حذف حسابك وبياناتك الشخصية في أي وقت عبر التواصل معنا.</li>
+                      <li>
+                        لن نقوم أبداً ببيع بياناتك أو مشاركتها مع أطراف خارجية
+                        دون موافقتك.
+                      </li>
+                      <li>
+                        نستخدم بوابات دفع آمنة وتقنيات التشفير لحماية معلوماتك.
+                      </li>
+                      <li>
+                        يمكنك طلب حذف حسابك وبياناتك الشخصية في أي وقت عبر
+                        التواصل معنا.
+                      </li>
                     </ul>
                   </div>
                 )
@@ -345,8 +391,20 @@ export default function Footer() {
             aria-label="السابق"
           >
             {/* سهم لليسار (SVG ثابت) */}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 6l-6 6 6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
 
@@ -360,8 +418,20 @@ export default function Footer() {
             aria-label="التالي"
           >
             {/* سهم لليمين (SVG ثابت) */}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M9 6l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
 

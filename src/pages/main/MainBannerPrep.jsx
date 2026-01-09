@@ -86,24 +86,12 @@ export default function MainBannerPrep() {
   );
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-100 px-0 pb-2">
-      {/* <Box
-        sx={{
-          position: "absolute",
-          top: "30px",
-          left: "75%",
-          transform: "translateX(-50%)",
-          width: "fit-content",
-          zIndex: 1,
-        }}
-      >
-        <ToggleButtonSelector />
-      </Box> */}
+    <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-100 px-0 pb-2 ">
       <Box
-        className="hidden xl:block"
+        className="hidden xl:flex flex-col items-center justify-center gap-4"
         sx={{
           position: "absolute",
-          top: { xs: "20px", xl: "50px" },
+          top: "40px",
           left: { xs: "50%", lg: "75%" },
           transform: { md: "translateX(-50%)" },
           width: { xs: "100%", sm: "auto" },
@@ -114,6 +102,31 @@ export default function MainBannerPrep() {
         }}
       >
         <ToggleButtonSelector lvl={"kg"} />
+
+        <Button
+          variant="contained"
+          className="bg-gradient-to-r from-orange-400 to-orange-600"
+          sx={{
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "24px",
+            width: "390px",
+            px: 6,
+            py: 1.5,
+            transition: "all 0.2s ease",
+            "&:hover": {
+              bgcolor: "#45a049",
+              transform: "scale(1.02)",
+              transition: "all 0.2s ease",
+            },
+            borderRadius: "50px",
+          }}
+          onClick={() => {
+            navigate("/register");
+          }}
+        >
+          Register Now
+        </Button>
       </Box>
       {/* زخارف */}
       <img
@@ -132,15 +145,15 @@ export default function MainBannerPrep() {
         className="absolute z-10 right-[40%] md:right-[55%] lg:right-[670px] bottom-20 w-20 sm:w-24 animate-bounce drop-shadow-lg hidden 2xl:block"
       />
 
-      <div className="flex flex-col-reverse xl:flex-row items-center justify-between gap-0">
+      <div className="flex flex-col-reverse xl:flex-row items-center justify-between gap-0 ">
         {/* النصوص */}
-        <div className="w-full lg:w-1/2 text-right space-y-4 px-4 sm:px-8 lg:px-2">
+        <div className="w-full lg:w-1/2 text-right space-y-4 px-4 sm:px-8 lg:px-2 ">
           <div className="pointer-container text-gray-800 mt-4 flex items-center justify-center gap-2 px-4 py-2">
             <p className="text-sm md:text-base font-bold mb-1 md:mt-20">
               Click on the student's academic stage
             </p>
 
-            <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i>
+            {/* <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i> */}
           </div>
 
           {/* النجوم */}
@@ -241,7 +254,7 @@ export default function MainBannerPrep() {
           <img
             src="/assets/img/gallery/new-prep.jpg"
             alt="girl"
-            className="w-full object-contain drop-shadow-2xl"
+            className="w-full xl:w-[889px] xl:h-[1030px] object-cover drop-shadow-2xl "
           />
 
           {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
@@ -254,7 +267,7 @@ export default function MainBannerPrep() {
                   openVideo();
                 }}
               /> */}
-              <Button
+              {/* <Button
                 variant="contained"
                 className="bg-gradient-to-r from-orange-400 to-orange-600"
                 sx={{
@@ -275,12 +288,12 @@ export default function MainBannerPrep() {
                   navigate("/register");
                 }}
               >
-                Rrgister Now
-              </Button>
+                Register Now
+              </Button> */}
             </div>
-            <div className="absolute md:top-[15%] md:right-[2%] lg:top-[11%] lg:right-[8%] block xl:hidden">
+            {/* <div className="absolute md:top-[15%] md:right-[2%] lg:top-[11%] lg:right-[8%] block xl:hidden">
               <ToggleButtonSelector />
-            </div>
+            </div> */}
             {/* زر 1 */}
             {/* <div className="absolute md:top-[25%] md:right-[2%] lg:top-[18%] lg:right-[0%]">
               <VideoBtn
@@ -316,7 +329,7 @@ export default function MainBannerPrep() {
           </div>
 
           {/* === لوحة أزرار Responsive للموبايل (تحت الصورة) === */}
-          <div className="md:hidden mt-4 w-full max-w-md">
+          <div className="xl:hidden mt-4 w-full max-w-md">
             <div className="grid grid-cols-1 gap-3 px-2">
               <ToggleButtonSelector />
               <Button
@@ -325,9 +338,9 @@ export default function MainBannerPrep() {
                 sx={{
                   color: "white",
                   fontWeight: "bold",
-                  fontSize: { xs: "20px", md: "25px" },
+                  fontSize: "23px",
                   px: 6,
-                  py: 1,
+                  py: 1.5,
                   transition: "all 0.2s ease",
                   "&:hover": {
                     bgcolor: "#45a049",

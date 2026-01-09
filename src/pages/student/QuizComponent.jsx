@@ -38,11 +38,13 @@ export default function QuizComponent() {
     };
 
     try {
+      // eslint-disable-next-line no-unused-vars
       const res = await axios.post(
         "https://edu-smart.runasp.net/api/Ai/Quiz-Result",
         payload
       );
     } catch (err) {
+      console.error(err);
     }
   };
 

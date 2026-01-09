@@ -49,7 +49,7 @@ export default function PricingSection() {
                 className="block px-4 py-3 text-base hover:bg-gray-100 text-gray-700 font-medium"
               >
                 <BsWhatsapp className="inline ml-2 text-green-600 text-lg" />
-                واتساب: 01021355543
+                واتساب: 201021355543+
               </a>
             </li>
             <li>
@@ -58,7 +58,7 @@ export default function PricingSection() {
                 className="block px-4 py-3 text-base hover:bg-gray-100 text-gray-700 font-medium"
               >
                 <BsTelephone className="inline ml-2 text-blue-600 text-lg" />
-                اتصال: 01031165004
+                اتصال: 201031165004+
               </a>
             </li>
           </ul>

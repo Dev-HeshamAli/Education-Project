@@ -5,6 +5,7 @@ import PricingSection from "./PricingSection";
 import Testimonials from "./Testimonials";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import ChossePage from "./ChossePage";
 
 export default function HomePage() {
   const pricingRef = useRef(null);
@@ -18,6 +19,8 @@ export default function HomePage() {
 
   return (
     <>
+      {/* select page level before render */}
+      <ChossePage />
       <Navbar />
       {/* Hero Section with enhanced styling */}
       <div className="relative">
@@ -144,7 +147,7 @@ export default function HomePage() {
               },
             ].map((feature, index) => (
               <div key={index} className="group relative">
-                <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 text-right border border-gray-100 hover:border-orange-200 transform hover:-translate-y-2">
+                <div className="bg-white rounded-xl xl:h-[380px] p-6 shadow-lg hover:shadow-2xl transition-all duration-500 text-right border border-gray-100 hover:border-orange-200 transform hover:-translate-y-2">
                   {/* Top gradient line */}
                   <div
                     className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feature.color} rounded-t-xl`}

@@ -608,6 +608,8 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import MainBannerPrep from "./MainBannerPrep";
 import PricingSectionPrep from "./PricingSectionPrep";
+import EnNavbar from "../../components/main/EnNavbar";
+import EnFooter from "../../components/main/EnFooter";
 
 export default function Secondary() {
   const pricingRef = useRef(null);
@@ -621,7 +623,7 @@ export default function Secondary() {
 
   return (
     <>
-      <Navbar />
+      <EnNavbar />
       {/* Hero Section with enhanced styling */}
       <div className="relative">
         <MainBannerPrep />
@@ -720,7 +722,7 @@ export default function Secondary() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 ">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 img: "/assets/img/class.png",
@@ -741,14 +743,14 @@ export default function Secondary() {
                 color: "from-green-500 to-green-600",
               },
               {
-                img: "/assets/img/film.png",
-                title: "Educational Movies & Animations",
-                desc: "We use modern visual tools such as educational films and animations to simplify concepts and make learning more engaging.",
+                img: "/assets/img/gallery/egy.png",
+                title: "Egyptian Education System",
+                desc: "Focused learning based on the Egyptian curriculum for preparatory and Thanaweya Amma students, helping them succeed and reach their academic goals.",
                 color: "from-red-500 to-red-600",
               },
             ].map((feature, index) => (
               <div key={index} className="group relative ">
-                <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 text-right border border-gray-100 hover:border-orange-200 transform hover:-translate-y-2">
+                <div className="bg-white rounded-xl xl:h-[440px] p-6 shadow-lg hover:shadow-2xl transition-all duration-500 text-right border border-gray-100 hover:border-orange-200 transform hover:-translate-y-2">
                   {/* Top gradient line */}
                   <div
                     className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feature.color} rounded-t-xl`}
@@ -793,7 +795,7 @@ export default function Secondary() {
 
       {/* Footer with enhanced styling */}
       <div className="relative">
-        <Footer />
+        <EnFooter />
 
         {/* Enhanced Copyright Section */}
         <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 py-6 text-white relative overflow-hidden">
@@ -809,7 +811,7 @@ export default function Secondary() {
           <div className="container mx-auto px-4 relative">
             <div className="text-center">
               <p className="text-gray-300 text-sm leading-relaxed">
-                حقوق النشر © 2025 Edu-Smart. جميع الحقوق محفوظة بواسطة{" "}
+                Copyright © 2025 Edu-Smart. All rights reserved.
                 <a
                   href="https://edu-smart.ai"
                   className="text-orange-500 hover:text-orange-400 transition-colors duration-300 font-semibold hover:underline"

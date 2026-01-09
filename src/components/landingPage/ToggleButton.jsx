@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, ChevronDown } from "lucide-react";
@@ -32,7 +31,7 @@ export default function EducationLevelToggle({ lvl }) {
     {
       id: "kindergarten",
       label: "Kindergarten-primary",
-      route: "/kindergarten-primary",
+      route: "/",
     },
     { id: "secondary", label: "Prep - Thanaweya Amma", route: "/secondary" },
     { id: "ig", label: "IG - American", route: "/ig-school" },

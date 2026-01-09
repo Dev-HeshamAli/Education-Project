@@ -40,7 +40,10 @@ export default function PricingSectionIg() {
         </button>
 
         {open && (
-          <ul className="absolute left-0 mt-2 w-full bg-white rounded-md shadow-lg z-50 border ">
+          <ul
+            dir="ltr"
+            className="absolute left-0 mt-2 w-full bg-white rounded-md shadow-lg z-50 border "
+          >
             <li>
               <a
                 href="https://wa.me/201021355543"
@@ -48,8 +51,8 @@ export default function PricingSectionIg() {
                 rel="noopener noreferrer"
                 className="block px-4 py-3 text-base hover:bg-gray-100 text-gray-700 font-medium"
               >
-                <BsWhatsapp className="inline ml-2 text-green-600 text-lg" />
-                واتساب: 01021355543
+                <BsWhatsapp className="inline mr-2 text-green-600 text-lg" />
+                WhatsApp :+201021355543
               </a>
             </li>
             <li>
@@ -57,8 +60,8 @@ export default function PricingSectionIg() {
                 href="tel:+201031165004"
                 className="block px-4 py-3 text-base hover:bg-gray-100 text-gray-700 font-medium"
               >
-                <BsTelephone className="inline ml-2 text-blue-600 text-lg" />
-                اتصال: 01031165004
+                <BsTelephone className="inline mr-2 text-blue-600 text-lg" />
+                Call :+201031165004
               </a>
             </li>
           </ul>

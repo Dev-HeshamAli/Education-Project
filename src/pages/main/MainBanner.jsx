@@ -99,23 +99,11 @@ export default function MainBanner() {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-100 px-0 pb-2">
-      {/* <Box
-        sx={{
-          position: "absolute",
-          top: "30px",
-          left: "75%",
-          transform: "translateX(-50%)",
-          width: "fit-content",
-          zIndex: 1,
-        }}
-      >
-        <ToggleButtonSelector />
-      </Box> */}
       <Box
         className="hidden xl:block"
         sx={{
           position: "absolute",
-          top: { xs: "20px", xl: "50px" },
+          top: "50px",
           left: { xs: "50%", lg: "75%" },
           transform: { md: "translateX(-50%)" },
           width: { xs: "100%", sm: "auto" },
@@ -151,7 +139,7 @@ export default function MainBanner() {
             <p className="text-sm md:text-base font-bold mb-1 md:mt-20">
               اضغط علي الفصل الدراسي الخاص بالطالب
             </p>
-            <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i>
+            {/* <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i> */}
           </div>
 
           {/* النجوم */}
@@ -256,13 +244,6 @@ export default function MainBanner() {
           {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
           <div className="hidden md:block">
             <div className="absolute md:top-[6%] md:right-[2%] lg:top-[5%] lg:right-[8%]">
-              {/* <VideoBtn
-                label="كلمة أحد خبرائنا"
-                onClick={() => {
-                  setVideoNumber(1);
-                  openVideo();
-                }}
-              /> */}
               <Button
                 variant="contained"
                 className="bg-gradient-to-r from-orange-400 to-orange-600"
@@ -270,7 +251,7 @@ export default function MainBanner() {
                   color: "white",
                   fontWeight: "bold",
                   fontSize: "25px",
-                  px: 6,
+                  px: 7,
                   py: 1,
                   transition: "all 0.2s ease",
                   "&:hover": {
@@ -334,7 +315,7 @@ export default function MainBanner() {
                 sx={{
                   color: "white",
                   fontWeight: "bold",
-                  fontSize: "25px",
+                  fontSize: "30px",
                   px: 6,
                   py: 1,
                   transition: "all 0.2s ease",

@@ -97,7 +97,7 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden lg:flex order-2 items-center gap-6 text-[16px] font-medium text-gray-700">
           <NavLink
-            to="/home"
+            to="/"
             end
             className={({ isActive }) =>
               `${baseLink} ${isActive ? activeLink : ""} hidden xl:inline-block`
@@ -173,7 +173,7 @@ export default function Navbar() {
                     className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
                   >
                     <BsWhatsapp className="inline ml-2 text-green-600" />
-                    واتساب: 01021355543
+                    واتساب: 201021355543+
                   </a>
                 </li>
                 <li>
@@ -182,7 +182,7 @@ export default function Navbar() {
                     className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
                   >
                     <BsTelephone className="inline ml-2 text-blue-600" />
-                    اتصال: 01031165004
+                    اتصال: 201031165004+
                   </a>
                 </li>
               </ul>

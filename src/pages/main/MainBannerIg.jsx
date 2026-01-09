@@ -36,43 +36,25 @@ export default function MainBannerIg() {
 
   // بيانات النجوم (زي ما هي)
   const starsData = [
-    { stage: "KG1", route: "/kg1", colors: ["#fca120", "#ff9900"], delay: 1 },
-    { stage: "KG2", route: "/kg2", colors: ["#2da9f7", "#4eaaff"], delay: 2 },
+    { stage: "Year8", route: "/kg1", colors: ["#fca120", "#ff9900"], delay: 1 },
+    { stage: "Year9", route: "/kg2", colors: ["#2da9f7", "#4eaaff"], delay: 2 },
     {
-      stage: "Prim1",
+      stage: "Year10",
       route: "/prim1",
       colors: ["#52e65f", "#52e65f"],
       delay: 3,
     },
     {
-      stage: "Prim2",
+      stage: "Year11",
       route: "/prim2",
       colors: ["#A84CFF", "#A84CFF"],
       delay: 4,
     },
     {
-      stage: "Prim3",
+      stage: "Year12",
       route: "/prim3",
       colors: ["#FF4C4C", "#FF4C4C"],
       delay: 5,
-    },
-    {
-      stage: "Prim4",
-      route: "/prim4",
-      colors: ["#fca17d", "#ff6b6b"],
-      delay: 6,
-    },
-    {
-      stage: "Prim5",
-      route: "/prim5",
-      colors: ["#9893DA", "#9893DA"],
-      delay: 7,
-    },
-    {
-      stage: "Prim6",
-      route: "/prim6",
-      colors: ["#C13333", "#C13333"],
-      delay: 8,
     },
   ];
 
@@ -102,23 +84,11 @@ export default function MainBannerIg() {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-100 px-0 pb-2">
-      {/* <Box
-        sx={{
-          position: "absolute",
-          top: "30px",
-          left: "75%",
-          transform: "translateX(-50%)",
-          width: "fit-content",
-          zIndex: 1,
-        }}
-      >
-        <ToggleButtonSelector />
-      </Box> */}
       <Box
-        className="hidden xl:block"
+        className="hidden xl:flex flex-col items-center justify-center gap-4"
         sx={{
           position: "absolute",
-          top: { xs: "20px", xl: "50px" },
+          top: "40px",
           left: { xs: "50%", lg: "75%" },
           transform: { md: "translateX(-50%)" },
           width: { xs: "100%", sm: "auto" },
@@ -129,6 +99,31 @@ export default function MainBannerIg() {
         }}
       >
         <ToggleButtonSelector lvl={"kg"} />
+
+        <Button
+          variant="contained"
+          className="bg-gradient-to-r from-orange-400 to-orange-600"
+          sx={{
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "24px",
+            width: "390px",
+            px: 6,
+            py: 1.5,
+            transition: "all 0.2s ease",
+            "&:hover": {
+              bgcolor: "#45a049",
+              transform: "scale(1.02)",
+              transition: "all 0.2s ease",
+            },
+            borderRadius: "50px",
+          }}
+          onClick={() => {
+            navigate("/register");
+          }}
+        >
+          Register Now
+        </Button>
       </Box>
       {/* زخارف */}
       <img
@@ -155,7 +150,7 @@ export default function MainBannerIg() {
               Click on the student's academic stage
             </p>
 
-            <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i>
+            {/* <i className="bx bxs-hand-down text-3xl text-red-400 animate-bounce"></i> */}
           </div>
 
           {/* النجوم */}
@@ -260,43 +255,19 @@ export default function MainBannerIg() {
           /> */}
 
           <img
-            src="/assets/img/gallery/new-ig.jpg"
+            src="/assets/img/gallery/newig.jpg"
             alt="girl"
             className="w-full xl:w-[889px] xl:h-[1030px] object-cover drop-shadow-2xl "
           />
 
           {/* === أزرار Overlay على الشاشات المتوسطة فما فوق === */}
-          <div className="hidden md:block">
-            <div className="absolute md:top-[6%] md:right-[2%] lg:top-[5%] lg:right-[2%]">
-              <Button
-                variant="contained"
-                className="bg-gradient-to-r from-orange-400 to-orange-600"
-                sx={{
-                  color: "white",
-                  fontWeight: "bold",
-                  fontSize: { xs: "15px", md: "25px" },
-                  px: 6,
-                  py: 1,
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    bgcolor: "#45a049",
-                    transform: "scale(1.02)",
-                    transition: "all 0.2s ease",
-                  },
-                  borderRadius: "50px",
-                }}
-                onClick={() => {
-                  navigate("/register");
-                }}
-              >
-                Rrgister Now
-              </Button>
-            </div>
-            <div className="absolute md:top-[15%] md:right-[2%] lg:top-[11%] lg:right-[2%] block xl:hidden">
+          <div className="hidden xl:block">
+            <div className="absolute md:top-[6%] md:right-[2%] lg:top-[13%] lg:right-[-67%]"></div>
+            {/* <div className="absolute md:top-[15%] md:right-[2%] lg:top-[11%] lg:right-[2%] block xl:hidden">
               <ToggleButtonSelector />
-            </div>
+            </div> */}
             {/* زر 1 */}
-            <div className="absolute md:top-[25%] md:right-[2%] lg:top-[18%] lg:right-[0%]">
+            {/* <div className="absolute md:top-[25%] md:right-[2%] lg:top-[18%] lg:right-[0%]">
               <VideoBtn
                 label="Message from One of Our Experts"
                 onClick={() => {
@@ -304,10 +275,10 @@ export default function MainBannerIg() {
                   openVideo();
                 }}
               />
-            </div>
+            </div> */}
 
             {/* زر 2 */}
-            <div className="absolute md:top-[32%] md:right-[2%] lg:top-[27%] lg:right-[0%]">
+            {/* <div className="absolute md:top-[32%] md:right-[2%] lg:top-[27%] lg:right-[0%]">
               <VideoBtn
                 label="Watch the Introductory Video"
                 onClick={() => {
@@ -315,10 +286,10 @@ export default function MainBannerIg() {
                   openVideo();
                 }}
               />
-            </div>
+            </div> */}
 
             {/* زر 3 (جديد) */}
-            <div className="absolute md:top-[40%] md:right-[2%] lg:top-[36%] lg:right-[0%]">
+            {/* <div className="absolute md:top-[40%] md:right-[2%] lg:top-[36%] lg:right-[0%]">
               <VideoBtn
                 label="Our Journey & Adventures"
                 onClick={() => {
@@ -326,11 +297,11 @@ export default function MainBannerIg() {
                   openVideo();
                 }}
               />
-            </div>
+            </div> */}
           </div>
 
           {/* === لوحة أزرار Responsive للموبايل (تحت الصورة) === */}
-          <div className="md:hidden mt-4 w-full max-w-md">
+          <div className="xl:hidden mt-4 w-full max-w-md">
             <div className="grid grid-cols-1 gap-3 px-2">
               <ToggleButtonSelector />
               <Button
@@ -339,9 +310,9 @@ export default function MainBannerIg() {
                 sx={{
                   color: "white",
                   fontWeight: "bold",
-                  fontSize: { xs: "18px", md: "25px" },
+                  fontSize: "23px",
                   px: 6,
-                  py: 1,
+                  py: 1.5,
                   transition: "all 0.2s ease",
                   "&:hover": {
                     bgcolor: "#45a049",
